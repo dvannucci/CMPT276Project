@@ -10,9 +10,6 @@ From the research that we have conducted creating our idea, we haven’t seen an
 Our project will be entertainment based, with an educational flare for users who wish to expand their musical horizons. Through this project not only will they have the opportunity to discover music but they will have another social media app apart from facebook, instagram, Linkedin etc to look forward to. Additionally during this pandemic, it will give users a chance to spend their time productively by not only connecting with people, but also learning a new skill. The target audience will mainly be musical enthusiasts, anyone from music lovers to your everyday radio listeners including us. Our projects usage will range from a hub for musical enthusiasts, to a social meet up for casual listeners.
 
 
-
-
-
 App Breakdown
 
 The app will have two main features. First main feature is the social media platform that allows users to interact with one another. Our application will have the ability to post videos or sound files of the user's own cover version, while also being able to rate sheet music based on difficulty for other users to benefit from. Since our app is social media based as well, it will have capabilities such as  liking posts, friending/following others, and linking to other social media.
