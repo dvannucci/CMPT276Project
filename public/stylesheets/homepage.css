@@ -4,16 +4,20 @@ body {
 }
 
 .nav {
+  position: relative;
+}
+
+.options {
   background-color: rgb(152,255,152);
   overflow: hidden;
   position: relative;
 }
 
-.nav a:hover {
+.options a:hover {
   background-color: rgb(50,50,50);
 }
 
-.nav a {
+.options a {
   text-decoration: none;
   color: black;
   text-align: center;
@@ -27,10 +31,10 @@ h3 {
   padding: 10px;
 }
 
-
 .centered a {
-  font-size: 30px;
-  float: none;
+  text-decoration: none;
+  color: black;
+  font-size: 35px;
   position: absolute;
   top: 50%;
   left: 50%;
