@@ -32,3 +32,5 @@ The user logs on to the website, and has a song in mind that they heard their fr
 Work Considerations
 
 Concerning the amount of work for this project, we believe that we will be fully occupied for the duration of the project life cycle. The challenging part will be fusing the two main features that are mentioned above. We also need to divide the work in a way that all team members are doing equal proportion of the work. We will also make sure all the team members are contributing towards the project by connecting with our team members every 2-3 days and tracking the progress of the project. In case any group member is found not doing his share of work, we’ll directly report to our professor to address the situation. Our group believes that the listed features will be more than enough for five members given the duration of the development phase. We will also try our best to make our web application better and better with every iteration.
+
+testing push
