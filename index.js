@@ -13,6 +13,10 @@ const storage = multer.diskStorage({
   }
 })
 
+const http = require('http').Server(express())
+const io = require('socket.io');
+const socket = io(http);
+
 const pictures = multer({storage: storage})
 
 const {Pool} = require('pg');
@@ -76,7 +80,9 @@ app = express()
   })
 
 
-
+  app.get('/chat', (req,res)=>{
+    res.render('pages/chat');
+  })
 
 
   .listen(PORT, () => console.log(`Listening on ${ PORT }`))

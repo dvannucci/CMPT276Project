@@ -1,0 +1,92 @@
+*{
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box;
+}
+.contactList{
+    text-align: center;
+    display: inline-block;
+    width:20%;
+    height: 100%;
+    border:solid black 1px;
+    position: fixed;
+    right: 0;
+}
+body{
+    font: 13px Helvetica, Arial;
+    height: 100vh;
+}
+form{
+    background: #fff; 
+    padding: 3px; 
+    position: fixed;
+    bottom: 0; 
+    width: 80%; 
+    border: solid black 1px;
+}
+form input{
+    border-style: solid; 
+    border-width: 1px; 
+    padding: 10px; 
+    width: 85%; 
+    margin-right: .5%;
+}
+form button{
+    width: 9%; 
+    color: whitesmoke;
+    background: darkgreen; 
+    border: none; 
+    padding: 10px; 
+    margin-left: 2%;
+    font-size: large;
+}
+#messages{
+    list-style-type: none; 
+    margin: 0; 
+    padding: 0;
+}
+#messages li{
+    padding: 5px 10px;
+}
+#messages li:nth-child(odd){
+    background: #eee;
+}
+.nav{
+    position: relative;
+}
+  
+
+
+.options{
+background-color: rgb(152,255,152);
+overflow: hidden;
+position: relative;
+}
+
+.options a:hover{
+background-color: rgb(50,50,50);
+}
+
+.options a{
+text-decoration: none;
+color: black;
+text-align: center;
+padding: 10px 20px;
+float: left;
+}
+
+h3{
+background-color: rgb(152,255,152);
+color: black;
+padding: 10px;
+}
+
+.centered a{
+text-decoration: none;
+color: black;
+font-size: 35px;
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+}
