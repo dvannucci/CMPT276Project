@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/stylesheets/pageStyle.css">
+    <title> <%= theUser.username %>'s Profile</title>
+  </head>
+  <body>
+
+    <div class="nav">
+
+      <div class="options">
+
+
+      <a href="/mypage">Home</a>
+      <a href="/mypage">Notifications</a>
+      <a href="/mypage">Messages</a>
+      <a href="/mypage">My Music</a>
+      <a href="/mypage" style="float:right"> <%= theUser.username %> </a>
+
+      </div>
+
+      <div class="centered">
+        <a href="/mypage">Museical</a>
+      </div>
+
+    </div>
+
+    <div class="info">
+
+      <img src="<%= theUser.profilepicture %> " alt="Can't find">
+
+      <h3>Your current profile picture</h3> <br>
+
+      <h4>If you would like to update your profile picture, select an image from your files below and click Submit.</h4>
+
+      <form action="/pictureChoose" method="post" enctype="multipart/form-data">
+        <input type="file" name="profilePicture">
+        <input type="submit" name="submit" value="submit">
+      </form>
+
+      <br> <br>
+
+      <h3> Your current username: <br> <%= theUser.username %> </h3>
+
+      <h4>If you wish to change your username, enter a new username below.</h4>
+
+      <form action="/usernameChange" method="post">
+        <input type="text" name="uname" maxlength="10" placeholder="new username"> <br> <br>
+        <input type="submit" name="submit" value="Change my username">
+      </form>
+
+    </div>
+
+    <div class="tabs floater">
+      <h3>Your Recent Activity</h3>
+    </div>
+
+    <div class="activity">
+      <h3>Nothing to share yet :(</h3>
+    </div>
+
+    <div class="tabs floater">
+      <h3>Your Friends Activity</h3>
+    </div>
+
+    <div class="activity">
+      <h3>No friends yet :(</h3>
+    </div>
+
+
+
+  </body>
+</html>
