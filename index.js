@@ -13,7 +13,16 @@ const storage = multer.diskStorage({
   }
 })
 
-const pictures = multer({storage: storage})
+const fileFilter = (req, file, func) => {
+  if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg'){
+    func(null, true)
+  }
+  else {
+    func(null, false)
+  }
+}
+
+const pictures = multer({storage: storage, fileFilter: fileFilter})
 
 const {Pool} = require('pg');
 var pool;
@@ -35,13 +44,21 @@ app = express()
   })
 
   app.get('/profile', (req, res) => {
+
+    if (req.query.valid == 'undefined' || req.query.valid == 'false'){
+      var alert = {'alert' : false}
+    }
+    else {
+      var alert = {'alert' : true}
+    }
+
     var allQuery = 'select * from users'
     pool.query(allQuery, (error, result) => {
       if (error)
         res.end(error)
-      var data = {'theUser': result.rows[0]}
+      var person = {'theUser': result.rows[0]}
 
-      res.render('pages/profile', data)
+      res.render('pages/profile', {person, alert})
     })
 
 
@@ -49,7 +66,14 @@ app = express()
 
   app.post('/pictureChoose', pictures.single('profilePicture'), (req, res) => {
 
-    var pictureUpdate = `update users set profilePicture = '${req.file.path}' where uid = 1`
+    var alert = true
+    if (!req.file){
+      var pictureUpdate = `update users set profilePicture = 'pictures/lang-logo.png' where uid = 1`
+      alert = false
+    }
+    else {
+      var pictureUpdate = `update users set profilePicture = '${req.file.path}' where uid = 1`
+    }
 
     pool.query(pictureUpdate, (error, result) => {
       if (error)
@@ -57,13 +81,11 @@ app = express()
     })
 
 
-    setTimeout(function(){res.redirect('/profile')}, 50)
+    setTimeout(function(){res.redirect('/profile?valid=' + alert )}, 50)
 
   })
 
   app.post('/usernameChange', (req, res) => {
-
-    console.log(req.body)
 
     var usernameChange = `update users set username = '${req.body.uname}' where uid = 1`
 
@@ -79,4 +101,4 @@ app = express()
 
 
 
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`))
+  app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
