@@ -32,6 +32,11 @@ pool = new Pool({
 
 app = express()
 
+//setup for socket.io
+const http = require('http').Server(express())
+const server = app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
+const io = require('socket.io').listen(server);
+
   app.use(express.json())
   app.use(express.urlencoded({extended:false}))
   app.use(express.static(path.join(__dirname, 'public')))
@@ -97,7 +102,14 @@ app = express()
     res.redirect('/profile')
   })
 
+  //link to chat page
+  app.get('/chat', (req,res)=>{
+    res.render('pages/chat');
+  })
 
+  io.on('connection', (socket)=>{
+    console.log('user connected');
+  });
 
 
 
