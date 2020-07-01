@@ -86,8 +86,11 @@ const io = require('socket.io').listen(server);
     res.render('pages/chat');
   })
 
-  io.on('connection', (socket)=>{
+  io.on('connection', (socket) => {
     console.log('user connected');
+    socket.on('disconnect', () => {
+      console.log('user disconnected');
+    });
   });
 
   //app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
