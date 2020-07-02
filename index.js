@@ -108,6 +108,16 @@ const io = require('socket.io').listen(server);
     res.render('pages/chat');
   })
 
-  io.on('connection', (socket)=>{
+  io.on('connection', (socket) => {
     console.log('user connected');
+
+    socket.on('disconnect', () => {
+      console.log('user disconnected');
+    });
+
+    socket.on("chat_message", (msg)=> {
+      console.log("message: "  +  msg);
+      //broadcast message to everyone in port:5000 except yourself.
+      socket.broadcast.emit("received", { message: msg  });
+    });
   });
