@@ -1,9 +1,9 @@
 const express = require('express')
 const path = require('path')
 const PORT = process.env.PORT || 5000
-
 const multer = require('multer')
 
+// Storgae destination for profile pictures, and the name of the picture.
 const storage = multer.diskStorage({
   destination: (req, file, func) => {
     func(null, './pictures/')
@@ -13,6 +13,7 @@ const storage = multer.diskStorage({
   }
 })
 
+// Only allowing jpeg or png files for profile pictures.
 const fileFilter = (req, file, func) => {
   if (file.mimetype === 'image/png' || file.mimetype === 'image/jpeg'){
     func(null, true)
@@ -22,6 +23,7 @@ const fileFilter = (req, file, func) => {
   }
 }
 
+// Adding the features outlined above to the multer object.
 const pictures = multer({storage: storage, fileFilter: fileFilter})
 
 const {Pool} = require('pg');
@@ -60,12 +62,11 @@ const io = require('socket.io').listen(server);
     var allQuery = 'select * from users'
     pool.query(allQuery, (error, result) => {
       if (error)
-        res.end(error)
+        res.send(error)
       var person = {'theUser': result.rows[0]}
 
       res.render('pages/profile', {person, alert})
     })
-
 
   })
 
@@ -77,14 +78,14 @@ const io = require('socket.io').listen(server);
       alert = false
     }
     else {
+      console.log("hey")
       var pictureUpdate = `update users set profilePicture = '${req.file.path}' where uid = 1`
     }
 
     pool.query(pictureUpdate, (error, result) => {
       if (error)
-        res.end(error)
+        res.send(error)
     })
-
 
     setTimeout(function(){res.redirect('/profile?valid=' + alert )}, 50)
 
@@ -96,7 +97,7 @@ const io = require('socket.io').listen(server);
 
     pool.query(usernameChange, (error, result) => {
       if(error)
-        res.end(error)
+        res.send(error)
     })
 
     res.redirect('/profile')
@@ -110,7 +111,3 @@ const io = require('socket.io').listen(server);
   io.on('connection', (socket)=>{
     console.log('user connected');
   });
-
-
-
-  app.listen(PORT, () => console.log(`Listening on ${ PORT }`))

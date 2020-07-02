@@ -14,9 +14,9 @@
 
       <a href="/mypage">Home</a>
       <a href="/mypage">Notifications</a>
-      <a href="/mypage">Messages</a>
+      <a href="/chat">Messages</a>
       <a href="/mypage">My Music</a>
-      <a href="/mypage" style="float:right"> <%= person.theUser.username %> </a>
+      <a href="/profile" style="float:right"> <%= person.theUser.username %> </a>
 
       </div>
 
@@ -39,11 +39,11 @@
         <input type="submit" name="submit" value="submit">
       </form>
 
-      <% console.log(alert.alert)  %>
+      <% if (!(alert.alert)){ %>
+        <h4 class="alert">The file you have chosen is neither a jpeg nor a png, your profile picture has been reset back to the default image.</h4>
+       <% } %>
 
-      <h4 class="alert">If the file you have chosen is neither a jpeg nor a png, your profile picture will be reset back to the default image.</h4>
-
-      <br> <br>
+      <br>
 
       <h3> Your current username: <br> <%= person.theUser.username %> </h3>
 
