@@ -105,11 +105,21 @@ const io = require('socket.io').listen(server);
 
   //link to chat page
   app.get('/chat', (req,res)=>{
-    res.render('pages/chat');
+    var getmessagesQuery = 'SELECT * FROM messages ORDER BY time ASC';
+    pool.query(getmessagesQuery, (error,result) => {
+      if (error)
+        res.end(error);
+      var results = {'mesInfo':result.rows}
+      res.render('pages/chat',results);
+    })
   })
 
   io.on('connection', (socket) => {
     console.log('user connected');
+    //temporary ask for username
+    socket.on('username', function(username) {
+      socket.username = username;
+    });
 
     socket.on('disconnect', () => {
       console.log('user disconnected');
@@ -120,11 +130,17 @@ const io = require('socket.io').listen(server);
       //broadcast message to everyone in port:5000 except yourself.
       socket.broadcast.emit("received", { message: msg  });
 
-      var sendmessageQuery = "INSERT INTO messages VALUES (default, 'john', '" + msg + "')";
-      pool.query(sendmessageQuery, (error,result)=> {
-        
+      var storemessageQuery = "INSERT INTO messages VALUES (default, '" + socket.username + "', " + "'" + msg + "')";
+      pool.query(storemessageQuery, (error,result)=> {
       })
 
+      socket.emit("chat_message", socket.username + " : " + msg)
 
+      // var getsentQuery = 'SELECT * FROM messages ORDER BY time DESC LIMIT 1';
+      // pool.query(getsentQuery, (error,result) => {
+      //   var results = {'mesInfo':result.rows[0]}
+      //   var processedMsg = results.mesInfo.sender + " : " + results.mesInfo.message;
+      //   socket.emit("chat_message", processedMsg);
+      // })
     });
   });

@@ -12,36 +12,52 @@
                 <a href="/mypage">Notifications</a>
                 <a href="/chat">Messages</a>
                 <a href="/mypage">My Music</a>
-                <a href="/profile" style="float:right">Name</a>
+                <a href="/mypage" style="float:right">Name</a>
             </div>
             <div class="centered">
                 <a href="/mypage">Museical</a>
             </div>
         </div>
-
+        
         <div class="contactList">
             <h2>Contacts</h2>
             <ul></ul>
         </div>
 
         <div class="container"></div>
-            <ul id="messages"></ul>
-            <form action="/" method="POST" id="chatForm">
-            <input id="text" autocomplete="off" autofocus="on" placeholder="type a message..." /><button>Send</button>
+            <ul id="messages">
+                <% mesInfo.forEach(function(msg) { %>
+                    <li><%= msg.sender %> : <%= msg.message %></li>
+                <% }); %>
+            </ul>
+            <form action="" id="chatForm">
+            <input id="txt" autocomplete="off" autofocus="on" placeholder="type a message..." / required><button>Send</button>
             </form>
             <script>
-                // submit text message without reload/refresh the page
-                $('form').submit((evt)=>{
-                    evt.preventDefault(); // prevents page reloading
-                    socket.emit('chat_message', $('#text').val());
-                    $('#text').val('');
-                    return true;
-                });
+                $(function() {
+                    var socket = io();
+                    // submit text message without reload/refresh the page
+                    $('form').submit(function(evt){
+                        evt.preventDefault(); // prevents page reloading
+                        socket.emit('chat_message', $('#txt').val());
+                        $('#txt').val('');
+                        return false;
+                    });
+                    socket.on('chat_message', function(msg){    
+                        $('#messages').append($('<li>').text(msg));
+                    });
+
+                    // ask username
+                    var username = prompt('Please tell me your name');
+                    socket.emit('username', username);
+                    });
+
+                    // append text if someone is online
+                    socket.on('is_online', function(username) {
+                    $('#messages').append($('<li>').html(username));
+                    });
             </script>
             <script src="/socket.io/socket.io.js"></script>
-            <script>
-              var socket = io();
-            </script>
         </div>
     </body>
     </html>
