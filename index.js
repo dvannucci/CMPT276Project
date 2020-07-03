@@ -119,5 +119,12 @@ const io = require('socket.io').listen(server);
       console.log("message: "  +  msg);
       //broadcast message to everyone in port:5000 except yourself.
       socket.broadcast.emit("received", { message: msg  });
+
+      var sendmessageQuery = "INSERT INTO messages VALUES (default, 'john', '" + msg + "')";
+      pool.query(sendmessageQuery, (error,result)=> {
+        
+      })
+
+
     });
   });
