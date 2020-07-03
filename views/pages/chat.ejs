@@ -34,28 +34,30 @@
             <input id="txt" autocomplete="off" autofocus="on" placeholder="type a message..." / required><button>Send</button>
             </form>
             <script>
-                $(function() {
+                $(()=> {
                     var socket = io();
                     // submit text message without reload/refresh the page
-                    $('form').submit(function(evt){
+                    $('form').submit((evt)=>{
                         evt.preventDefault(); // prevents page reloading
                         socket.emit('chat_message', $('#txt').val());
                         $('#txt').val('');
                         return false;
                     });
-                    socket.on('chat_message', function(msg){    
+                    socket.on('chat_message', (msg)=>{    
                         $('#messages').append($('<li>').text(msg));
                     });
 
                     // ask username
                     var username = prompt('Please tell me your name');
                     socket.emit('username', username);
+
+                    //show messages send by other users
+                    socket.on("received", (msg) => {
+                        $('#messages').append($('<li>').text(msg));
                     });
 
-                    // append text if someone is online
-                    socket.on('is_online', function(username) {
-                    $('#messages').append($('<li>').html(username));
-                    });
+                });
+
             </script>
             <script src="/socket.io/socket.io.js"></script>
         </div>
