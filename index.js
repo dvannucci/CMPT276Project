@@ -69,6 +69,27 @@ const io = require('socket.io').listen(server);
     })
 
   })
+  app.post('/register',async (req,res)=> {
+    var name=req.body.my_name;
+    var email=req.body.my_email.toLowerCase();
+    var password1=req.body.my_password1;
+    var password2=req.body.my_password2;
+
+    if(password1!=password2){
+      res.send("Password didn't match.Try again!!")
+    }
+    else{
+    const client = await pool.connect();
+    try{
+    var insertQuery=`INSERT INTO Customer(id,name,email,password) VALUES(DEFAULT,'${name}','${email}','${password2}')`;
+    const result = await client.query(insertQuery);
+         client.release();
+       } catch (err) {
+         console.error(err);
+         res.send("User has alraedy register with this email id. So please use differnt email id" + err);
+       }
+        res.send(`Thanks for submitting application`);}
+      });
 
   app.post('/pictureChoose', pictures.single('profilePicture'), (req, res) => {
 
