@@ -126,7 +126,6 @@ const io = require('socket.io').listen(server);
     });
 
     socket.on("chat_message", (msg)=> {
-      console.log("message: "  +  msg);
       //broadcast message to everyone in port:5000 except yourself.
       socket.broadcast.emit("received", socket.username + " : " + msg);
 

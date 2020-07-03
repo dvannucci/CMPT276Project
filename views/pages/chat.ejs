@@ -27,7 +27,7 @@
         <div class="container"></div>
             <ul id="messages">
                 <% mesInfo.forEach(function(msg) { %>
-                    <li><%= msg.sender %> : <%= msg.message %></li>
+                    <li class= "<%= msg.sender %>"><%= msg.sender %> : <%= msg.message %></li>
                 <% }); %>
             </ul>
             <form action="" id="chatForm">
@@ -43,19 +43,26 @@
                         $('#txt').val('');
                         return false;
                     });
+
+                    //show messages sent by you
                     socket.on('chat_message', (msg)=>{    
                         $('#messages').append($('<li>').text(msg));
+                        document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
                     });
 
-                    // ask username
+                    // temporary manual username input
                     var username = prompt('Please tell me your name');
                     socket.emit('username', username);
 
                     //show messages send by other users
                     socket.on("received", (msg) => {
                         $('#messages').append($('<li>').text(msg));
+                        document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
                     });
 
+                    window.onload = () => {
+                        document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+                    }
                 });
 
             </script>
