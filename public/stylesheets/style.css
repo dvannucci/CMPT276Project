@@ -1,0 +1,18 @@
+.Magenta{
+  font-size: 40pt;
+  font-style: italic;
+  text-align: center;
+  text-decoration-color: Red;
+  text-shadow: 20px 20px 10px rgba(0,0,0,0.5);
+  font-weight: bold;
+}
+body{
+  background-color: Azure;
+ font-family: Arial;
+}
+.roy{
+  font-size: 20pt;
+  font-style: italic;
+  font-stretch: ultra-expanded;
+
+}
