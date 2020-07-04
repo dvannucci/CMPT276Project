@@ -46,8 +46,9 @@
 
                     //show messages sent by you
                     socket.on('chat_message', (msg)=>{    
-                        $('#messages').append($('<li>').text(msg));
+                        $('#messages').append($("<li class='"+username+"'>").text(msg));
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+                        recolor()
                     });
 
                     // temporary manual username input
@@ -56,12 +57,20 @@
 
                     //show messages send by other users
                     socket.on("received", (msg) => {
-                        $('#messages').append($('<li>').text(msg));
+                        $('#messages').append($("<li class='"+username+"'>").text(msg));
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
                     });
 
                     window.onload = () => {
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+                        recolor();
+                    }
+
+                    function recolor(){
+                        var sent = document.getElementsByClassName(username);
+                        for (var i = 0; i < sent.length; i++){
+                            sent[i].style.backgroundColor = 'lightblue';
+                        }
                     }
                 });
 
