@@ -92,24 +92,26 @@ const io = require('socket.io').listen(server);
       });
 
       app.post('/mypage',async (req,res)=> {
-        var uemail=req.body.myemail;
-        var upassword=req.body.mypassword;
-        const client = await pool.connect();
-        var selectQuery=`SELECT email,password FROM Customer WHERE email='${uemail}'`;
-             pool.query(selectQuery,(error,result) =>{
+      var uemail=req.body.myemail;
+      var upassword=req.body.mypassword;
+      const client = await pool.connect();
+      var selectQuery=`SELECT email,password FROM Customer WHERE email='${uemail}'`;
+           pool.query(selectQuery,(error,result) =>{
 
-               var results ={'rows': result.rows}
-               /*if(results.rows[0].email!=uemail){
-                 res.send("Please register before Login");
-               }*/
-               if(results.rows[0].email==uemail && results.rows[0].password==upassword){
-                 res.send("Welcome to page");
-               }
-               else{
-                 res.send("You have entered wrong password ");
-               }
-             })
-    });
+             var results ={'rows': result.rows}
+             /*if(results.rows[0].email!=uemail){
+               res.send("Please register before Login");
+             }*/
+             if(results.rows[0].email==uemail && results.rows[0].password==upassword){
+               res.render('pages/userHomepage');
+             }
+             else{
+               res.send("You have entered wrong password ");
+             }
+
+           })
+
+  });
 
   app.post('/pictureChoose', pictures.single('profilePicture'), (req, res) => {
 
