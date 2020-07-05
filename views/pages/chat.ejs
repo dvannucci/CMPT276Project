@@ -27,7 +27,8 @@
         <div class="container"></div>
             <ul id="messages">
                 <% mesInfo.forEach(function(msg) { %>
-                    <li class= "<%= msg.sender %>"><%= msg.sender %> : <%= msg.message %></li>
+                    <li class= "<%= msg.sender %>"><%= msg.message %></li> <br>
+                    <span>sent by <%= msg.sender %></span> <br>
                 <% }); %>
             </ul>
             <form action="" id="chatForm">
@@ -45,9 +46,13 @@
                     });
 
                     //show messages sent by you
-                    socket.on('chat_message', (msg)=>{
-                        $('#messages').append($('<li>').text(msg));
+                    socket.on('chat_message', (info)=>{
+                        $('#messages').append($("<li class='"+username+"'>").text(info.message));
+                        $('#messages').append($("<br>"));
+                        $('#messages').append($("<span>").text("sent by " +info.name));
+                        $('#messages').append($("<br>"));
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+                        recolor()
                     });
 
                     // temporary manual username input
@@ -55,13 +60,24 @@
                     socket.emit('username', username);
 
                     //show messages send by other users
-                    socket.on("received", (msg) => {
-                        $('#messages').append($('<li>').text(msg));
+                    socket.on("received", (info) => {
+                        $('#messages').append($("<li class='"+username+"'>").text(info.message));
+                        $('#messages').append($("<br>"));
+                        $('#messages').append($("<span>").text("sent by " +info.name));
+                        $('#messages').append($("<br>"));
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
                     });
 
                     window.onload = () => {
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+                        recolor();
+                    }
+
+                    function recolor(){
+                        var sent = document.getElementsByClassName(username);
+                        for (var i = 0; i < sent.length; i++){
+                            sent[i].style.backgroundColor = 'lightblue';
+                        }
                     }
                 });
 

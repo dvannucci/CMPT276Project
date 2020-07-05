@@ -181,7 +181,7 @@ const io = require('socket.io').listen(server);
   io.on('connection', (socket) => {
     console.log('user connected');
     //temporary ask for username
-    socket.on('username', function(username) {
+    socket.on('username', (username)=> {
       socket.username = username;
     });
 
@@ -191,13 +191,13 @@ const io = require('socket.io').listen(server);
 
     socket.on("chat_message", (msg)=> {
       //broadcast message to everyone in port:5000 except yourself.
-      socket.broadcast.emit("received", socket.username + " : " + msg);
+      socket.broadcast.emit("received", {name: socket.username , message: msg });
 
       var storemessageQuery = "INSERT INTO messages VALUES (default, '" + socket.username + "', " + "'" + msg + "')";
       pool.query(storemessageQuery, (error,result)=> {
       })
 
-      socket.emit("chat_message", socket.username + " : " + msg)
+      socket.emit("chat_message", {name: socket.username , message: msg });
 
       // var getsentQuery = 'SELECT * FROM messages ORDER BY time DESC LIMIT 1';
       // pool.query(getsentQuery, (error,result) => {

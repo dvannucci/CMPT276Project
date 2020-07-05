@@ -48,13 +48,26 @@ form button{
     list-style-type: none; 
     margin: 0; 
     padding: 0;
-    overflow: scroll;
+    overflow-y: scroll;
     width: 80%;
-    height: 91%;
+    height: 90%;
 }
 #messages li{
     padding: 5px 10px;
+    background-color: lightgreen;
+    border-radius: 15px 15px 15px 15px;
+    display: inline-block;
+    font-size: 1.2em;
+    margin-left: 7px;
+    margin-top: 10px;
+    max-width: 98%;
+    overflow-wrap: break-word;
 }
+
+span{
+    margin-left: 15px;
+}
+
 .nav{
     position: relative;
 }
