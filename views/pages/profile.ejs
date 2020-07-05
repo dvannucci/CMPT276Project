@@ -39,7 +39,7 @@
         <input type="submit" name="submit" value="submit">
       </form>
 
-      <% if (!(alert.alert)){ %>
+      <% if (alert.alert == 'pic'){ %>
         <h4 class="alert">The file you have chosen is neither a jpeg nor a png, your profile picture has been reset back to the default image.</h4>
        <% } %>
 
@@ -53,6 +53,10 @@
         <input type="text" name="uname" maxlength="10" placeholder="new username"> <br> <br>
         <input type="submit" name="submit" value="Change my username">
       </form>
+
+      <% if (alert.alert == 'uname'){ %>
+        <h4 class="alert">The username you have chosen is already in use. Your username has not been changed.</h4>
+       <% } %>
 
     </div>
 

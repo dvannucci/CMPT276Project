@@ -70,11 +70,16 @@ const io = require('socket.io').listen(server);
   // Each users personal profile which can be accessed by clicking the users name in the top right corner of the navigaiton bar.
   app.get('/profile/:id', (req, res) => {
 
-    if (req.query.valid == 'undefined' || req.query.valid == 'false'){
-      var alert = {'alert' : false}
+    if (req.query.valid == 'false'){
+      if (req.query.field == 'pic'){
+        var alert = {'alert' : 'pic'}
+      }
+      else{
+        var alert = {'alert' : 'uname'}
+      }
     }
     else {
-      var alert = {'alert' : true}
+      var alert = {'alert' : false}
     }
 
     var allQuery = `select * from users where id = ${req.params.id}`
@@ -102,7 +107,7 @@ const io = require('socket.io').listen(server);
     else{
     const client = await pool.connect();
     try{
-    var insertQuery=`INSERT INTO Customer(id,name,email,password) VALUES(DEFAULT,'${name}','${email}','${password2}')`;
+    var insertQuery=`INSERT INTO users(id,name,email,password) VALUES(DEFAULT,'${name}','${email}','${password2}')`;
     const result = await client.query(insertQuery);
          client.release();
        } catch (err) {
@@ -136,35 +141,53 @@ const io = require('socket.io').listen(server);
   // This function updates the users profile picture. If the picture is valid it will change, if not, and error will be sent.
   app.post('/pictureChoose/:id', pictures.single('profilePicture'), async (req, res) => {
 
-    var alert = true
+    var valid = true
     if (!req.file){
-      var pictureUpdate = `update users set picture = '/pictures/lang-logo.png' where id = 1`
-      alert = false
+      var pictureUpdate = `update users set picture = '/pictures/lang-logo.png' where id = ${req.params.id}`
+      valid = false
     }
     else {
-      var pictureUpdate = `update users set picture = '/${req.file.path}' where id = 1`
+      var pictureUpdate = `update users set picture = '/${req.file.path}' where id = ${req.params.id}`
     }
 
-    pool.query(pictureUpdate, (error, result) => {
-      if (error)
-        res.send(error)
-    })
+    const client = await pool.connect()
+    try {
+      const result = await client.query(pictureUpdate)
+      client.release()
+    } catch (err){
+      res.send(err)
+    }
 
-    res.redirect('/profile/' + req.params.id + '?valid=' + alert )
+    res.redirect('/profile/' + req.params.id + '?valid=' + valid + '&field=pic')
 
   })
 
   // Similar to the /pictureChoose function, this allows the user to change their username if they wish.
-  app.post('/usernameChange/:id', (req, res) => {
+  app.post('/usernameChange/:id', async (req, res) => {
 
-    var usernameChange = `update users set username = '${req.body.uname}' where id = 1`
+    var checkDatabase = `select * from users where username = '${req.body.uname}'`
 
-    pool.query(usernameChange, (error, result) => {
+    pool.query(checkDatabase, (error, result) => {
       if(error)
         res.send(error)
+
+      if((result.rows).length){
+        res.redirect('/profile/' + `${req.params.id}` + '?valid=' + false + '&field=uname')
+      }
     })
 
-    res.redirect('/profile/' + `${req.params.id}`)
+    var usernameChange = `update users set username = '${req.body.uname}' where id = ${req.params.id}`
+
+    const client = await pool.connect()
+    try {
+      const result = await client.query(usernameChange)
+      client.release()
+    } catch (err){
+      res.send(err)
+    }
+
+    res.redirect('/profile/' + `${req.params.id}` + '?valid=' + true)
+
   })
 
   //link to chat page
