@@ -128,7 +128,7 @@ const io = require('socket.io').listen(server);
              res.redirect('/home/' + results.rows[0].id )
            }
            else{
-             res.render('pages/wrongpassword');
+             res.render('pages/wrongpassword');  // After user enters wrong password they will get rendered to this page
            }
          })
       });
