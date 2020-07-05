@@ -45,12 +45,30 @@ const io = require('socket.io').listen(server);
   app.use('/pictures', express.static('pictures'))
   app.set('views', path.join(__dirname, 'views'))
   app.set('view engine', 'ejs')
-  app.get('/', (req, res) => res.render('pages/index'))
-  app.get('/myPage', (req, res) => {
-    res.render('pages/userHomepage')
+
+  // Takes you to the login page whenever the app is opened.
+  app.get('/', (req, res) => res.sendFile(__dirname + '/public/Login.html'))
+
+  // Takes you to the registration page when the user clicks register from the login page.
+  app.get('/register', (req,res) => {
+    res.sendFile(__dirname + '/public/Register.html')
   })
 
-  app.get('/profile', (req, res) => {
+  // The homepage for every user, customized to their personal info.
+  app.get('/home/:id', (req, res) => {
+    var userPageQuery = `select * from users where id = ${req.params.id}`;
+
+    pool.query(userPageQuery, (error, result) => {
+      if(error)
+        res.send(error)
+
+      res.render('pages/userHomepage', result.rows[0])
+    })
+
+  })
+
+  // Each users personal profile which can be accessed by clicking the users name in the top right corner of the navigaiton bar.
+  app.get('/profile/:id', (req, res) => {
 
     if (req.query.valid == 'undefined' || req.query.valid == 'false'){
       var alert = {'alert' : false}
@@ -59,24 +77,27 @@ const io = require('socket.io').listen(server);
       var alert = {'alert' : true}
     }
 
-    var allQuery = 'select * from users'
+    var allQuery = `select * from users where id = ${req.params.id}`
     pool.query(allQuery, (error, result) => {
-      if (error)
+      if(error)
         res.send(error)
-      var person = {'theUser': result.rows[0]}
 
-      res.render('pages/profile', {person, alert})
+      var data = result.rows[0]
+
+      res.render('pages/profile', {data, alert} )
     })
 
   })
-  app.post('/register',async (req,res)=> {
+
+  // The registration page that users will be directed to when they click the link on the login page to make an account.
+  app.post('/registration',async (req,res)=> {
     var name=req.body.my_name;
     var email=req.body.my_email.toLowerCase();
     var password1=req.body.my_password1;
     var password2=req.body.my_password2;
 
     if(password1!=password2){
-      res.send("Password didn't match.Try again!!")
+      res.send("Passwords didn't match. Try again!!")
     }
     else{
     const client = await pool.connect();
@@ -86,41 +107,42 @@ const io = require('socket.io').listen(server);
          client.release();
        } catch (err) {
          console.error(err);
-         res.send("User has alraedy register with this email id. So please use differnt email id" + err);
+         res.send("User has already registered with this email. Please use differnt email address" + err);
        }
         res.send(`Thanks for submitting application`);}
       });
 
-      app.post('/mypage',async (req,res)=> {
-        var uemail=req.body.myemail;
-        var upassword=req.body.mypassword;
-        const client = await pool.connect();
-        var selectQuery=`SELECT email,password FROM Customer WHERE email='${uemail}'`;
-             pool.query(selectQuery,(error,result) =>{
+  // This function accepts the login details from the user, and checks if they are in the database. If they are, it brings them to their homepage, if not, it sends an error message.
+  app.post('/authentification',async (req,res)=> {
+    var username=req.body.username;
+    var upassword=req.body.mypassword;
+    const client = await pool.connect();
+    var selectQuery= `SELECT id, username, password FROM users WHERE username='${username}'`;
+         pool.query(selectQuery,(error,result) =>{
 
-               var results ={'rows': result.rows}
-               /*if(results.rows[0].email!=uemail){
-                 res.send("Please register before Login");
-               }*/
-               if(results.rows[0].email==uemail && results.rows[0].password==upassword){
-                 res.send("Welcome to page");
-               }
-               else{
-                 res.send("You have entered wrong password ");
-               }
-             })
-    });
+           var results = {'rows': result.rows}
+           /*if(results.rows[0].email!=uemail){
+             res.send("Please register before Login");
+           }*/
+           if(results.rows[0].username==username && results.rows[0].password==upassword){
+             res.redirect('/home/' + results.rows[0].id )
+           }
+           else{
+             res.send("You have entered wrong password ");
+           }
+         })
+      });
 
-  app.post('/pictureChoose', pictures.single('profilePicture'), (req, res) => {
+  // This function updates the users profile picture. If the picture is valid it will change, if not, and error will be sent.
+  app.post('/pictureChoose/:id', pictures.single('profilePicture'), async (req, res) => {
 
     var alert = true
     if (!req.file){
-      var pictureUpdate = `update users set profilePicture = 'pictures/lang-logo.png' where uid = 1`
+      var pictureUpdate = `update users set picture = '/pictures/lang-logo.png' where id = 1`
       alert = false
     }
     else {
-      console.log("hey")
-      var pictureUpdate = `update users set profilePicture = '${req.file.path}' where uid = 1`
+      var pictureUpdate = `update users set picture = '/${req.file.path}' where id = 1`
     }
 
     pool.query(pictureUpdate, (error, result) => {
@@ -128,20 +150,21 @@ const io = require('socket.io').listen(server);
         res.send(error)
     })
 
-    setTimeout(function(){res.redirect('/profile?valid=' + alert )}, 50)
+    res.redirect('/profile/' + req.params.id + '?valid=' + alert )
 
   })
 
-  app.post('/usernameChange', (req, res) => {
+  // Similar to the /pictureChoose function, this allows the user to change their username if they wish.
+  app.post('/usernameChange/:id', (req, res) => {
 
-    var usernameChange = `update users set username = '${req.body.uname}' where uid = 1`
+    var usernameChange = `update users set username = '${req.body.uname}' where id = 1`
 
     pool.query(usernameChange, (error, result) => {
       if(error)
         res.send(error)
     })
 
-    res.redirect('/profile')
+    res.redirect('/profile/' + `${req.params.id}`)
   })
 
   //link to chat page

@@ -1,0 +1,1 @@
+Create table users(id SERIAL, username varchar(30) UNIQUE NOT NULL, email varchar(50) UNIQUE NOT NULL, password varchar(30) NOT NULL, picture varchar(100) DEFAULT '/pictures/lang-logo.png' );

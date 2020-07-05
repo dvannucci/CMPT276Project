@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="/stylesheets/pageStyle.css">
-    <title> <%= person.theUser.username %>'s Profile</title>
+    <title> <%= data.username %>'s Profile</title>
   </head>
   <body>
 
@@ -12,29 +12,29 @@
       <div class="options">
 
 
-      <a href="/mypage">Home</a>
-      <a href="/mypage">Notifications</a>
+      <a href="/home/<%= data.id %>">Home</a>
+      <a href="/home/<%= data.id %>">Notifications</a>
       <a href="/chat">Messages</a>
-      <a href="/mypage">My Music</a>
-      <a href="/profile" style="float:right"> <%= person.theUser.username %> </a>
+      <a href="/home/<%= data.id %>">My Music</a>
+      <a href= "/profile/<%= data.id %>" style="float:right"> <%= data.username %> </a>
 
       </div>
 
       <div class="centered">
-        <a href="/mypage">Museical</a>
+        <a href="/home/<%= data.id %>">Museical</a>
       </div>
 
     </div>
 
     <div class="info">
 
-      <img src="<%= person.theUser.profilepicture %> " alt="Can't display your image">
+      <img src=" <%= data.picture %> " alt="Can't display your image">
 
       <h3>Your current profile picture</h3> <br>
 
       <h4>If you would like to update your profile picture, select an image from your files below and click Submit.</h4>
 
-      <form action="/pictureChoose" method="post" enctype="multipart/form-data">
+      <form action="/pictureChoose/<%= data.id %>" method="post" enctype="multipart/form-data">
         <input type="file" name="profilePicture">
         <input type="submit" name="submit" value="submit">
       </form>
@@ -45,11 +45,11 @@
 
       <br>
 
-      <h3> Your current username: <br> <%= person.theUser.username %> </h3>
+      <h3> Your current username: <br> <%= data.username %> </h3>
 
       <h4>If you wish to change your username, enter a new username below.</h4>
 
-      <form action="/usernameChange" method="post">
+      <form action="/usernameChange/<%= data.id %>" method="post">
         <input type="text" name="uname" maxlength="10" placeholder="new username"> <br> <br>
         <input type="submit" name="submit" value="Change my username">
       </form>
