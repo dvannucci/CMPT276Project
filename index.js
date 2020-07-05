@@ -124,12 +124,14 @@ const io = require('socket.io').listen(server);
            if(Object.keys(results.rows).length===0 ){
              res.render('pages/Login');
            }
+           else{
            if(results.rows[0].username==username && results.rows[0].password==upassword){
              res.redirect('/home/' + results.rows[0].id )
            }
            else{
              res.render('pages/wrongpassword');  // After user enters wrong password they will get rendered to this page
            }
+         }
          })
       });
 
