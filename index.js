@@ -121,14 +121,14 @@ const io = require('socket.io').listen(server);
          pool.query(selectQuery,(error,result) =>{
 
            var results = {'rows': result.rows}
-           /*if(results.rows[0].email!=uemail){
-             res.send("Please register before Login");
-           }*/
+           if(Object.keys(results.rows).length===0 ){
+             res.render('pages/Login');
+           }
            if(results.rows[0].username==username && results.rows[0].password==upassword){
              res.redirect('/home/' + results.rows[0].id )
            }
            else{
-             res.send("You have entered wrong password ");
+             res.render('pages/wrongpassword');
            }
          })
       });
