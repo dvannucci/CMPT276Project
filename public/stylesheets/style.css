@@ -2,13 +2,14 @@
   font-size: 40pt;
   font-style: italic;
   text-align: center;
-  text-decoration-color: Red;
+  color: blue;
   text-shadow: 20px 20px 10px rgba(0,0,0,0.5);
   font-weight: bold;
+  background-color: Cyan;
 }
 body{
-  background-color: Azure;
- font-family: Arial;
+  background-color: Aquamarine;
+
 }
 .roy{
   font-size: 20pt;
@@ -19,3 +20,21 @@ body{
 .username {
   display: none;
 }
+.qwerty{
+display: flex;
+align-items: center;
+justify-content: center;
+ background-color: Azure;
+}
+.rat{
+  text-align: center;
+}
+.bottom{
+  text-align:right ;
+  padding: 3px;
+  color: black;
+  position: fixed;
+  bottom: 0;
+
+}
+.

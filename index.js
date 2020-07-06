@@ -193,20 +193,24 @@ const io = require('socket.io').listen(server);
   })
 
   //link to chat page
-  app.get('/chat', (req,res)=>{
-    var getmessagesQuery = 'SELECT * FROM messages ORDER BY time ASC';
+  app.get('/chat/:uname/:chatID', (req,res)=>{
+    var uname =req.params.uname;
+    var chatID = req.params.chatID;
+    var getmessagesQuery = "SELECT * FROM messages where chatID = " + chatID + "ORDER BY time ASC; SELECT * FROM chats WHERE '" + uname +  "'= any(participants); SELECT * FROM users WHERE username = '" + uname + "'";
     pool.query(getmessagesQuery, (error,result) => {
       if (error)
         res.end(error);
-      var results = {'mesInfo':result.rows}
-      res.render('pages/chat',results);
+      var mesData= {'mesInfo':result[0].rows,'chatInfo':result[1].rows, 'data':result[2].rows[0]}
+      res.render('pages/chat',mesData);
     })
   })
 
   io.on('connection', (socket) => {
     console.log('user connected');
-    //temporary ask for username
+
+     //temporary ask for username
     socket.on('username', (username)=> {
+      console.log(username);
       socket.username = username;
     });
 
@@ -218,17 +222,10 @@ const io = require('socket.io').listen(server);
       //broadcast message to everyone in port:5000 except yourself.
       socket.broadcast.emit("received", {name: socket.username , message: msg });
 
-      var storemessageQuery = "INSERT INTO messages VALUES (default, '" + socket.username + "', " + "'" + msg + "')";
+      var storemessageQuery = "INSERT INTO messages VALUES (1, default, '" + socket.username + "', " + "'" + msg + "')";
       pool.query(storemessageQuery, (error,result)=> {
       })
 
       socket.emit("chat_message", {name: socket.username , message: msg });
-
-      // var getsentQuery = 'SELECT * FROM messages ORDER BY time DESC LIMIT 1';
-      // pool.query(getsentQuery, (error,result) => {
-      //   var results = {'mesInfo':result.rows[0]}
-      //   var processedMsg = results.mesInfo.sender + " : " + results.mesInfo.message;
-      //   socket.emit("chat_message", processedMsg);
-      // })
     });
   });
