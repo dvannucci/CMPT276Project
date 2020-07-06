@@ -23,7 +23,7 @@
             <h2>Contacts</h2>
             <ul id="chatlist">
                 <% chatInfo.forEach(function(chats) { %>
-                    <%= chats.name %> <br>
+                    <a href="/chat/<%= data.username %>/<%= chats.chatid %>"><%= chats.name %></a> <br>
                 <% }); %>
             </ul>
         </div>

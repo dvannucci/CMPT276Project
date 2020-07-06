@@ -210,7 +210,6 @@ const io = require('socket.io').listen(server);
 
      //temporary ask for username
     socket.on('username', (username)=> {
-      console.log(username);
       socket.username = username;
     });
 
