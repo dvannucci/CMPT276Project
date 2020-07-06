@@ -16,3 +16,6 @@ body{
   font-stretch: ultra-expanded;
 
 }
+.username {
+  display: none;
+}

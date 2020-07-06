@@ -51,7 +51,7 @@ const io = require('socket.io').listen(server);
 
   // Takes you to the registration page when the user clicks register from the login page.
   app.get('/register', (req,res) => {
-    res.sendFile(__dirname + '/public/Register.html')
+    res.render('pages/Register')
   })
 
   // The homepage for every user, customized to their personal info.
@@ -96,7 +96,7 @@ const io = require('socket.io').listen(server);
 
   // The registration page that users will be directed to when they click the link on the login page to make an account.
   app.post('/registration',async (req,res)=> {
-    var name=req.body.my_name;
+    var uname=req.body.my_username;
     var email=req.body.my_email.toLowerCase();
     var password1=req.body.my_password1;
     var password2=req.body.my_password2;
