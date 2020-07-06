@@ -196,11 +196,15 @@ const io = require('socket.io').listen(server);
   app.get('/chat/:uname/:chatID', (req,res)=>{
     var uname =req.params.uname;
     var chatID = req.params.chatID;
-    var getmessagesQuery = "SELECT * FROM messages where chatID = " + chatID + "ORDER BY time ASC; SELECT * FROM chats WHERE '" + uname +  "'= any(participants); SELECT * FROM users WHERE username = '" + uname + "'";
+    var getmessagesQuery = "SELECT * FROM messages where chatID = " + chatID + "ORDER BY time ASC;"
+    + "SELECT * FROM chats WHERE '" + uname +  "'= any(participants);"
+    + "SELECT * FROM users WHERE username = '" + uname + "';"
+    + "SELECT * FROM chats WHERE chatID = " + chatID;
+
     pool.query(getmessagesQuery, (error,result) => {
       if (error)
         res.end(error);
-      var mesData= {'mesInfo':result[0].rows,'chatInfo':result[1].rows, 'data':result[2].rows[0]}
+      var mesData= {'mesInfo':result[0].rows,'chatInfo':result[1].rows, 'data':result[2].rows[0], 'currentchat':result[3].rows[0]}
       res.render('pages/chat',mesData);
     })
   })
@@ -217,14 +221,14 @@ const io = require('socket.io').listen(server);
       console.log('user disconnected');
     });
 
-    socket.on("chat_message", (msg)=> {
+    socket.on("chat_message", (info)=> {
       //broadcast message to everyone in port:5000 except yourself.
-      socket.broadcast.emit("received", {name: socket.username , message: msg });
+      socket.broadcast.emit("received", {name: socket.username , message: info.msg });
 
-      var storemessageQuery = "INSERT INTO messages VALUES (1, default, '" + socket.username + "', " + "'" + msg + "')";
+      var storemessageQuery = "INSERT INTO messages VALUES (" + info.chatID + ", default, '" + socket.username + "', " + "'" + info.msg + "')";
       pool.query(storemessageQuery, (error,result)=> {
       })
 
-      socket.emit("chat_message", {name: socket.username , message: msg });
+      socket.emit("chat_message", {name: socket.username , message: info.msg });
     });
   });
