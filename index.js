@@ -171,12 +171,12 @@ const io = require('socket.io').listen(server);
 
   //link to chat page
   app.get('/chat', (req,res)=>{
-    var getmessagesQuery = 'SELECT * FROM messages ORDER BY time ASC';
+    var getmessagesQuery = "SELECT * FROM messages where chatID = 0 ORDER BY time ASC; SELECT * FROM chats WHERE 'john' = any(participants)";
     pool.query(getmessagesQuery, (error,result) => {
       if (error)
         res.end(error);
-      var results = {'mesInfo':result.rows}
-      res.render('pages/chat',results);
+      var mesData= {'mesInfo':result[0].rows,'chatInfo':result[1].rows}
+      res.render('pages/chat',mesData);
     })
   })
 

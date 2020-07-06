@@ -21,7 +21,11 @@
 
         <div class="contactList">
             <h2>Contacts</h2>
-            <ul></ul>
+            <ul id="chatlist">
+                <% chatInfo.forEach(function(chats) { %>
+                    <%= chats.name %>
+                <% }); %>
+            </ul>
         </div>
 
         <div class="container"></div>
