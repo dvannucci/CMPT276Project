@@ -41,12 +41,12 @@
             <form class="windowcontent" action="" method="post" id="addform">
               <div class="container3">
                 <h1>Add User</h1>
-                <p>Please enter the username of the person you would like to add to the chat. <br> <br></p>
-                <input id="adduserinput" name ="chatnameinput" type="text" placeholder="Chat Name" required>
-                <p style="font-size:  1em;"><br>(aposptrophes don't work yet so please done use them)</p>
+                <p>Please enter the username of the person you would like to add to "<%= currentchat.name %>". <br> <br></p>
+                <input id="adduserinput" name ="adduserinput" type="text" placeholder="Username of participant" required>
+                <p id="add_done" style="font-size:  1em;"><br>(aposptrophes don't work yet so please done use them)</p>
                 <div class="clearfix">
                   <button type="button" onclick="document.getElementById('adduserwindow').style.display='none'" class="cancelbtn">CANCEL</button>
-                  <input id="makeconfirm" type="submit" name="createbtn" class="createbtn" value="CREATE"></input>
+                  <input id="addconfirm" type="submit" name="addbtn" class="addbtn" value="ADD PARTICIPANT"></input>
                 </div>
               </div>
             </form>
@@ -58,7 +58,7 @@
             <h2>Contacts</h2>
             <ul id="chatlist">
                 <button id="createwindowbtn" onclick= "document.getElementById('makechatwindow').style.display='block'">Create Chat</button>
-                <button id="createwindowbtn" onclick= "document.getElementById('adduserwindow').style.display='block'">Add User</button>
+                <button id="addwindowbtn" onclick= "document.getElementById('adduserwindow').style.display='block'">Add User</button>
                 <% chatInfo.forEach(function(chats) { %>
                     <a href="/chat/<%= data.username %>/<%= chats.chatid %>"><%= chats.name %></a> <br>
                 <% }); %>
@@ -88,8 +88,9 @@
 
                     $('#addform').submit((evt)=>{
                         evt.preventDefault(); // prevents page reloading
-                        socket.emit('add_participant', {msg: $('#txt').val(), chatID: '<%= currentchat.chatid %>'});
-                        $('#txt').val('');
+                        socket.emit('add_participant', {msg: $('#adduserinput').val(), chatID: '<%= currentchat.chatid %>'});
+                        $('#add_done').text($('#adduserinput').val() + ' was added');
+                        $('#adduserinput').val('');
                         return false;
                     });
 

@@ -296,7 +296,13 @@ const io = require('socket.io').listen(server);
       var addparticipantQuery =  "update chats set participants = array_append(participants, '" + info.msg + "') where chatid = " + info.chatID
       pool.query(addparticipantQuery, (error,result)=> {
       })
-      socket.to(info.chatID).emit("received", {name: socket.username , message: socket.username + " added " + info.msg + "to the chat" });
-      socket.emit("chat_message", {name: socket.username , message: socket.username + " added " + info.msg + "to the chat" });
+
+      var userAddedMessage = socket.username + " added " + info.msg + " to the chat."
+      socket.to(info.chatID).emit("received", {name: socket.username , message: userAddedMessage });
+      socket.emit("chat_message", {name: socket.username , message: userAddedMessage });
+
+      var storemessageQuery = "INSERT INTO messages VALUES (" + info.chatID + ", default, '" + socket.username + "', " + "'" + userAddedMessage + "')";
+      pool.query(storemessageQuery, (error,result)=> {
+      })
     })
   });
