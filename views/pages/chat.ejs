@@ -19,9 +19,28 @@
             </div>
         </div>
 
+
+        <div id="makechatwindow" class="modal">
+            <span onclick="document.getElementById('makechatwindow').style.display='none'" class="close" title="close window">×</span>
+            <form class="windowcontent" action="/chat/<%= data.username %>/create" method="post">
+              <div class="container3">
+                <h1>Create Chat</h1>
+                <p>Please enter the name of your new chat</p>
+                <input id="chatnameinput" name ="chatnameinput" type="text" placeholder="Chat Name" required>
+                <div class="clearfix">
+                  <button type="button" onclick="document.getElementById('makechatwindow').style.display='none'" class="cancelbtn">CANCEL</button>
+                  <input id="makeconfirm" type="submit" name="createbtn" class="createbtn" value="CREATE"></input>
+                </div>
+              </div>
+            </form>
+          </div>
+
+
+
         <div class="contactList">
             <h2>Contacts</h2>
             <ul id="chatlist">
+                <button id="createwindowbtn" onclick= "document.getElementById('makechatwindow').style.display='block'">Create Chat</button>
                 <% chatInfo.forEach(function(chats) { %>
                     <a href="/chat/<%= data.username %>/<%= chats.chatid %>"><%= chats.name %></a> <br>
                 <% }); %>
@@ -36,13 +55,13 @@
                 <% }); %>
             </ul>
             <form action="" id="chatForm">
-            <input id="txt" autocomplete="off" autofocus="on" placeholder="type a message..." / required><button>Send</button>
+            <input id="txt" autocomplete="off" autofocus="on" placeholder="type a message..." / required><button id="sendbtn">Send</button>
             </form>
             <script>
                 $(()=> {
                     var socket = io();
                     // submit text message without reload/refresh the page
-                    $('form').submit((evt)=>{
+                    $('#chatForm').submit((evt)=>{
                         evt.preventDefault(); // prevents page reloading
                         socket.emit('chat_message', {msg: $('#txt').val(), chatID: '<%= currentchat.chatid %>'});
                         $('#txt').val('');
@@ -57,7 +76,6 @@
                         $('#messages').append($("<br>"));
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
                         recolor()
-                        console.log("chat message triggered in chat.ejs by " + username)
                     });
 
                     // temporary manual username input
@@ -71,7 +89,6 @@
                         $('#messages').append($("<span>").text("sent by " +info.name));
                         $('#messages').append($("<br>"));
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
-                        console.log("recieved triggered in chat.ejs by " + username)
                     });
 
                     window.onload = () => {

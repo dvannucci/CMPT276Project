@@ -252,13 +252,19 @@ const io = require('socket.io').listen(server);
   })
 
   app.post('/chat/:uname/create', (req,res)=>{
-    var uname =req.params.uname;
-    var makechatQuery = "INSERT INTO chats VALUES (default, '" + req.body.chatname + "', '{" + req.body.chatname + "}')"
+    uname = req.params.uname;
+    var makechatQuery = "INSERT INTO chats VALUES (default, '" + req.body.chatnameinput + "', ARRAY ['" + uname + "'])"
+    var getunameQuery = "SELECT * FROM users WHERE username = '" + uname + "'"
 
-    pool.query(makechatQuery, (error,result) => {
+    pool.query(makechatQuery, (error,unused) => {
       if (error)
         res.end(error);
-      res.render('pages/creategroup', uname);
+      pool.query(getunameQuery, (error,result) => {
+        if (error)
+          res.end(error);
+        var username = result.rows[0]
+        res.render('pages/creategroup', username);
+      })
     })
   })
 
@@ -279,7 +285,6 @@ const io = require('socket.io').listen(server);
     socket.on("chat_message", (info)=> {
       //broadcast message to everyone in port:5000 except yourself.
       socket.to(info.chatID).emit("received", {name: socket.username , message: info.msg });
-      console.log("chat_message triggered")
       var storemessageQuery = "INSERT INTO messages VALUES (" + info.chatID + ", default, '" + socket.username + "', " + "'" + info.msg + "')";
       pool.query(storemessageQuery, (error,result)=> {
       })
