@@ -140,6 +140,22 @@ const io = require('socket.io').listen(server);
          })
       });
 
+      app.post('/ForgotPassword', async(req,res)=>{
+        var email=req.body.myemail.toLowerCase();
+        var password1=req.body.mypassword1;
+        var password2=req.body.mypassword2;
+
+        if(password1!=password2){
+          res.render('pages/Forgpass_wrong');
+        }
+        else{
+          const client=await pool.connect();
+            var updataQuery=`UPDATE Customer SET password='${password2}' WHERE email='${email}'`;
+            const result = await client.query(updataQuery);
+                 client.release();
+                 res.render('pages/AgainLogin');
+          }
+        });
   // This function updates the users profile picture. If the picture is valid it will change, if not, and error will be sent.
   app.post('/pictureChoose/:id', pictures.single('profilePicture'), async (req, res) => {
 
