@@ -37,4 +37,6 @@ justify-content: center;
   bottom: 0;
 
 }
-.
+.alert {
+  font-size: 120%;
+}

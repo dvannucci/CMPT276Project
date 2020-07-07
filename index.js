@@ -47,7 +47,7 @@ const io = require('socket.io').listen(server);
   app.set('view engine', 'ejs')
 
   // Takes you to the login page whenever the app is opened.
-  app.get('/', (req, res) => res.sendFile(__dirname + '/public/Login.html'))
+  app.get('/', (req, res) => res.render('pages/Login', {'alert' : req.query.valid}))
 
   // Takes you to the registration page when the user clicks register from the login page.
   app.get('/register', (req,res) => {
@@ -127,14 +127,14 @@ const io = require('socket.io').listen(server);
 
            var results = {'rows': result.rows}
            if(Object.keys(results.rows).length===0 ){
-             res.render('pages/Login');
+             res.redirect('/' + '?valid=username');
            }
            else{
            if(results.rows[0].username==username && results.rows[0].password==upassword){
              res.redirect('/home/' + results.rows[0].id )
            }
            else{
-             res.render('pages/wrongpassword');  // After user enters wrong password they will get rendered to this page
+             res.redirect('/' + '?valid=password');  // After user enters wrong password they will get rendered to this page
            }
          }
          })
