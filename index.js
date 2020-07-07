@@ -208,6 +208,7 @@ const io = require('socket.io').listen(server);
 
   })
 
+  //identifies current chat
   var chatID;
   //link to chat page
   app.get('/chat/:uname/:chatID', (req,res)=>{
@@ -223,6 +224,17 @@ const io = require('socket.io').listen(server);
         res.end(error);
       var mesData= {'mesInfo':result[0].rows,'chatInfo':result[1].rows, 'data':result[2].rows[0], 'currentchat':result[3].rows[0]}
       res.render('pages/chat',mesData);
+    })
+  })
+
+  app.post('/chat/:uname/create', (req,res)=>{
+    var uname =req.params.uname;
+    var makechatQuery = "INSERT INTO chats VALUES (default, '" + req.body.chatname + "', '{" + req.body.chatname + "}')"
+
+    pool.query(makechatQuery, (error,result) => {
+      if (error)
+        res.end(error);
+      res.render('pages/creategroup', uname);
     })
   })
 

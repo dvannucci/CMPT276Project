@@ -1,0 +1,36 @@
+body{
+    font-family: Arial, Helvetica, sans-serif;
+}
+*{
+    box-sizing: border-box;
+}
+
+
+.container{
+    border: black double 2px;
+    border-radius: 15px 15px 15px 15px;
+    padding: 10px;
+    margin-top: 10px;
+    vertical-align: middle;
+}
+p{
+    font-size: xx-large;
+    text-align: center;
+}
+a{
+    font-size: large;
+    background-color: green;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    cursor: pointer;
+    width: 100%;
+    opacity: 0.9;
+    text-decoration: none;
+    display: block;
+    text-align: center;
+    border: 2px outset black  
+}
+a:hover{
+    opacity: 1;
+}
