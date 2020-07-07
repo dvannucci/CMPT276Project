@@ -291,4 +291,12 @@ const io = require('socket.io').listen(server);
 
       socket.emit("chat_message", {name: socket.username , message: info.msg });
     });
+
+    socket.on("add_participant", (info)=> {
+      var addparticipantQuery =  "update chats set participants = array_append(participants, '" + info.msg + "') where chatid = " + info.chatID
+      pool.query(addparticipantQuery, (error,result)=> {
+      })
+      socket.to(info.chatID).emit("received", {name: socket.username , message: socket.username + " added " + info.msg + "to the chat" });
+      socket.emit("chat_message", {name: socket.username , message: socket.username + " added " + info.msg + "to the chat" });
+    })
   });

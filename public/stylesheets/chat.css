@@ -69,7 +69,7 @@ body{
     padding: 0;
     overflow-y: scroll;
     width: 80%;
-    height: 90%;
+    height: 88%;
 }
 #messages li{
     padding: 5px 10px;
@@ -127,7 +127,14 @@ transform: translate(-50%, -50%);
 
 #chatnameinput{
     width: 70%;
-    font-size: 1.1em;
+    height: 30px;
+    text-align: center;
+}
+
+#adduserinput{
+    width: 70%;
+    height: 30px;
+    text-align: center;
 }
 
 #makeconfirm:hover{
@@ -200,7 +207,8 @@ background-color: #fefefe;
 margin: 5% auto 15% auto; 
 border: 1px solid #888;
 width: 80%; 
-border-radius: 8px 8px 8px 8px
+border-radius: 8px 8px 8px 8px;
+font-size: 1.3em;
 }
 
 
