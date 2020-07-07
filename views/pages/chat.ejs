@@ -57,6 +57,7 @@
                         $('#messages').append($("<br>"));
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
                         recolor()
+                        console.log("chat message triggered in chat.ejs by " + username)
                     });
 
                     // temporary manual username input
@@ -70,6 +71,7 @@
                         $('#messages').append($("<span>").text("sent by " +info.name));
                         $('#messages').append($("<br>"));
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+                        console.log("recieved triggered in chat.ejs by " + username)
                     });
 
                     window.onload = () => {

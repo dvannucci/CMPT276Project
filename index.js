@@ -192,10 +192,11 @@ const io = require('socket.io').listen(server);
 
   })
 
+  var chatID;
   //link to chat page
   app.get('/chat/:uname/:chatID', (req,res)=>{
     var uname =req.params.uname;
-    var chatID = req.params.chatID;
+    chatID = req.params.chatID;
     var getmessagesQuery = "SELECT * FROM messages where chatID = " + chatID + "ORDER BY time ASC;"
     + "SELECT * FROM chats WHERE '" + uname +  "'= any(participants);"
     + "SELECT * FROM users WHERE username = '" + uname + "';"
@@ -211,6 +212,8 @@ const io = require('socket.io').listen(server);
 
   io.on('connection', (socket) => {
     console.log('user connected');
+    socket.join(chatID);
+    console.log("in chat: " + chatID)
 
      //temporary ask for username
     socket.on('username', (username)=> {
@@ -223,8 +226,8 @@ const io = require('socket.io').listen(server);
 
     socket.on("chat_message", (info)=> {
       //broadcast message to everyone in port:5000 except yourself.
-      socket.broadcast.emit("received", {name: socket.username , message: info.msg });
-
+      socket.to(info.chatID).emit("received", {name: socket.username , message: info.msg });
+      console.log("chat_message triggered")
       var storemessageQuery = "INSERT INTO messages VALUES (" + info.chatID + ", default, '" + socket.username + "', " + "'" + info.msg + "')";
       pool.query(storemessageQuery, (error,result)=> {
       })
