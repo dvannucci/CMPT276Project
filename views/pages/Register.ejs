@@ -15,9 +15,7 @@
           <Legend class="roy"> Registration Form:</Legend>
           <p>
             <label>Please enter a username:</label>
-            <input type="text" name="my_username" placeholder="john123" > <span> <div class="username">
-              That username is already taken. Please try another.
-            </div> </span>
+            <input type="text" name="my_username" placeholder="john123" >
               </p><br><br>
       <p>
         <label>Enter your E-mail:</label>
@@ -31,7 +29,17 @@
             <label>Please type your Password again:</label>
           <input type="password" name="my_password2" placeholder="Re-enter your password" value="" id="pass2">
           </p>
-          <br><br>
+          <br>
+          <% if (alert == 'username'){ %>
+            <h4 class="alert">The username you have entered is taken, please try a different one.</h4>
+           <% } %>
+           <% if (alert == 'email'){ %>
+             <h4 class="alert">The E-mail you have entered is already in use. Please use a different E-mail.</h4>
+            <% } %>
+           <% if (alert == 'password'){ %>
+            <h4 class="alert">The passwords you have entered are not the same. Please try again.</h4>
+          <%  } %>
+          <br>
           <button >Submit</button>
       </fieldset>
 
