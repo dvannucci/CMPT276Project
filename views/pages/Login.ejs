@@ -2,43 +2,45 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>My Social Media App</title>
+    <title>My Social Media App: Museical</title>
     <link rel="stylesheet" href="./stylesheets/style.css">
   </head>
   <body>
     <h1 class="Magenta" > My Social Media App: Museical</h1>
 <div class="qwerty">
 
-    <form class="elon" action="/register" method="post">
-
+    <form class="tyler" action="/authentification" method="post">
       <fieldset>
-          <Legend class="roy"> Registration Form:</Legend>
-          <p>
-            <label>Name:</label>
-            <input type="text" name="my_name" placeholder="Name" >
-              </p><br><br>
+          <Legend class="roy"> Please Login:</Legend>
       <p>
-        <label>E-mail:</label>
-        <input type="email" name="my_email" placeholder="Enter your E-mail" >
+        <label>Username:</label>
+        <input type="text" name="username" id="usr_email" placeholder="Enter your username">
           </p><br><br>
           <p>
             <label>Password:</label>
-          <input type="Password" name="my_password1" placeholder="Enter your password" value="" id="pass1">
+          <input type="Password" name="mypassword" id="usr_password" placeholder="Enter your password">
           </p>
-          <p>
-            <label>Please type your Password again:</label>
-          <input type="password" name="my_password2" placeholder="Enter your password" value="" id="pass2">
-          </p>
-          <br><br>
-          <button >Submit</button>
-      </fieldset>
+          <br>
+          <% if (alert == 'username'){ %>
+            <h4 class="alert">The username you have entered is not a registered account. Please try again, or click below to register</h4>
+           <% } %>
+           <% if (alert == 'password'){ %>
+            <h4 class="alert">The password you have entered is incorrect. Please try again.</h4>
+          <%  } %>
+          <% if (alert == 'registered'){ %>
+           <h4 class="alert">Thank you for creating an account, please log in.</h4>
+         <%  } %>
+          <br>
+          <button >Login</button>
 
+      </fieldset>
     </form>
+
+  <div class="rat">
+    <a href="/register"> If not registered click here</a>
   </div>
-  <footer class="bottom"> <h3>&copy; Copyright 2020, Example Corporation</h3> </footer>
-<script>
-alert("Please register yourself before Logging in");
-</script>
+
+ <footer class="bottom"> <small>&copy; Copyright 2020, Example Corporation</small> </footer>
 
     </body<>
     </html>

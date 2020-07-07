@@ -36,5 +36,6 @@ justify-content: center;
    color: blue;
    text-align: center;
 }
-
-.
+.alert {
+  font-size: 120%;
+}
