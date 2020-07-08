@@ -1,4 +1,6 @@
 const express = require('express')
+const session = require('express-session')
+const bodyParser = require('body-parser')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const multer = require('multer')
@@ -39,8 +41,16 @@ const http = require('http').Server(express())
 const server = app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 const io = require('socket.io').listen(server);
 
+  app.use(session({
+    secret : 'theSecret',
+    resave : true,
+    saveUninitialized : true
+  }))
+
   app.use(express.json())
   app.use(express.urlencoded({extended:false}))
+  app.use(bodyParser.urlencoded({extended : true}))
+  app.use(bodyParser.json())
   app.use(express.static(path.join(__dirname, 'public')))
   app.use('/pictures', express.static('pictures'))
   app.set('views', path.join(__dirname, 'views'))
@@ -56,41 +66,51 @@ const io = require('socket.io').listen(server);
 
   // The homepage for every user, customized to their personal info.
   app.get('/home/:id', (req, res) => {
-    var userPageQuery = `select * from users where id = ${req.params.id}`;
+    if (!req.session.loggedin){
+      res.redirect('/' + '?valid=log')
+    }
+    else {
+      var userPageQuery = `select * from users where id = ${req.session.loggedID}`;
 
-    pool.query(userPageQuery, (error, result) => {
-      if(error)
-        res.send(error)
+      pool.query(userPageQuery, (error, result) => {
+        if(error)
+          res.send(error)
 
-      res.render('pages/userHomepage', result.rows[0])
-    })
+        res.render('pages/userHomepage', result.rows[0])
+      })
+    }
+
 
   })
 
   // Each users personal profile which can be accessed by clicking the users name in the top right corner of the navigaiton bar.
   app.get('/profile/:id', (req, res) => {
-
-    if (req.query.valid == 'false'){
-      if (req.query.field == 'pic'){
-        var alert = {'alert' : 'pic'}
-      }
-      else{
-        var alert = {'alert' : 'uname'}
-      }
+    if (!req.session.loggedin){
+      res.redirect('/' + '?valid=log')
     }
     else {
-      var alert = {'alert' : false}
+      if (req.query.valid == 'false'){
+        if (req.query.field == 'pic'){
+          var alert = {'alert' : 'pic'}
+        }
+        else{
+          var alert = {'alert' : 'uname'}
+        }
+      }
+      else {
+        var alert = {'alert' : false}
+      }
+
+      var allQuery = `select * from users where id = ${req.session.loggedID}`
+      pool.query(allQuery, (error, result) => {
+        if(error)
+          res.send(error)
+
+        var data = result.rows[0]
+
+        res.render('pages/profile', {data, alert} )
+      })
     }
-
-    var allQuery = `select * from users where id = ${req.params.id}`
-    pool.query(allQuery, (error, result) => {
-      if(error)
-        res.send(error)
-
-      var data = result.rows[0]
-
-      res.render('pages/profile', {data, alert} )
-    })
 
   })
 
@@ -151,6 +171,8 @@ const io = require('socket.io').listen(server);
            }
            else{
            if(results.rows[0].username==username && results.rows[0].password==upassword){
+             req.session.loggedin = true;
+             req.session.loggedID = results.rows[0].id
              res.redirect('/home/' + results.rows[0].id )
            }
            else{
@@ -174,10 +196,16 @@ const io = require('socket.io').listen(server);
         }
         else{
           const client=await pool.connect();
-            var updataQuery=`UPDATE users SET password='${password2}' WHERE email='${email}'`;
-            const result = await client.query(updataQuery);
-                 client.release();
-                 res.redirect('/');
+            var updateQuery=`UPDATE users SET password='${password2}' WHERE email='${email}'`;
+            const result = await client.query(updateQuery);
+            client.release();
+            if (result.rowCount == 0){
+              res.redirect('/passwordReset' + "?valid=unknown" );
+            }
+            else{
+               res.redirect('/' + "?valid=changed");
+            }
+
           }
         });
   // This function updates the users profile picture. If the picture is valid it will change, if not, and error will be sent.
@@ -185,11 +213,11 @@ const io = require('socket.io').listen(server);
 
     var valid = true
     if (!req.file){
-      var pictureUpdate = `update users set picture = '/pictures/lang-logo.png' where id = ${req.params.id}`
+      var pictureUpdate = `update users set picture = '/pictures/lang-logo.png' where id = ${req.session.loggedID}`
       valid = false
     }
     else {
-      var pictureUpdate = `update users set picture = '/${req.file.path}' where id = ${req.params.id}`
+      var pictureUpdate = `update users set picture = '/${req.file.path}' where id = ${req.session.loggedID}`
     }
 
     const client = await pool.connect()
@@ -218,7 +246,7 @@ const io = require('socket.io').listen(server);
       }
     })
 
-    var usernameChange = `update users set username = '${req.body.uname}' where id = ${req.params.id}`
+    var usernameChange = `update users set username = '${req.body.uname}' where id = ${req.session.loggedID}`
 
     const client = await pool.connect()
     try {
@@ -230,6 +258,11 @@ const io = require('socket.io').listen(server);
 
     res.redirect('/profile/' + `${req.params.id}` + '?valid=' + true)
 
+  })
+
+  app.get('/logout', (req, res) => {
+    req.session.destroy()
+    res.redirect('/')
   })
 
   //identifies current chat
