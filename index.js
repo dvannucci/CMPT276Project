@@ -296,17 +296,17 @@ const io = require('socket.io').listen(server);
   app.post('/chat/:uname/create', (req,res)=>{
     uname = req.params.uname;
     let quotemoddedchatname = req.body.chatnameinput.replace(/'/g,"''");
-    var makechatQuery = "INSERT INTO chats VALUES (default, '" + quotemoddedchatname + "', ARRAY ['" + uname + "'])"
-    var getunameQuery = "SELECT * FROM users WHERE username = '" + uname + "'"
+    var makechatQuery = "INSERT INTO chats VALUES (default, '" + quotemoddedchatname + "', ARRAY ['" + uname + "'])";
+    var getinfoQuery = "SELECT * FROM users WHERE username = '" + uname + "'; SELECT * FROM chats WHERE name = '" + quotemoddedchatname  + "' ORDER BY chatid DESC";
 
     pool.query(makechatQuery, (error,unused) => {
       if (error)
         res.end(error);
-      pool.query(getunameQuery, (error,result) => {
+      pool.query(getinfoQuery, (error,result) => {
         if (error)
           res.end(error);
-        var username = result.rows[0]
-        res.render('pages/creategroup', username);
+        let data = {'uinfo':result[0].rows[0], 'newchatinfo':result[1].rows[0] }
+        res.render('pages/creategroup', data);
       })
     })
   })
@@ -323,7 +323,7 @@ const io = require('socket.io').listen(server);
       pool.query(getunameQuery, (error,result) => {
         if (error)
           res.end(error);
-        var username = result.rows[0]
+        let username = result.rows[0]
         res.render('pages/leavegroup', username);
       })
     })
