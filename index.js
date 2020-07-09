@@ -253,6 +253,7 @@ const io = require('socket.io').listen(server);
 
   app.post('/chat/:uname/create', (req,res)=>{
     uname = req.params.uname;
+    let quotemoddedchatname = req.body.chatnameinput.replace("'", "''");
     var makechatQuery = "INSERT INTO chats VALUES (default, '" + req.body.chatnameinput + "', ARRAY ['" + uname + "'])"
     var getunameQuery = "SELECT * FROM users WHERE username = '" + uname + "'"
 
@@ -285,7 +286,8 @@ const io = require('socket.io').listen(server);
     socket.on("chat_message", (info)=> {
       //broadcast message to everyone in port:5000 except yourself.
       socket.to(info.chatID).emit("received", {name: socket.username , message: info.msg });
-      var storemessageQuery = "INSERT INTO messages VALUES (" + info.chatID + ", default, '" + socket.username + "', " + "'" + info.msg + "')";
+      let quotemoddedmessage = info.msg.replace("'", "''");
+      var storemessageQuery = "INSERT INTO messages VALUES (" + info.chatID + ", default, '" + socket.username + "', " + "'" + quotemoddedmessage + "')";
       pool.query(storemessageQuery, (error,result)=> {
       })
 
