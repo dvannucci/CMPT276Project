@@ -4,6 +4,7 @@
     <meta charset="utf-8">
 
     <link rel="stylesheet" href="/stylesheets/pageStyle.css">
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     <title>Homepage</title>
   </head>
   <body>
@@ -17,7 +18,9 @@
       <a href="/home/<%= id %>">Notifications</a>
       <a href="/chat/<%= username %>/0">Messages</a>
       <a href="/home/<%= id %>">My Music</a>
+      <a href="/logout" id="confirmLogout" style="float:right">Logout</a>
       <a href="/profile/<%= id %>" style="float:right"> <%= username %> </a>
+
 
       </div>
 
@@ -38,6 +41,19 @@
         Your Friends Activity
       </h3>
     </div>
+    <script type="text/javascript">
+
+    $(() => {
+      $('#confirmLogout').click(function(){
+        if(confirm('Are you sure you wish to logout?')) {
+            return true;
+          }
+
+          return false;
+        });
+    });
+
+    </script>
 
   </body>
 </html>

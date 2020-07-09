@@ -1,0 +1,5 @@
+CREATE TABLE Customer(id SERIAL UNIQUE, name VARCHAR(40), email VARCHAR(40) UNIQUE, password VARCHAR(40));
+
+
+// Example of Inserting
+INSERT INTO Customer (id,name,email,password)VALUES(DEFAULT,'Bill_gatesn','bill@gmail.com','tyui');
