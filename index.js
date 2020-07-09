@@ -358,4 +358,14 @@ const io = require('socket.io').listen(server);
       pool.query(storemessageQuery, (error,result)=> {
       })
     })
+
+    socket.on("user_left", (info)=> {
+      var userleftMessage = socket.username + " " + info.msg
+      socket.to(info.chatID).emit("received", {name: socket.username , message: userleftMessage });
+      socket.emit("chat_message", {name: socket.username , message: userleftMessage });
+
+      var storemessageQuery = "INSERT INTO messages VALUES (" + info.chatID + ", default, '" + socket.username + "', " + "'" + userleftMessage + "')";
+      pool.query(storemessageQuery, (error,result)=> {
+      })
+    })
   });

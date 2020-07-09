@@ -114,6 +114,12 @@
                         return false;
                     });
 
+                    $('#leaveform').submit((evt)=>{
+                        socket.emit("user_left", {msg: "has left the chat", chatID: '<%= currentchat.chatid %>'});
+                        console.log("im out");
+                        return true;
+                    });
+
                     //show messages sent by you
                     socket.on('chat_message', (info)=>{
                         $('#messages').append($("<li class='"+username+"'>").text(info.message));
