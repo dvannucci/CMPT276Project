@@ -302,6 +302,24 @@ const io = require('socket.io').listen(server);
     })
   })
 
+  app.post('/chat/:uname/:chatID/leave', (req,res)=>{
+    var uname = req.params.uname;
+    var chatID = req.params.chatID;
+    var leavechatQuery = "UPDATE chats SET participants = array_remove(participants, '" + uname + "') WHERE chatid = " + chatID;
+    var getunameQuery = "SELECT * FROM users WHERE username = '" + uname + "'"
+
+    pool.query(leavechatQuery, (error,unused) => {
+      if (error)
+        res.end(error);
+      pool.query(getunameQuery, (error,result) => {
+        if (error)
+          res.end(error);
+        var username = result.rows[0]
+        res.render('pages/leavegroup', username);
+      })
+    })
+  })
+
   io.on('connection', (socket) => {
     console.log('user connected');
     socket.join(chatID);
@@ -328,7 +346,7 @@ const io = require('socket.io').listen(server);
     });
 
     socket.on("add_participant", (info)=> {
-      var addparticipantQuery =  "update chats set participants = array_append(participants, '" + info.msg + "') where chatid = " + info.chatID
+      var addparticipantQuery =  "UPDATE chats SET participants = array_append(participants, '" + info.msg + "') WHERE chatid = " + info.chatID
       pool.query(addparticipantQuery, (error,result)=> {
       })
 

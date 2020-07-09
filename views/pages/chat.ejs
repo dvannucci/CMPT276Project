@@ -23,55 +23,73 @@
         <div id="makechatwindow" class="modal">
             <span onclick="document.getElementById('makechatwindow').style.display='none'" class="close" title="close window">×</span>
             <form class="windowcontent" action="/chat/<%= data.username %>/create" method="post">
-              <div class="container3">
+            <div class="container3">
                 <h1>Create Chat</h1>
                 <p>Please enter the name of your new chat. <br> <br></p>
                 <input id="chatnameinput" name ="chatnameinput" type="text" placeholder="Chat Name" required>
                 <p style="font-size:  1em;"><br>You will be able to add participants later.</p>
                 <div class="clearfix">
-                  <button type="button" onclick="document.getElementById('makechatwindow').style.display='none'" class="cancelbtn">CANCEL</button>
-                  <input id="makeconfirm" type="submit" name="createbtn" class="createbtn" value="CREATE"></input>
+                <button type="button" onclick="document.getElementById('makechatwindow').style.display='none'" class="cancelbtn">CANCEL</button>
+                <input id="makeconfirm" type="submit" name="createbtn" class="createbtn" value="CREATE"></input>
                 </div>
-              </div>
+            </div>
             </form>
-          </div>
+        </div>
 
-          <div id="adduserwindow" class="modal">
+        <div id="adduserwindow" class="modal">
             <span onclick="document.getElementById('adduserwindow').style.display='none'" class="close" title="close window">×</span>
             <form class="windowcontent" action="" method="post" id="addform">
-              <div class="container3">
+            <div class="container3">
                 <h1>Add User</h1>
                 <p>Please enter the username of the person you would like to add to "<%= currentchat.name %>". <br> <br></p>
                 <input id="adduserinput" name ="adduserinput" type="text" placeholder="Username of participant" required>
                 <p id="add_done" style="font-size:  1em;"><br></p>
                 <div class="clearfix">
-                  <button type="button" onclick="document.getElementById('adduserwindow').style.display='none'" class="cancelbtn">CANCEL</button>
-                  <input id="addconfirm" type="submit" name="addbtn" class="addbtn" value="ADD PARTICIPANT"></input>
+                <button type="button" onclick="document.getElementById('adduserwindow').style.display='none'" class="cancelbtn">CANCEL</button>
+                <input id="addconfirm" type="submit" name="addbtn" class="addbtn" value="ADD PARTICIPANT"></input>
                 </div>
-              </div>
+            </div>
             </form>
-          </div>
+        </div>
 
-
+        <div id="leavewindow" class="modal">
+            <span onclick="document.getElementById('leavewindow').style.display='none'" class="close" title="close window">×</span>
+            <form class="windowcontent" action="/chat/<%= data.username %>/<%= currentchat.chatid %>/leave" method="post" id="leaveform">
+                <div class="container4">
+                <h1>Leave Group</h1>
+                <p>Are you sure you want to leave the group?</p>
+                <div class="clearfix">
+                    <button type="button" onclick="document.getElementById('leavewindow').style.display='none'" class="cancelbtn">CANCEL</button>
+                    <input id="delconfirm" type="submit" name="leavebtn" class="leavebtn" value="LEAVE"></input>
+                </div>
+                </div>
+            </form>
+        </div>
 
         <div class="contactList">
             <h2>Contacts</h2>
             <ul id="chatlist">
                 <button id="createwindowbtn" onclick= "document.getElementById('makechatwindow').style.display='block'">Create Chat</button>
-                <button id="addwindowbtn" onclick= "document.getElementById('adduserwindow').style.display='block'">Add User</button>
                 <% chatInfo.forEach(function(chats) { %>
                     <a href="/chat/<%= data.username %>/<%= chats.chatid %>"><%= chats.name %></a> <br>
                 <% }); %>
             </ul>
         </div>
 
-        <div class="container"></div>
+        <div class="container1">
+            <div class="chat_controls">
+                <p class="chat_title"><%= currentchat.name %></p>
+                <button id="addwindowbtn" onclick= "document.getElementById('adduserwindow').style.display='block'">Add User</button>
+                <button id="leavewindowbtn" onclick= "document.getElementById('leavewindow').style.display='block'">Leave Group</button>
+            </div>
             <ul id="messages">
                 <% mesInfo.forEach(function(msg) { %>
                     <li class= "<%= msg.sender %>"><%= msg.message %></li> <br>
                     <span>sent by <%= msg.sender %></span> <br>
                 <% }); %>
             </ul>
+        </div>
+        <div class = "container2">
             <form action="" id="chatForm">
             <input id="txt" autocomplete="off" autofocus="on" placeholder="type a message..." / required><button id="sendbtn">Send</button>
             </form>
