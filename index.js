@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const multer = require('multer')
+const fs = require('fs')
 
 // Storgae destination for profile pictures, and the name of the picture.
 const storage = multer.diskStorage({
@@ -11,7 +12,7 @@ const storage = multer.diskStorage({
     func(null, './pictures/')
   },
   filename: (req, file, func) => {
-    func(null, file.originalname)
+    func(null, `id${req.session.loggedID}` )
   }
 })
 
@@ -211,24 +212,33 @@ const io = require('socket.io').listen(server);
   // This function updates the users profile picture. If the picture is valid it will change, if not, and error will be sent.
   app.post('/pictureChoose/:id', pictures.single('profilePicture'), async (req, res) => {
 
-    var valid = true
     if (!req.file){
-      var pictureUpdate = `update users set picture = '/pictures/lang-logo.png' where id = ${req.session.loggedID}`
-      valid = false
+      res.redirect('/profile/' + req.session.loggedID + '?valid=false' + '&field=pic')
     }
     else {
       var pictureUpdate = `update users set picture = '/${req.file.path}' where id = ${req.session.loggedID}`
-    }
 
-    const client = await pool.connect()
-    try {
-      const result = await client.query(pictureUpdate)
-      client.release()
-    } catch (err){
-      res.send(err)
-    }
+      var picturedelete =  `select picture from users where id = ${req.session.loggedID}`
 
-    res.redirect('/profile/' + req.params.id + '?valid=' + valid + '&field=pic')
+      pool.query(picturedelete, (error, result) => {
+        if(error)
+          res.send(error)
+
+        if(result.rows[0].picture != '/pictures/lang-logo.png'){
+          fs.unlink(result.rows[0].picture, (err) => {
+            if(error)
+              res.send(error)
+            })
+          }
+
+          pool.query(pictureUpdate, (error, resut) => {
+            if(error)
+            res.send(error)
+          })
+
+        })
+        res.redirect('/profile/' + req.session.loggedID + '?valid=true' + '&field=pic')
+    }
 
   })
 
@@ -242,21 +252,20 @@ const io = require('socket.io').listen(server);
         res.send(error)
 
       if((result.rows).length){
-        res.redirect('/profile/' + `${req.params.id}` + '?valid=' + false + '&field=uname')
+        res.redirect('/profile/' + `${req.session.loggedID}` + '?valid=' + false + '&field=uname')
       }
+      else {
+        var usernameChange = `update users set username = '${req.body.uname}' where id = ${req.session.loggedID}`
+
+        pool.query(usernameChange, (error, result) => {
+          if(error)
+            res.send(error)
+        })
+
+        res.redirect('/profile/' + `${req.session.loggedID}` + '?valid=' + true)
+      }
+
     })
-
-    var usernameChange = `update users set username = '${req.body.uname}' where id = ${req.session.loggedID}`
-
-    const client = await pool.connect()
-    try {
-      const result = await client.query(usernameChange)
-      client.release()
-    } catch (err){
-      res.send(err)
-    }
-
-    res.redirect('/profile/' + `${req.params.id}` + '?valid=' + true)
 
   })
 

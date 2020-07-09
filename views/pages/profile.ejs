@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="/stylesheets/pageStyle.css">
-    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
     <title> <%= data.username %>'s Profile</title>
   </head>
   <body>
@@ -15,7 +15,7 @@
 
       <a href="/home/<%= data.id %>">Home</a>
       <a href="/home/<%= data.id %>">Notifications</a>
-      <a href="/chat<%= data.username %>/0">Messages</a>
+      <a href="/chat/<%= data.username %>/0">Messages</a>
       <a href="/home/<%= data.id %>">My Music</a>
       <a href="/logout" id="confirmLogout" style="float:right">Logout</a>
       <a href= "/profile/<%= data.id %>" style="float:right"> <%= data.username %> </a>
@@ -42,7 +42,7 @@
       </form>
 
       <% if (alert.alert == 'pic'){ %>
-        <h4 class="alert">The file you have chosen is neither a jpeg nor a png, your profile picture has been reset back to the default image.</h4>
+        <h4 class="alert">The file you have chosen is neither a jpeg nor a png, your profile picture has not been changed.</h4>
        <% } %>
 
       <br>
@@ -63,7 +63,7 @@
     </div>
 
     <div class="tabs floater">
-      <h3>Your Recent Activity</h3>
+      <h2>Your Recent Activity</h3>
     </div>
 
     <div class="activity">
@@ -71,7 +71,7 @@
     </div>
 
     <div class="tabs floater">
-      <h3>Your Friends Activity</h3>
+      <h2>Your Friends Activity</h3>
     </div>
 
     <div class="activity">
