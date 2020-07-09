@@ -320,7 +320,6 @@ const io = require('socket.io').listen(server);
       //broadcast message to everyone in port:5000 except yourself.
       socket.to(info.chatID).emit("received", {name: socket.username , message: info.msg });
       let quotemoddedmessage = info.msg.replace(/'/g,"''");
-      console.log(quotemoddedmessage)
       var storemessageQuery = "INSERT INTO messages VALUES (" + info.chatID + ", default, '" + socket.username + "', " + "'" + quotemoddedmessage + "')";
       pool.query(storemessageQuery, (error,result)=> {
       })

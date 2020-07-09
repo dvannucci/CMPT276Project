@@ -81,7 +81,9 @@
                     // submit text message without reload/refresh the page
                     $('#chatForm').submit((evt)=>{
                         evt.preventDefault(); // prevents page reloading
-                        socket.emit('chat_message', {msg: $('#txt').val(), chatID: '<%= currentchat.chatid %>'});
+                        if ('<%= currentchat.chatid %>' != 0){
+                            socket.emit('chat_message', {msg: $('#txt').val(), chatID: '<%= currentchat.chatid %>'});
+                        }
                         $('#txt').val('');
                         return false;
                     });
