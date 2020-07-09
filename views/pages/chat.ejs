@@ -12,6 +12,7 @@
                 <a href="/home/<%= data.id %>">Notifications</a>
                 <a href="/chat/<%= data.username %>/0">Messages</a>
                 <a href="/home/<%= data.id %>">My Music</a>
+                <a href="/logout" id="confirmLogout" style="float:right">Logout</a>
                 <a href= "/profile/<%= data.id %>" style="float:right"> <%= data.username %> </a>
             </div>
             <div class="centered">
@@ -119,6 +120,14 @@
                         console.log("im out");
                         return true;
                     });
+
+                    $('#confirmLogout').click(function(){
+                      if(confirm('Are you sure you wish to logout?')) {
+                          return true;
+                        }
+
+                        return false;
+                      });
 
                     //show messages sent by you
                     socket.on('chat_message', (info)=>{
