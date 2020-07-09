@@ -244,19 +244,21 @@ const io = require('socket.io').listen(server);
       if((result.rows).length){
         res.redirect('/profile/' + `${req.params.id}` + '?valid=' + false + '&field=uname')
       }
+      else {
+        var usernameChange = `update users set username = '${req.body.uname}' where id = ${req.session.loggedID}`
+
+        const client = await pool.connect()
+        try {
+          const result = await client.query(usernameChange)
+          client.release()
+        } catch (err){
+          res.send(err)
+        }
+
+        res.redirect('/profile/' + `${req.params.id}` + '?valid=' + true)
+      }
+
     })
-
-    var usernameChange = `update users set username = '${req.body.uname}' where id = ${req.session.loggedID}`
-
-    const client = await pool.connect()
-    try {
-      const result = await client.query(usernameChange)
-      client.release()
-    } catch (err){
-      res.send(err)
-    }
-
-    res.redirect('/profile/' + `${req.params.id}` + '?valid=' + true)
 
   })
 
