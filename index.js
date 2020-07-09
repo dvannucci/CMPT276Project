@@ -247,13 +247,10 @@ const io = require('socket.io').listen(server);
       else {
         var usernameChange = `update users set username = '${req.body.uname}' where id = ${req.session.loggedID}`
 
-        const client = await pool.connect()
-        try {
-          const result = await client.query(usernameChange)
-          client.release()
-        } catch (err){
-          res.send(err)
-        }
+        pool.query(usernameChange, (error, result) => {
+          if(error)
+            res.send(error)
+        })
 
         res.redirect('/profile/' + `${req.params.id}` + '?valid=' + true)
       }
