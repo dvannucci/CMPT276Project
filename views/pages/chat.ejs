@@ -69,7 +69,7 @@
         <div class="contactList">
             <h2>Contacts</h2>
             <ul id="chatlist">
-                <button id="createwindowbtn" onclick= "document.getElementById('makechatwindow').style.display='block'">Create Chat</button>
+            <button id="createwindowbtn" onclick= "document.getElementById('makechatwindow').style.display='block'">Create Chat</button>
                 <% chatInfo.forEach(function(chats) { %>
                     <a href="/chat/<%= data.username %>/<%= chats.chatid %>"><%= chats.name %></a> <br>
                 <% }); %>
@@ -79,8 +79,8 @@
         <div class="container1">
             <div class="chat_controls">
                 <p class="chat_title"><%= currentchat.name %></p>
-                <button id="addwindowbtn" onclick= "document.getElementById('adduserwindow').style.display='block'">Add User</button>
-                <button id="leavewindowbtn" onclick= "document.getElementById('leavewindow').style.display='block'">Leave Group</button>
+            <button id="addwindowbtn" onclick= "if ('<%= currentchat.chatid %>' != 0){document.getElementById('adduserwindow').style.display='block'}">Add User</button>
+            <button id="leavewindowbtn" onclick= "if ('<%= currentchat.chatid %>' != 0){document.getElementById('leavewindow').style.display='block'}">Leave Group</button>
             </div>
             <ul id="messages">
                 <% mesInfo.forEach(function(msg) { %>
