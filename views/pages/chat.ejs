@@ -25,7 +25,7 @@
             <form class="windowcontent" action="/chat/<%= data.username %>/create" method="post">
               <div class="container3">
                 <h1>Create Chat</h1>
-                <p>Please enter the name of your new chat. (aposptrophes don't work yet so please done use them) <br> <br></p>
+                <p>Please enter the name of your new chat. <br> <br></p>
                 <input id="chatnameinput" name ="chatnameinput" type="text" placeholder="Chat Name" required>
                 <p style="font-size:  1em;"><br>You will be able to add participants later.</p>
                 <div class="clearfix">
@@ -43,7 +43,7 @@
                 <h1>Add User</h1>
                 <p>Please enter the username of the person you would like to add to "<%= currentchat.name %>". <br> <br></p>
                 <input id="adduserinput" name ="adduserinput" type="text" placeholder="Username of participant" required>
-                <p id="add_done" style="font-size:  1em;"><br>(aposptrophes don't work yet so please done use them)</p>
+                <p id="add_done" style="font-size:  1em;"><br></p>
                 <div class="clearfix">
                   <button type="button" onclick="document.getElementById('adduserwindow').style.display='none'" class="cancelbtn">CANCEL</button>
                   <input id="addconfirm" type="submit" name="addbtn" class="addbtn" value="ADD PARTICIPANT"></input>
