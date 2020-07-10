@@ -36,6 +36,9 @@
         <% if (alert == 'changed'){ %>
          <h4 class="alert">Your password has been changed. Please log in with your new credentials.</h4>
        <%  } %>
+       <% if (alert == 'accessDenied'){ %>
+        <h4 class="alert">No access, for admin users only.</h4>
+      <%  } %>
           <br>
           <button >Login</button>
 

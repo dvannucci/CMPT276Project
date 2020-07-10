@@ -100,14 +100,14 @@ const io = require('socket.io').listen(server);
     }
   })
 
-app.get('/admin') {
+app.get('/admin', async (req,res) => {
   var adminCheck = `select * from users where id = ${req.session.loggedID} AND usertype='A';`
-  await pool.query(check, (error, result) => {
+  await pool.query(adminCheck, (error, result) => {
     if(error)
         res.send(error)
 
     if(result.rows.length == 0){
-      return res.redirect("/register" + '?error=acccessDenied')
+      return res.redirect("/" + '?valid=accessDenied')
     } else {
       var insertQuery=`SELECT * FROM users`;
       pool.query(insertQuery, (error, result) => {
@@ -115,10 +115,13 @@ app.get('/admin') {
           res.send(error)
         var results = {'rows':result.rows};
         res.render('pages/admin', results);
-      });
-    }
+        });
+      }
+    })
   })
-}
+
+
+
   app.get('/mymusic/:id', (req, res) => {
     if (!req.session.loggedin){
       res.redirect('/' + '?valid=log')
