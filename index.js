@@ -107,6 +107,7 @@ app.get('/admin', async (req,res) => {
         res.send(error)
 
     if(result.rows.length == 0){
+      req.session.destroy()
       return res.redirect("/" + '?valid=accessDenied')
     } else {
       var insertQuery=`SELECT * FROM users`;

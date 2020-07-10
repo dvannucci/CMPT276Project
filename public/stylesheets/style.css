@@ -2,10 +2,9 @@
   font-size: 40pt;
   font-style: italic;
   text-align: center;
-  color: blue;
   text-shadow: 20px 20px 10px rgba(0,0,0,0.5);
   font-weight: bold;
-  background-color: Cyan;
+  background-color: rgb(152,255,152);
 }
 body{
   background-color: white;
@@ -20,7 +19,7 @@ body{
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: Azure;
+
 }
 .rat{
   text-align: center;
@@ -31,8 +30,7 @@ body{
    left: 0;
    bottom: 0;
    width: 100%;
-   background-color: Cyan;
-   color: blue;
+   background-color: rgb(152,255,152);
    text-align: center;
 }
 .alert {
