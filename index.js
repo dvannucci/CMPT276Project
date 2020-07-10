@@ -31,7 +31,7 @@ const pictures = multer({storage: storage, fileFilter: fileFilter})
 const {Pool} = require('pg');
 var pool;
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://postgres:root@localhost/appdatabase'
+  connectionString: process.env.DATABASE_URL || 'postgres://postgres:root@localhost/users'
 })
 
 app = express()
@@ -83,6 +83,26 @@ const io = require('socket.io').listen(server);
 
   })
 
+app.get('/admin') {
+  var adminCheck = `select * from users where id = ${req.session.loggedID} AND usertype='A';`
+  await pool.query(check, (error, result) => {
+    if(error)
+        res.send(error)
+
+    if(result.rows.length == 0){
+      return res.redirect("/register" + '?error=acccessDenied')
+    } else {
+      var insertQuery=`SELECT * FROM users`;
+      pool.query(insertQuery, (error, result) => {
+        if(error)
+          res.send(error)
+        var results = {'rows':result.rows};
+        res.render('pages/admin', results);
+      });
+    }
+  })
+}
+
   // Each users personal profile which can be accessed by clicking the users name in the top right corner of the navigaiton bar.
   app.get('/profile/:id', (req, res) => {
     if (!req.session.loggedin){
@@ -126,11 +146,11 @@ const io = require('socket.io').listen(server);
       return res.redirect("/register" + '?error=password')
     }
     else {
-    var check = `SELECT username, email from users where username = '${uname}' or email = '${email}'`
+    var check = `SELECT username, email from users where username = '${uname}' or email = '${email}';`
 
     await pool.query(check, (error, result) => {
       if(error)
-        res.send(error)
+          res.send(error)
 
       if(result.rows.length != 0){
         result.rows.forEach(function(x){

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<% include ../partials/header.ejs %>
+
+<style>
+table {
+  border: 1px solid black;
+  margin : 2px;
+  display : inline-block;
+}
+</style>
+</head>
+
+<body>
+
+<% include ../partials/nav.ejs %>
+
+<div class="container">
+<h2>Admin Database</h2>
+
+<table>
+  <% rows.forEach(function(r) { %>
+    <tr>
+      <td><input value="<%= r.id%>"></td>
+      <td><input value="<%= r.username%>"></td>
+      <td><input value="<%= r.email%>"></td>
+      <td><input value="<%= r.password%>"></td>
+      <td><input value="<%= r.usertype%>"></td>
+    </tr>
+  <% }); %>
+</table>
+
+<br>
+<input type="button" onclick="location.href='./main.html';" value="Home">
+
+</div>
+</body>
+</html>
