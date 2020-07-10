@@ -9,7 +9,6 @@
 }
 body{
   background-color: white;
-
 }
 .roy{
   font-size: 20pt;
@@ -18,10 +17,10 @@ body{
 
 }
 .qwerty{
-display: flex;
-align-items: center;
-justify-content: center;
- background-color: Azure;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: Azure;
 }
 .rat{
   text-align: center;

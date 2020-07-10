@@ -3,16 +3,20 @@
     <head>
         <title>Messages</title>
         <link rel="stylesheet" href="/stylesheets/chat.css">
-        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+        <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
     </head>
     <body>
         <div class="nav">
             <div class="options">
                 <a href="/home/<%= data.id %>">Home</a>
-                <a href="/home/<%= data.id %>">Notifications</a>
+                <a href="/notifications/<%= data.id %>">Notifications</a>
                 <a href="/chat/<%= data.username %>/0">Messages</a>
-                <a href="/home/<%= data.id %>">My Music</a>
-                <a href= "/profile/<%= data.id %>" style="float:right"> <%= data.username %> </a>
+                <a href="/mymusic/<%= data.id %>">My Music</a>
+
+                <div class="right">
+                  <a href="/logout" id="confirmLogout" >Logout</a>
+                  <a href= "/profile/<%= data.id %>" > <%= data.username %> </a>
+                </div>
             </div>
             <div class="centered">
                 <a href="/mypage">Museical</a>
@@ -69,7 +73,7 @@
         <div class="contactList">
             <h2>Contacts</h2>
             <ul id="chatlist">
-                <button id="createwindowbtn" onclick= "document.getElementById('makechatwindow').style.display='block'">Create Chat</button>
+            <button id="createwindowbtn" onclick= "document.getElementById('makechatwindow').style.display='block'">Create Chat</button>
                 <% chatInfo.forEach(function(chats) { %>
                     <a href="/chat/<%= data.username %>/<%= chats.chatid %>"><%= chats.name %></a> <br>
                 <% }); %>
@@ -79,8 +83,8 @@
         <div class="container1">
             <div class="chat_controls">
                 <p class="chat_title"><%= currentchat.name %></p>
-                <button id="addwindowbtn" onclick= "document.getElementById('adduserwindow').style.display='block'">Add User</button>
-                <button id="leavewindowbtn" onclick= "document.getElementById('leavewindow').style.display='block'">Leave Group</button>
+            <button id="addwindowbtn" onclick= "if ('<%= currentchat.chatid %>' != 0){document.getElementById('adduserwindow').style.display='block'}">Add User</button>
+            <button id="leavewindowbtn" onclick= "if ('<%= currentchat.chatid %>' != 0){document.getElementById('leavewindow').style.display='block'}">Leave Group</button>
             </div>
             <ul id="messages">
                 <% mesInfo.forEach(function(msg) { %>
@@ -119,6 +123,14 @@
                         console.log("im out");
                         return true;
                     });
+
+                    $('#confirmLogout').click(function(){
+                      if(confirm('Are you sure you wish to logout?')) {
+                          return true;
+                        }
+
+                        return false;
+                      });
 
                     //show messages sent by you
                     socket.on('chat_message', (info)=>{

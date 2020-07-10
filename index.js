@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const multer = require('multer')
+const fs = require('fs')
 
 // Storgae destination for profile pictures, and the name of the picture.
 const storage = multer.diskStorage({
@@ -11,7 +12,7 @@ const storage = multer.diskStorage({
     func(null, './pictures/')
   },
   filename: (req, file, func) => {
-    func(null, file.originalname)
+    func(null, `id${req.session.loggedID}` )
   }
 })
 
@@ -31,7 +32,7 @@ const pictures = multer({storage: storage, fileFilter: fileFilter})
 const {Pool} = require('pg');
 var pool;
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://postgres:root@localhost/users'
+  connectionString: process.env.DATABASE_URL || 'postgres://postgres:root@localhost/appdatabase'
 })
 
 app = express()
@@ -80,7 +81,23 @@ const io = require('socket.io').listen(server);
       })
     }
 
+  })
 
+  app.get('/notifications/:id', (req, res) => {
+    if (!req.session.loggedin){
+      res.redirect('/' + '?valid=log')
+    }
+    else {
+      var userPageQuery = `select * from users where id = ${req.session.loggedID}`;
+
+      pool.query(userPageQuery, (error, result) => {
+        if(error)
+          res.send(error)
+
+        res.render('pages/notifications', result.rows[0])
+      })
+
+    }
   })
 
 app.get('/admin') {
@@ -102,6 +119,28 @@ app.get('/admin') {
     }
   })
 }
+  app.get('/mymusic/:id', (req, res) => {
+    if (!req.session.loggedin){
+      res.redirect('/' + '?valid=log')
+    }
+    else {
+      var userPageQuery = `select * from users where id = ${req.session.loggedID}`;
+
+      pool.query(userPageQuery, (error, result) => {
+        if(error)
+          res.send(error)
+
+        res.render('pages/mymusic', result.rows[0])
+      })
+
+    }
+  })
+
+  app.get('/logout', (req, res) => {
+    req.session.destroy()
+    res.redirect('/')
+  })
+
 
   // Each users personal profile which can be accessed by clicking the users name in the top right corner of the navigaiton bar.
   app.get('/profile/:id', (req, res) => {
@@ -231,24 +270,33 @@ app.get('/admin') {
   // This function updates the users profile picture. If the picture is valid it will change, if not, and error will be sent.
   app.post('/pictureChoose/:id', pictures.single('profilePicture'), async (req, res) => {
 
-    var valid = true
     if (!req.file){
-      var pictureUpdate = `update users set picture = '/pictures/lang-logo.png' where id = ${req.session.loggedID}`
-      valid = false
+      res.redirect('/profile/' + req.session.loggedID + '?valid=false' + '&field=pic')
     }
     else {
       var pictureUpdate = `update users set picture = '/${req.file.path}' where id = ${req.session.loggedID}`
-    }
 
-    const client = await pool.connect()
-    try {
-      const result = await client.query(pictureUpdate)
-      client.release()
-    } catch (err){
-      res.send(err)
-    }
+      var picturedelete =  `select picture from users where id = ${req.session.loggedID}`
 
-    res.redirect('/profile/' + req.params.id + '?valid=' + valid + '&field=pic')
+      pool.query(picturedelete, (error, result) => {
+        if(error)
+          res.send(error)
+
+        if(result.rows[0].picture != '/pictures/lang-logo.png'){
+          fs.unlink(result.rows[0].picture, (err) => {
+            if(error)
+              res.send(error)
+            })
+          }
+
+          pool.query(pictureUpdate, (error, resut) => {
+            if(error)
+            res.send(error)
+          })
+
+        })
+        res.redirect('/profile/' + req.session.loggedID + '?valid=true' + '&field=pic')
+    }
 
   })
 
@@ -262,7 +310,7 @@ app.get('/admin') {
         res.send(error)
 
       if((result.rows).length){
-        res.redirect('/profile/' + `${req.params.id}` + '?valid=' + false + '&field=uname')
+        res.redirect('/profile/' + `${req.session.loggedID}` + '?valid=' + false + '&field=uname')
       }
       else {
         var usernameChange = `update users set username = '${req.body.uname}' where id = ${req.session.loggedID}`
@@ -272,16 +320,11 @@ app.get('/admin') {
             res.send(error)
         })
 
-        res.redirect('/profile/' + `${req.params.id}` + '?valid=' + true)
+        res.redirect('/profile/' + `${req.session.loggedID}` + '?valid=' + true)
       }
 
     })
 
-  })
-
-  app.get('/logout', (req, res) => {
-    req.session.destroy()
-    res.redirect('/')
   })
 
   //identifies current chat
@@ -306,17 +349,17 @@ app.get('/admin') {
   app.post('/chat/:uname/create', (req,res)=>{
     uname = req.params.uname;
     let quotemoddedchatname = req.body.chatnameinput.replace(/'/g,"''");
-    var makechatQuery = "INSERT INTO chats VALUES (default, '" + quotemoddedchatname + "', ARRAY ['" + uname + "'])"
-    var getunameQuery = "SELECT * FROM users WHERE username = '" + uname + "'"
+    var makechatQuery = "INSERT INTO chats VALUES (default, '" + quotemoddedchatname + "', ARRAY ['" + uname + "'])";
+    var getinfoQuery = "SELECT * FROM users WHERE username = '" + uname + "'; SELECT * FROM chats WHERE name = '" + quotemoddedchatname  + "' ORDER BY chatid DESC";
 
     pool.query(makechatQuery, (error,unused) => {
       if (error)
         res.end(error);
-      pool.query(getunameQuery, (error,result) => {
+      pool.query(getinfoQuery, (error,result) => {
         if (error)
           res.end(error);
-        var username = result.rows[0]
-        res.render('pages/creategroup', username);
+        let data = {'uinfo':result[0].rows[0], 'newchatinfo':result[1].rows[0] }
+        res.render('pages/creategroup', data);
       })
     })
   })
@@ -333,7 +376,7 @@ app.get('/admin') {
       pool.query(getunameQuery, (error,result) => {
         if (error)
           res.end(error);
-        var username = result.rows[0]
+        let username = result.rows[0]
         res.render('pages/leavegroup', username);
       })
     })
