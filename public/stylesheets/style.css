@@ -21,12 +21,10 @@ body{
   align-items: center;
   justify-content: center;
   background-color: Azure;
-  font: 28px Helvetica, Arial;
 }
 .rat{
   text-align: center;
   font-style: oblique;
-  font: 20px Helvetica, Arial;
 }
 .bottom {
    position: fixed;
