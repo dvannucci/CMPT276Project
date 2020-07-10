@@ -81,8 +81,47 @@ const io = require('socket.io').listen(server);
       })
     }
 
-
   })
+
+  app.get('/notifications/:id', (req, res) => {
+    if (!req.session.loggedin){
+      res.redirect('/' + '?valid=log')
+    }
+    else {
+      var userPageQuery = `select * from users where id = ${req.session.loggedID}`;
+
+      pool.query(userPageQuery, (error, result) => {
+        if(error)
+          res.send(error)
+
+        res.render('pages/notifications', result.rows[0])
+      })
+
+    }
+  })
+
+  app.get('/mymusic/:id', (req, res) => {
+    if (!req.session.loggedin){
+      res.redirect('/' + '?valid=log')
+    }
+    else {
+      var userPageQuery = `select * from users where id = ${req.session.loggedID}`;
+
+      pool.query(userPageQuery, (error, result) => {
+        if(error)
+          res.send(error)
+
+        res.render('pages/mymusic', result.rows[0])
+      })
+
+    }
+  })
+
+  app.get('/logout', (req, res) => {
+    req.session.destroy()
+    res.redirect('/')
+  })
+
 
   // Each users personal profile which can be accessed by clicking the users name in the top right corner of the navigaiton bar.
   app.get('/profile/:id', (req, res) => {
@@ -267,11 +306,6 @@ const io = require('socket.io').listen(server);
 
     })
 
-  })
-
-  app.get('/logout', (req, res) => {
-    req.session.destroy()
-    res.redirect('/')
   })
 
   //identifies current chat
