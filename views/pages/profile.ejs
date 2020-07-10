@@ -17,8 +17,11 @@
       <a href="/home/<%= data.id %>">Notifications</a>
       <a href="/chat/<%= data.username %>/0">Messages</a>
       <a href="/home/<%= data.id %>">My Music</a>
-      <a href="/logout" id="confirmLogout" style="float:right">Logout</a>
-      <a href= "/profile/<%= data.id %>" style="float:right"> <%= data.username %> </a>
+
+      <div class="right">
+        <a href="/logout" id="confirmLogout" >Logout</a>
+        <a href= "/profile/<%= data.id %>" > <%= data.username %> </a>
+      </div>
 
       </div>
 

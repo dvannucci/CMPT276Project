@@ -18,9 +18,11 @@
       <a href="/home/<%= id %>">Notifications</a>
       <a href="/chat/<%= username %>/0">Messages</a>
       <a href="/home/<%= id %>">My Music</a>
-      <a href="/logout" id="confirmLogout" style="float:right">Logout</a>
-      <a href="/profile/<%= id %>" style="float:right"> <%= username %> </a>
 
+      <div class="right">
+        <a href="/profile/<%= id %>"> <%= username %> </a>
+        <a href="/logout" id="confirmLogout">Logout</a>
+      </div>
 
       </div>
 
