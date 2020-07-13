@@ -4,62 +4,41 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="/stylesheets/pageStyle.css">
     <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-    <title> <%= data.username %>'s Profile</title>
+    <title> <%= username %>'s Profile</title>
   </head>
   <body>
 
-    <div class="nav">
-
-      <div class="options">
-
-
-      <a href="/home/<%= data.id %>">Home</a>
-      <a href="/notifications/<%= data.id %>">Notifications</a>
-      <a href="/chat/<%= data.username %>/0">Messages</a>
-      <a href="/mymusic/<%= data.id %>">My Music</a>
-
-      <div class="right">
-        <a href= "/profile/<%= data.id %>" > <%= data.username %> </a>
-        <a href="/logout" id="confirmLogout" >Logout</a>
-      </div>
-
-      </div>
-
-      <div class="centered">
-        <a href="/home/<%= data.id %>">Museical</a>
-      </div>
-
-    </div>
+    <% include ../partials/nav.ejs %>
 
     <div class="info">
 
-      <img src=" <%= data.picture %> " alt="Can't display your image">
+      <img src=" <%= picture %> " alt="Can't display your image">
 
       <h3>Your current profile picture</h3> <br>
 
       <h4>If you would like to update your profile picture, select an image from your files below and click Submit.</h4>
 
-      <form action="/pictureChoose/<%= data.id %>" method="post" enctype="multipart/form-data">
+      <form action="/pictureChoose" method="post" enctype="multipart/form-data">
         <input type="file" name="profilePicture">
         <input type="submit" name="submit" value="submit">
       </form>
 
-      <% if (alert.alert == 'pic'){ %>
+      <% if (alert == 'pic'){ %>
         <h4 class="alert">The file you have chosen is neither a jpeg nor a png, your profile picture has not been changed.</h4>
        <% } %>
 
       <br>
 
-      <h3> Your current username: <br> <%= data.username %> </h3>
+      <h3> Your current username: <br> <%= username %> </h3>
 
       <h4>If you wish to change your username, enter a new username below.</h4>
 
-      <form action="/usernameChange/<%= data.id %>" method="post">
+      <form action="/usernameChange" method="post">
         <input type="text" name="uname" maxlength="10" placeholder="new username"> <br> <br>
         <input type="submit" name="submit" value="Change my username">
       </form>
 
-      <% if (alert.alert == 'uname'){ %>
+      <% if (alert == 'uname'){ %>
         <h4 class="alert">The username you have chosen is already in use. Your username has not been changed.</h4>
        <% } %>
 

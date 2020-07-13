@@ -9,28 +9,7 @@
   </head>
   <body>
 
-    <div class="nav">
-
-      <div class="options">
-
-
-      <a href="/home/<%= id %>">Home</a>
-      <a href="/notifications/<%= id %>">Notifications</a>
-      <a href="/chat/<%= username %>/0">Messages</a>
-      <a href="/mymusic/<%= id %>">My Music</a>
-
-      <div class="right">
-        <a href="/profile/<%= id %>"> <%= username %> </a>
-        <a href="/logout" id="confirmLogout">Logout</a>
-      </div>
-
-      </div>
-
-      <div class="centered">
-        <a href="/home/<%= id %>">Museical</a>
-      </div>
-
-    </div>
+    <% include ../partials/nav.ejs %>
 
     <div class="tabs">
       <h2>

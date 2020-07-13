@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="/stylesheets/pageStyle.css">
+    <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <title>Results</title>
+  </head>
+  <body>
+
+    <% include ../partials/nav.ejs %>
+
+    <div class="results">
+
+      <h1 class="resultHeader">Results:</h1>
+
+      <% if(results.length == 0){ %>
+        <br><br>
+        <h2>No users matched your search.</h2>
+      <% } else { %>
+        <h2>Click on any of the users below to view their profile.</h3>
+        <br><br>
+      <% } %>
+      <% results.forEach(function(x){ %>
+        <a href="/userSelect/<%= x.id %>">
+        <div class="matches">
+          <img src="<%= x.picture %>" alt="Can't display image">
+          <h2> <%=x.username %> </h2>
+        </div>
+        </a>
+
+      <% }) %>
+
+    </div>
+
+
+
+
+    <script type="text/javascript">
+
+    $(() => {
+      $('#confirmLogout').click(function(){
+        if(confirm('Are you sure you wish to logout?')) {
+            return true;
+          }
+
+          return false;
+        });
+    });
+
+    </script>
+
+  </body>
+</html>

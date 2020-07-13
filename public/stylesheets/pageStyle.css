@@ -14,7 +14,7 @@ body {
   position: relative;
 }
 
-.right {
+.rightSide {
   float: right;
 }
 
@@ -76,4 +76,59 @@ body {
 
 .alert {
   color: red;
+}
+
+.innerLeft {
+  float: right;
+  height: 35px;
+  line-height: 35px;
+  padding-right: 15px;
+}
+
+.innerRight {
+  float: right;
+}
+
+#searchInput {
+  background-color: rgb(0,0,0);
+  color: white;
+}
+
+#searchInput::placeholder {
+  color: white;
+}
+
+[name=searchSubmit] {
+  color: white;
+  background-color: black;
+}
+
+.results {
+  color:white;
+  margin-top: 8%;
+  margin-left: 12%;
+}
+
+.resultHeader {
+  font-size: 400%;
+  margin-bottom: 5px;
+}
+
+.matches {
+  color: white;
+  height: 130px;;
+  margin: 20px;
+}
+
+.matches img {
+  float: left;
+  height: 124px;
+  border-style: solid;
+  border-color: white;
+  border-width: medium;
+}
+
+.matches h2 {
+  padding: 10px;
+  overflow: hidden;
 }

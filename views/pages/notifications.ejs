@@ -5,32 +5,11 @@
 
     <link rel="stylesheet" href="/stylesheets/pageStyle.css">
     <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
-    <title> <%= username %>'s Homepage</title>
+    <title> <%= username %>'s Notifications</title>
   </head>
   <body>
 
-    <div class="nav">
-
-      <div class="options">
-
-
-      <a href="/home/<%= id %>">Home</a>
-      <a href="/notifications/<%= id %>">Notifications</a>
-      <a href="/chat/<%= username %>/0">Messages</a>
-      <a href="/mymusic/<%= id %>">My Music</a>
-
-      <div class="right">
-        <a href="/profile/<%= id %>"> <%= username %> </a>
-        <a href="/logout" id="confirmLogout">Logout</a>
-      </div>
-
-      </div>
-
-      <div class="centered">
-        <a href="/home/<%= id %>">Museical</a>
-      </div>
-
-    </div>
+    <% include ../partials/nav.ejs %>
 
       <div class="activity" style="margin-top:20%;font-size:150%">
         <h3>Notifications will implemented on the next iteration after users are able to connect with other users and activity is tracked.</h3>

@@ -66,7 +66,7 @@ const io = require('socket.io').listen(server);
   })
 
   // The homepage for every user, customized to their personal info.
-  app.get('/home/:id', (req, res) => {
+  app.get('/home', (req, res) => {
     if (!req.session.loggedin){
       res.redirect('/' + '?valid=log')
     }
@@ -77,26 +77,18 @@ const io = require('socket.io').listen(server);
         if(error)
           res.send(error)
 
-        res.render('pages/userHomepage', result.rows[0])
+        res.render('pages/userHomepage', {'username' : req.session.username, 'id' : req.session.loggedID})
       })
     }
 
   })
 
-  app.get('/notifications/:id', (req, res) => {
+  app.get('/notifications', (req, res) => {
     if (!req.session.loggedin){
       res.redirect('/' + '?valid=log')
     }
     else {
-      var userPageQuery = `select * from users where id = ${req.session.loggedID}`;
-
-      pool.query(userPageQuery, (error, result) => {
-        if(error)
-          res.send(error)
-
-        res.render('pages/notifications', result.rows[0])
-      })
-
+        res.render('pages/notifications', {'username' : req.session.username, 'id' : req.session.loggedID})
     }
   })
 
@@ -123,21 +115,36 @@ app.get('/admin', async (req,res) => {
 
 
 
-  app.get('/mymusic/:id', (req, res) => {
+  app.get('/mymusic', (req, res) => {
     if (!req.session.loggedin){
       res.redirect('/' + '?valid=log')
     }
     else {
-      var userPageQuery = `select * from users where id = ${req.session.loggedID}`;
+        res.render('pages/mymusic', {'username' : req.session.username, 'id' : req.session.loggedID})
+    }
+  })
 
-      pool.query(userPageQuery, (error, result) => {
+  app.post('/userSearch', (req, res) => {
+    if (!req.session.loggedin){
+      res.redirect('/' + '?valid=log')
+    }
+    else {
+      var searchQuery = `select * from users where username like '${req.body.searchInput}%'`
+      pool.query(searchQuery, (error, result) => {
         if(error)
           res.send(error)
+        var current = {'username' : req.session.username, 'id' : req.session.loggedID}
+        current.results = result.rows
 
-        res.render('pages/mymusic', result.rows[0])
+        res.render('pages/resultsPage', current)
       })
-
     }
+  })
+
+  app.get('/userSelect/:id', (req, res) => {
+    var gatherUser = `select * from users where id = ${req.params.id}`
+    pool
+
   })
 
   app.get('/logout', (req, res) => {
@@ -147,21 +154,21 @@ app.get('/admin', async (req,res) => {
 
 
   // Each users personal profile which can be accessed by clicking the users name in the top right corner of the navigaiton bar.
-  app.get('/profile/:id', (req, res) => {
+  app.get('/profile', (req, res) => {
     if (!req.session.loggedin){
       res.redirect('/' + '?valid=log')
     }
     else {
       if (req.query.valid == 'false'){
         if (req.query.field == 'pic'){
-          var alert = {'alert' : 'pic'}
+          var alert = 'pic'
         }
         else{
-          var alert = {'alert' : 'uname'}
+          var alert = 'uname'
         }
       }
       else {
-        var alert = {'alert' : false}
+        var alert = false
       }
 
       var allQuery = `select * from users where id = ${req.session.loggedID}`
@@ -170,8 +177,9 @@ app.get('/admin', async (req,res) => {
           res.send(error)
 
         var data = result.rows[0]
+        data.alert = alert
 
-        res.render('pages/profile', {data, alert} )
+        res.render('pages/profile', data )
       })
     }
 
@@ -236,7 +244,8 @@ app.get('/admin', async (req,res) => {
            if(results.rows[0].username==username && results.rows[0].password==upassword){
              req.session.loggedin = true;
              req.session.loggedID = results.rows[0].id
-             res.redirect('/home/' + results.rows[0].id )
+             req.session.username = results.rows[0].username
+             res.redirect('/home')
            }
            else{
              res.redirect('/' + '?valid=password');  // After user enters wrong password they will get rendered to this page
@@ -272,17 +281,17 @@ app.get('/admin', async (req,res) => {
           }
         });
   // This function updates the users profile picture. If the picture is valid it will change, if not, and error will be sent.
-  app.post('/pictureChoose/:id', pictures.single('profilePicture'), async (req, res) => {
+  app.post('/pictureChoose', pictures.single('profilePicture'), async (req, res) => {
 
     if (!req.file){
-      res.redirect('/profile/' + req.session.loggedID + '?valid=false' + '&field=pic')
+      res.redirect('/profile' + '?valid=false' + '&field=pic')
     }
     else {
       var pictureUpdate = `update users set picture = '/${req.file.path}' where id = ${req.session.loggedID}`
 
       var picturedelete =  `select picture from users where id = ${req.session.loggedID}`
 
-      pool.query(picturedelete, (error, result) => {
+      await pool.query(picturedelete, (error, result) => {
         if(error)
           res.send(error)
 
@@ -299,22 +308,22 @@ app.get('/admin', async (req,res) => {
           })
 
         })
-        res.redirect('/profile/' + req.session.loggedID + '?valid=true' + '&field=pic')
+        res.redirect('/profile' + '?valid=true' + '&field=pic')
     }
 
   })
 
   // Similar to the /pictureChoose function, this allows the user to change their username if they wish.
-  app.post('/usernameChange/:id', async (req, res) => {
+  app.post('/usernameChange', async (req, res) => {
 
     var checkDatabase = `select * from users where username = '${req.body.uname}'`
 
-    pool.query(checkDatabase, (error, result) => {
+    await pool.query(checkDatabase, (error, result) => {
       if(error)
         res.send(error)
 
       if((result.rows).length){
-        res.redirect('/profile/' + `${req.session.loggedID}` + '?valid=' + false + '&field=uname')
+        res.redirect('/profile' + '?valid=' + false + '&field=uname')
       }
       else {
         var usernameChange = `update users set username = '${req.body.uname}' where id = ${req.session.loggedID}`
@@ -323,11 +332,11 @@ app.get('/admin', async (req,res) => {
           if(error)
             res.send(error)
         })
-
-        res.redirect('/profile/' + `${req.session.loggedID}` + '?valid=' + true)
+        res.redirect('/profile' + '?valid=' + true)
       }
 
     })
+
 
   })
 
