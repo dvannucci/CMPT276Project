@@ -127,47 +127,89 @@ app.get('/admin', checkLogin, async (req,res) => {
   app.post('/userSearch', checkLogin, (req, res) => {
 
     var searchQuery = `select * from users where username like'${req.body.searchInput}%'`
+
     pool.query(searchQuery, (error, result) => {
       if(error)
         res.send(error)
-      var current = {'username' : req.session.username, 'id' : req.session.loggedID}
+      var current = {'username' : req.session.username}
       current.results = result.rows
 
-      res.render('pages/resultsPage', current)
+      var checkFollowers = `select is_following from followers where the_user = ${req.session.loggedID} `
+
+      pool.query(checkFollowers, (error, result) => {
+        if(error)
+          res.send(error)
+
+        current.followers = result.rows
+
+        res.render('pages/resultsPage', current)
+      })
+
     })
 
   })
 
   app.get('/userSelect/:id', checkLogin, (req, res) => {
-    var gatherUser = `select * from users where id = ${req.params.id}`
 
-    pool.query(gatherUser, (error, result) => {
+    var checkFollowingStatus = `select * from followers where the_user = ${req.session.loggedID} and is_following = ${req.params.id} `
+
+    pool.query(checkFollowingStatus, (error, result) => {
       if(error)
         res.send(error)
 
-      var current = {'username' : req.session.username, 'id' : req.session.loggedID}
-      current.results = result.rows[0]
+      var gatherUser = `select * from users where id = ${req.params.id}`
+      var current = {'username' : req.session.username}
 
-      res.render('pages/requestPage', current)
+      if(result.rows.length == 0){
+        current.following = false
+      }
+      else {
+        current.following = true
+      }
+
+      pool.query(gatherUser, (error, result) => {
+        if(error)
+          res.send(error)
+
+        current.results = result.rows[0]
+
+        res.render('pages/requestedPage', current)
+      })
+
     })
 
   })
 
-  app.get('/logout', (req, res) => {
-    req.session.destroy()
-    res.redirect('/')
-  })
-
-  app.post('/interact', checkLogin, (req, res) => {
+  app.post('/interact/:id', checkLogin, (req, res) => {
     if(req.body.follow){
-      console.log("follow")
+
+      var addFollow = `insert into followers values(default, ${req.session.loggedID}, ${req.params.id})`
+
+      pool.query(addFollow, (error, result) => {
+        if(error)
+          res.send(error)
+
+        res.redirect('/userSelect/' + req.params.id)
+      })
+
+
+    } else if(req.body.unFollow){
+      var unFollow = `delete from followers where the_user = ${req.session.loggedID} and is_following = ${req.params.id}`
+
+      pool.query(unFollow, (error, result) => {
+        if(error)
+          res.send(error)
+
+        res.redirect('/userSelect/' + req.params.id)
+      })
+
     }
-    if(req.body.message){
+
+    else {
       console.log('message')
     }
 
   })
-
 
   // Each users personal profile which can be accessed by clicking the users name in the top right corner of the navigaiton bar.
   app.get('/profile', checkLogin, (req, res) => {
@@ -196,6 +238,11 @@ app.get('/admin', checkLogin, async (req,res) => {
     })
 
 
+  })
+
+  app.get('/logout', (req, res) => {
+    req.session.destroy()
+    res.redirect('/')
   })
 
   // The registration page that users will be directed to when they click the link on the login page to make an account.

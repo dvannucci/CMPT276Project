@@ -15,10 +15,14 @@
 
       <img src=" <%= results.picture %> " alt="Can't display your image">
 
-      <h2><%= results.username %>'s Profile picture</h2> <br><br>
+      <h2><%= results.username %>'s Profile</h2> <br><br>
 
-      <form class="follow" action="/interact" method="post">
-        <input type="submit" name="follow" value="Follow">
+      <form class="follow" action="/interact/<%= results.id %>" method="post">
+        <% if (following){ %>
+          <input type="submit" name="unFollow" value="UnFollow">
+        <% } else { %>
+          <input type="submit" name="follow" value="Follow">
+        <% } %>
         <input type="submit" name="message" value="Message">
       </form>
 

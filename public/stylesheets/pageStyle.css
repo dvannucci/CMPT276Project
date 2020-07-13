@@ -113,6 +113,10 @@ body {
   margin-left: 12%;
 }
 
+.results a {
+  text-decoration: none;
+}
+
 .resultHeader {
   font-size: 400%;
   margin-bottom: 5px;
@@ -137,6 +141,11 @@ body {
   overflow: hidden;
 }
 
+.results a:hover {
+  text-decoration: underline;
+  color: white;
+}
+
 .follow {
   text-align: center;
 }
@@ -145,6 +154,6 @@ body {
   display: inline;
   font: Helvetica Bold;
   font-size: 20px;
-  padding: 10px 40px;
+  padding: 10px 35px;
   background-color: rgb(152,255,152);
 }
