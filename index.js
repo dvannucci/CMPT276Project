@@ -35,6 +35,15 @@ pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgres://postgres:root@localhost/appdatabase'
 })
 
+checkLogin = (req, res, next) => {
+  if(req.session.loggedin){
+    next()
+  }
+  else {
+    res.redirect('/' + '?valid=log')
+  }
+}
+
 app = express()
 
 //setup for socket.io
@@ -66,33 +75,27 @@ const io = require('socket.io').listen(server);
   })
 
   // The homepage for every user, customized to their personal info.
-  app.get('/home', (req, res) => {
-    if (!req.session.loggedin){
-      res.redirect('/' + '?valid=log')
-    }
-    else {
-      var userPageQuery = `select * from users where id = ${req.session.loggedID}`;
+  app.get('/home', checkLogin, (req, res) => {
 
-      pool.query(userPageQuery, (error, result) => {
-        if(error)
-          res.send(error)
+    var userPageQuery = `select * from users where id = ${req.session.loggedID}`;
 
-        res.render('pages/userHomepage', {'username' : req.session.username, 'id' : req.session.loggedID})
-      })
-    }
+    pool.query(userPageQuery, (error, result) => {
+      if(error)
+        res.send(error)
+
+      res.render('pages/userHomepage', {'username' : req.session.username, 'id' :req.session.loggedID})
+    })
+
 
   })
 
-  app.get('/notifications', (req, res) => {
-    if (!req.session.loggedin){
-      res.redirect('/' + '?valid=log')
-    }
-    else {
-        res.render('pages/notifications', {'username' : req.session.username, 'id' : req.session.loggedID})
-    }
+  app.get('/notifications', checkLogin, (req, res) => {
+
+    res.render('pages/notifications', {'username' : req.session.username, 'id' : req.session.loggedID})
+
   })
 
-app.get('/admin', async (req,res) => {
+app.get('/admin', checkLogin, async (req,res) => {
   var adminCheck = `select * from users where id = ${req.session.loggedID} AND usertype='A';`
   await pool.query(adminCheck, (error, result) => {
     if(error)
@@ -115,35 +118,38 @@ app.get('/admin', async (req,res) => {
 
 
 
-  app.get('/mymusic', (req, res) => {
-    if (!req.session.loggedin){
-      res.redirect('/' + '?valid=log')
-    }
-    else {
-        res.render('pages/mymusic', {'username' : req.session.username, 'id' : req.session.loggedID})
-    }
+  app.get('/mymusic', checkLogin, (req, res) => {
+
+    res.render('pages/mymusic', {'username' : req.session.username, 'id' : req.session.loggedID})
+
   })
 
-  app.post('/userSearch', (req, res) => {
-    if (!req.session.loggedin){
-      res.redirect('/' + '?valid=log')
-    }
-    else {
-      var searchQuery = `select * from users where username like '${req.body.searchInput}%'`
-      pool.query(searchQuery, (error, result) => {
-        if(error)
-          res.send(error)
-        var current = {'username' : req.session.username, 'id' : req.session.loggedID}
-        current.results = result.rows
+  app.post('/userSearch', checkLogin, (req, res) => {
 
-        res.render('pages/resultsPage', current)
-      })
-    }
+    var searchQuery = `select * from users where username like'${req.body.searchInput}%'`
+    pool.query(searchQuery, (error, result) => {
+      if(error)
+        res.send(error)
+      var current = {'username' : req.session.username, 'id' : req.session.loggedID}
+      current.results = result.rows
+
+      res.render('pages/resultsPage', current)
+    })
+
   })
 
-  app.get('/userSelect/:id', (req, res) => {
+  app.get('/userSelect/:id', checkLogin, (req, res) => {
     var gatherUser = `select * from users where id = ${req.params.id}`
-    pool
+
+    pool.query(gatherUser, (error, result) => {
+      if(error)
+        res.send(error)
+
+      var current = {'username' : req.session.username, 'id' : req.session.loggedID}
+      current.results = result.rows[0]
+
+      res.render('pages/requestPage', current)
+    })
 
   })
 
@@ -152,36 +158,43 @@ app.get('/admin', async (req,res) => {
     res.redirect('/')
   })
 
+  app.post('/interact', checkLogin, (req, res) => {
+    if(req.body.follow){
+      console.log("follow")
+    }
+    if(req.body.message){
+      console.log('message')
+    }
+
+  })
+
 
   // Each users personal profile which can be accessed by clicking the users name in the top right corner of the navigaiton bar.
-  app.get('/profile', (req, res) => {
-    if (!req.session.loggedin){
-      res.redirect('/' + '?valid=log')
+  app.get('/profile', checkLogin, (req, res) => {
+
+    if (req.query.valid == 'false'){
+      if (req.query.field == 'pic'){
+        var alert = 'pic'
+      }
+      else{
+        var alert = 'uname'
+      }
     }
     else {
-      if (req.query.valid == 'false'){
-        if (req.query.field == 'pic'){
-          var alert = 'pic'
-        }
-        else{
-          var alert = 'uname'
-        }
-      }
-      else {
-        var alert = false
-      }
-
-      var allQuery = `select * from users where id = ${req.session.loggedID}`
-      pool.query(allQuery, (error, result) => {
-        if(error)
-          res.send(error)
-
-        var data = result.rows[0]
-        data.alert = alert
-
-        res.render('pages/profile', data )
-      })
+      var alert = false
     }
+
+    var allQuery = `select * from users where id = ${req.session.loggedID}`
+    pool.query(allQuery, (error, result) => {
+      if(error)
+        res.send(error)
+
+      var data = result.rows[0]
+      data.alert = alert
+
+      res.render('pages/profile', data )
+    })
+
 
   })
 
@@ -281,7 +294,7 @@ app.get('/admin', async (req,res) => {
           }
         });
   // This function updates the users profile picture. If the picture is valid it will change, if not, and error will be sent.
-  app.post('/pictureChoose', pictures.single('profilePicture'), async (req, res) => {
+  app.post('/pictureChoose', checkLogin, pictures.single('profilePicture'), async (req, res) => {
 
     if (!req.file){
       res.redirect('/profile' + '?valid=false' + '&field=pic')
@@ -314,7 +327,7 @@ app.get('/admin', async (req,res) => {
   })
 
   // Similar to the /pictureChoose function, this allows the user to change their username if they wish.
-  app.post('/usernameChange', async (req, res) => {
+  app.post('/usernameChange', checkLogin, async (req, res) => {
 
     var checkDatabase = `select * from users where username = '${req.body.uname}'`
 

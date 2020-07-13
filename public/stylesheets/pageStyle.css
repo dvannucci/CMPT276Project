@@ -65,6 +65,10 @@ body {
   text-align: center;
 }
 
+.info h2 {
+  text-align: center;
+}
+
 .floater {
   overflow: hidden;
 }
@@ -131,4 +135,16 @@ body {
 .matches h2 {
   padding: 10px;
   overflow: hidden;
+}
+
+.follow {
+  text-align: center;
+}
+
+.follow input{
+  display: inline;
+  font: Helvetica Bold;
+  font-size: 20px;
+  padding: 10px 40px;
+  background-color: rgb(152,255,152);
 }
