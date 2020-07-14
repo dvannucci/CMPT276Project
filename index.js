@@ -403,27 +403,26 @@ app.get('/admin', checkLogin, async (req,res) => {
   //identifies current chat
   var chatID;
   //link to chat page
-  app.get('/chat/:uname/:chatID', (req,res)=>{
-    var uname =req.params.uname;
+  app.get('/chat/:chatID', (req,res)=>{
+    var uname =req.session.username;
     chatID = req.params.chatID;
     var getmessagesQuery = "SELECT * FROM messages where chatID = " + chatID + "ORDER BY time ASC;"
     + "SELECT * FROM chats WHERE '" + uname +  "'= any(participants);"
-    + "SELECT * FROM users WHERE username = '" + uname + "';"
     + "SELECT * FROM chats WHERE chatID = " + chatID;
 
     pool.query(getmessagesQuery, (error,result) => {
       if (error)
         res.end(error);
-      var mesData= {'mesInfo':result[0].rows,'chatInfo':result[1].rows, 'data':result[2].rows[0], 'currentchat':result[3].rows[0]}
+      var mesData= {'mesInfo':result[0].rows,'chatInfo':result[1].rows, 'username':uname, 'currentchat':result[2].rows[0]}
       res.render('pages/chat',mesData);
     })
   })
 
-  app.post('/chat/:uname/create', (req,res)=>{
-    uname = req.params.uname;
+  app.post('/chat/create', (req,res)=>{
+    var uname = req.session.username;
     let quotemoddedchatname = req.body.chatnameinput.replace(/'/g,"''");
     var makechatQuery = "INSERT INTO chats VALUES (default, '" + quotemoddedchatname + "', ARRAY ['" + uname + "'])";
-    var getinfoQuery = "SELECT * FROM users WHERE username = '" + uname + "'; SELECT * FROM chats WHERE name = '" + quotemoddedchatname  + "' ORDER BY chatid DESC";
+    var getinfoQuery = " SELECT * FROM chats WHERE name = '" + quotemoddedchatname  + "' ORDER BY chatid DESC";
 
     pool.query(makechatQuery, (error,unused) => {
       if (error)
@@ -431,27 +430,21 @@ app.get('/admin', checkLogin, async (req,res) => {
       pool.query(getinfoQuery, (error,result) => {
         if (error)
           res.end(error);
-        let data = {'uinfo':result[0].rows[0], 'newchatinfo':result[1].rows[0] }
+        let data = {'newchatinfo':result.rows[0] }
         res.render('pages/creategroup', data);
       })
     })
   })
 
-  app.post('/chat/:uname/:chatID/leave', (req,res)=>{
-    var uname = req.params.uname;
-    var chatID = req.params.chatID;
+  app.post('/chat/:chatID/leave', (req,res)=>{
+    var uname = req.session.username;
+    chatID = req.params.chatID;
     var leavechatQuery = "UPDATE chats SET participants = array_remove(participants, '" + uname + "') WHERE chatid = " + chatID;
-    var getunameQuery = "SELECT * FROM users WHERE username = '" + uname + "'"
 
     pool.query(leavechatQuery, (error,unused) => {
       if (error)
         res.end(error);
-      pool.query(getunameQuery, (error,result) => {
-        if (error)
-          res.end(error);
-        let username = result.rows[0]
-        res.render('pages/leavegroup', username);
-      })
+      res.render('pages/leavegroup');
     })
   })
 
