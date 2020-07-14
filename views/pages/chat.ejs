@@ -10,11 +10,11 @@
             <div class="options">
                 <a href="/home">Home</a>
                 <a href="/notifications">Notifications</a>
-                <a href="/chat/<%= data.username %>/0">Messages</a>
+                <a href="/chat/0">Messages</a>
                 <a href="/mymusic">My Music</a>
 
                 <div class="right">
-                  <a href= "/profile" > <%= data.username %> </a>
+                  <a href= "/profile" > <%= username %> </a>
                   <a href="/logout" id="confirmLogout" >Logout</a>
                 </div>
             </div>
@@ -26,7 +26,7 @@
 
         <div id="makechatwindow" class="modal">
             <span onclick="document.getElementById('makechatwindow').style.display='none'" class="close" title="close window">×</span>
-            <form class="windowcontent" action="/chat/<%= data.username %>/create" method="post">
+            <form class="windowcontent" action="/chat/create" method="post">
             <div class="container3">
                 <h1>Create Chat</h1>
                 <p>Please enter the name of your new chat. <br> <br></p>
@@ -58,7 +58,7 @@
 
         <div id="leavewindow" class="modal">
             <span onclick="document.getElementById('leavewindow').style.display='none'" class="close" title="close window">×</span>
-            <form class="windowcontent" action="/chat/<%= data.username %>/<%= currentchat.chatid %>/leave" method="post" id="leaveform">
+            <form class="windowcontent" action="/chat/<%= currentchat.chatid %>/leave" method="post" id="leaveform">
                 <div class="container4">
                 <h1>Leave Group</h1>
                 <p>Are you sure you want to leave the group?</p>
@@ -75,7 +75,7 @@
             <ul id="chatlist">
             <button id="createwindowbtn" onclick= "document.getElementById('makechatwindow').style.display='block'">Create Chat</button>
                 <% chatInfo.forEach(function(chats) { %>
-                    <a href="/chat/<%= data.username %>/<%= chats.chatid %>"><%= chats.name %></a> <br>
+                    <a href="/chat/<%= chats.chatid %>"><%= chats.name %></a> <br>
                 <% }); %>
             </ul>
         </div>
@@ -120,7 +120,6 @@
 
                     $('#leaveform').submit((evt)=>{
                         socket.emit("user_left", {msg: "has left the chat", chatID: '<%= currentchat.chatid %>'});
-                        console.log("im out");
                         return true;
                     });
 
@@ -143,7 +142,7 @@
                     });
 
                     // temporary manual username input
-                    var username = '<%= data.username %>';
+                    var username = '<%= username %>';
                     socket.emit('username', username);
 
                     //show messages sent by other users
