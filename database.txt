@@ -1,6 +1,6 @@
 CREATE TABLE Customer(id SERIAL UNIQUE, name VARCHAR(40), email VARCHAR(40) UNIQUE, password VARCHAR(40));
 
-Create table users(id SERIAL UNIQUE, username varchar(30) UNIQUE NOT NULL, email varchar(50) UNIQUE NOT NULL, password varchar(30) NOT NULL, picture varchar(100) DEFAULT '/pictures/lang-logo.png', usertype varchar(1) DEFAULT 'R', PRIMARY KEY (id) );
+Create table users(id SERIAL UNIQUE, username varchar(30) UNIQUE NOT NULL, email varchar(50) UNIQUE NOT NULL, password varchar(30) NOT NULL, picture varchar(100) DEFAULT '/pictures/lang-logo.png', usertype varchar(1) DEFAULT 'R', date_joined Date NOT NULL DEFAULT CURRENT_DATE, PRIMARY KEY (id) );
 
 NEW **********
 

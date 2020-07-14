@@ -301,6 +301,8 @@ app.get('/admin', checkLogin, async (req,res) => {
     const client = await pool.connect();
     var selectQuery= `SELECT id, username, password FROM users WHERE username='${username}'`;
          pool.query(selectQuery,(error,result) =>{
+           if(error){res.send(error)}
+
 
            var results = {'rows': result.rows}
            if(Object.keys(results.rows).length===0 ){

@@ -26,12 +26,22 @@
         <a href="/userSelect/<%= x.id %>">
         <div class="matches">
           <img src="<%= x.picture %>" alt="Can't display image">
-          <h2> <%=x.username %> </h2>
+
+          <div class="username">
+            <h2> <%=x.username %> </h2>
+          </div>
+
+          <div class="date">
+            <h3> Date Joined: <%=x.date_joined.toDateString() %> </h3>
+          </div>
+
+
+
           <% if(followers.includes(x.id)){ %>
             <div class="recognize">
               <h2>Following</h2>
             </div>
-            
+
           <% } %>
         </div>
         </a>

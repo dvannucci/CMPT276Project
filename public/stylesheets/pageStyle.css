@@ -142,7 +142,7 @@ body {
   border-width: medium;
 }
 
-.matches h2 {
+.matches h2, h3{
   padding: 10px;
   overflow: hidden;
 }
@@ -150,6 +150,11 @@ body {
 .results a:hover {
   text-decoration: underline;
   color: white;
+}
+
+.date {
+  display: inline-block;
+  text-decoration: none;
 }
 
 .follow {
