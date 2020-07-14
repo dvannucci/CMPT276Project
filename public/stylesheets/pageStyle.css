@@ -2,6 +2,7 @@ body {
   background-color: rgb(0,0,0);
   margin: 0;
   font: 13px Helvetica, Arial;
+  min-width: 950px;
 }
 
 .nav {
@@ -123,9 +124,14 @@ body {
 }
 
 .matches {
+  position: relative;
   color: white;
-  height: 130px;;
+  height: 130px;
   margin: 20px;
+  width: 70%;
+  border-style: groove;
+  border-color: white;
+  border-width: thin;
 }
 
 .matches img {
@@ -156,4 +162,12 @@ body {
   font-size: 20px;
   padding: 10px 35px;
   background-color: rgb(152,255,152);
+}
+
+.recognize {
+  position: absolute;
+  right: 0%;
+  top: 50%;
+  transform: translate(-10%, -50%);
+  color: white;
 }

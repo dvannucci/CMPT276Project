@@ -27,6 +27,12 @@
         <div class="matches">
           <img src="<%= x.picture %>" alt="Can't display image">
           <h2> <%=x.username %> </h2>
+          <% if(followers.includes(x.id)){ %>
+            <div class="recognize">
+              <h2>Following</h2>
+            </div>
+            
+          <% } %>
         </div>
         </a>
 

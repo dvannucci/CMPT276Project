@@ -140,7 +140,13 @@ app.get('/admin', checkLogin, async (req,res) => {
         if(error)
           res.send(error)
 
-        current.followers = result.rows
+        var check = []
+
+        result.rows.filter(function(each) {
+          check.push(each.is_following)
+        })
+
+        current.followers = check
 
         res.render('pages/resultsPage', current)
       })
