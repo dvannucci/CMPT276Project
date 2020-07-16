@@ -5,6 +5,13 @@ const path = require('path')
 const PORT = process.env.PORT || 5000
 const multer = require('multer')
 const fs = require('fs')
+const google = require('googleapis').google;
+const jwt = require('jsonwebtoken');
+const CONFIG = require('./config');
+// Google's OAuth2 client
+const OAuth2 = google.auth.OAuth2;
+// Allowing ourselves to use cookies
+const cookieParser = require('cookie-parser');
 
 // Storgae destination for profile pictures, and the name of the picture.
 const storage = multer.diskStorage({
@@ -56,7 +63,7 @@ const io = require('socket.io').listen(server);
     resave : true,
     saveUninitialized : true
   }))
-
+  app.use(cookieParser());
   app.use(express.json())
   app.use(express.urlencoded({extended:false}))
   app.use(bodyParser.urlencoded({extended : true}))
@@ -65,6 +72,7 @@ const io = require('socket.io').listen(server);
   app.use('/pictures', express.static('pictures'))
   app.set('views', path.join(__dirname, 'views'))
   app.set('view engine', 'ejs')
+  
 
   // Takes you to the login page whenever the app is opened.
   app.get('/', (req, res) => res.render('pages/Login', {'alert' : req.query.valid}))
@@ -119,7 +127,10 @@ app.get('/admin', checkLogin, async (req,res) => {
 
 
   app.get('/mymusic', checkLogin, (req, res) => {
-
+    if (!req.cookies.jwt) {
+      // We haven't logged in
+      return res.redirect('/google_login');
+    }
     res.render('pages/mymusic', {'username' : req.session.username, 'id' : req.session.loggedID})
 
   })
@@ -509,15 +520,6 @@ app.get('/admin', checkLogin, async (req,res) => {
 
   // Google OAuth 2.0 Setup //
 
-const google = require('googleapis').google;
-const jwt = require('jsonwebtoken');
-const CONFIG = require('./config');
-// Google's OAuth2 client
-const OAuth2 = google.auth.OAuth2;
-// Allowing ourselves to use cookies
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
-
 app.get('/google_login', (req,res)=> {
   // Create an OAuth2 client object from the credentials in our config file
   const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
@@ -534,7 +536,7 @@ app.get('/auth_callback', function (req, res) {
   const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
   if (req.query.error) {
     // The user did not give us permission.
-    return res.redirect('/');
+    return res.redirect('/home');
   } else {
     oauth2Client.getToken(req.query.code, function(err, token) {
       if (err)
