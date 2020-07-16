@@ -505,3 +505,44 @@ app.get('/admin', checkLogin, async (req,res) => {
       })
     })
   });
+
+
+  // Google OAuth 2.0 Setup //
+
+const google = require('googleapis').google;
+const jwt = require('jsonwebtoken');
+const CONFIG = require('./config');
+// Google's OAuth2 client
+const OAuth2 = google.auth.OAuth2;
+// Allowing ourselves to use cookies
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+app.get('/google_login', (req,res)=> {
+  // Create an OAuth2 client object from the credentials in our config file
+  const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
+  // Obtain the google login link to which we'll send our users to give us access
+  const loginLink = oauth2Client.generateAuthUrl({
+    access_type: 'offline', // Indicates that we need to be able to access data continously without the user constantly giving us consent
+    scope: CONFIG.oauth2Credentials.scopes // Using the access scopes from our config file
+  });
+  return res.render("pages/google_login", { loginLink: loginLink });
+});
+
+app.get('/auth_callback', function (req, res) {
+  // Create an OAuth2 client object from the credentials in our config file
+  const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
+  if (req.query.error) {
+    // The user did not give us permission.
+    return res.redirect('/');
+  } else {
+    oauth2Client.getToken(req.query.code, function(err, token) {
+      if (err)
+        return res.redirect('/');
+
+      // Store the credentials given by google into a jsonwebtoken in a cookie called 'jwt'
+      res.cookie('jwt', jwt.sign(token, CONFIG.JWTsecret));
+      return res.redirect('/mymusic');
+    });
+  }
+});
