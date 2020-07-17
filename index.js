@@ -131,9 +131,10 @@ app.get('/admin', checkLogin, async (req,res) => {
       // We haven't logged in
       return res.redirect('/google_login');
     }
-    res.render('pages/mymusic', {'username' : req.session.username, 'id' : req.session.loggedID})
-
-  })
+   
+    res.render('pages/mymusic', { 'username' : req.session.username, 'id' : req.session.loggedID });
+  });
+  
 
   app.post('/userSearch', checkLogin, (req, res) => {
 
