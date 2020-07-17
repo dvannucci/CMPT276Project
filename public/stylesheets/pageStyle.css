@@ -176,3 +176,9 @@ body {
   transform: translate(-10%, -50%);
   color: white;
 }
+
+.spotify {
+  color: white;
+  margin-left: 20%;
+  margin-top: 10%;
+}

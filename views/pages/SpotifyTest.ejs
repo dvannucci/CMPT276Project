@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="/stylesheets/pageStyle.css">
+    <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <title>SpotifyTest</title>
+  </head>
+  <body>
+
+    <h1 class="spotify">Test</h1>
+
+
+
+
+    <script type="text/javascript">
+
+    $(() => {
+      $('#confirmLogout').click(function(){
+        if(confirm('Are you sure you wish to logout?')) {
+            return true;
+          }
+
+          return false;
+        });
+
+    });
+
+    </script>
+
+  </body>
+</html>
