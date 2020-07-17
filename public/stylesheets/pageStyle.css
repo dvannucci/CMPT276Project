@@ -176,3 +176,12 @@ body {
   transform: translate(-10%, -50%);
   color: white;
 }
+
+.spotify input{
+  text-align: center;
+  display: inline;
+  font: Helvetica Bold;
+  font-weight: bold;
+  padding: 10px 25px;
+  background-color: rgb(152,255,152);
+}

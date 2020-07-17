@@ -13,6 +13,8 @@ const OAuth2 = google.auth.OAuth2;
 // Allowing ourselves to use cookies
 const cookieParser = require('cookie-parser');
 
+require('dotenv').config();
+
 // Storgae destination for profile pictures, and the name of the picture.
 const storage = multer.diskStorage({
   destination: (req, file, func) => {
@@ -517,6 +519,39 @@ app.get('/admin', checkLogin, async (req,res) => {
       })
     })
   });
+
+  // Spotify set up
+
+  var SpotifyWebApi = require('spotify-web-api-node');
+
+  var scopes = ['user-read-private', 'user-read-email']
+  var state = 'the_secret'
+
+  var SpotifyAPI = new SpotifyWebApi({
+    clientId: '66ad16283b5f40c7a94c0b2af7485926',
+    clientSecret: process.env.SPOTIFY_KEY,
+    redirectUri: 'http://localhost:5000/spotifyAuth'
+  });
+
+  var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
+
+  app.post('/spotifyTry', (req, res) => {
+    res.redirect(authorizeURL)
+  })
+
+  app.get('/spotifyAuth', (req, res) => {
+
+    SpotifyAPI.authorizationCodeGrant(req.query.code).then(
+      function(data) {
+        SpotifyAPI.setAccessToken(data.body['access_token']);
+        SpotifyAPI.setRefreshToken(data.body['refresh_token']);
+      },
+      function(err) {
+        console.log(err);
+      }
+    )
+    res.redirect('/home')
+  })
 
 
   // Google OAuth 2.0 Setup //
