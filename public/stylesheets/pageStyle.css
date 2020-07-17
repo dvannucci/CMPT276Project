@@ -177,8 +177,11 @@ body {
   color: white;
 }
 
-.spotify {
-  color: white;
-  margin-left: 20%;
-  margin-top: 10%;
+.spotify input{
+  text-align: center;
+  display: inline;
+  font: Helvetica Bold;
+  font-weight: bold;
+  padding: 10px 25px;
+  background-color: rgb(152,255,152);
 }
