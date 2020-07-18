@@ -57,20 +57,25 @@
           </div>
 
           <div class="date">
-            <h3> Artist(s):
-            <% x.artists.forEach((artist, i) => { %>
-              <% if(i == x.artists.length -1){ %>
-                <span><%= artist %></span>
-            <% } else { %>
-              <span><%= artist %>,</span>
-            <% } %>
+           <%  if(x.artists.length > 1){ %>
+             <h3> Artists:
+             <% x.artists.forEach((artist, i) => { %>
+               <% if(i == x.artists.length -1){ %>
+                 <span><%= artist %></span>
+             <% } else { %>
+               <span><%= artist %>,</span>
+             <% } %>
+             <% }) %>
+             </h3>
 
-            <% }) %>
-          </h3>
+           <% } else { %>
+             <h3> Artist: <%= x.artists[0] %> </h3>
+           <% } %>
+
           </div>
 
             <div class="recognize">
-              <a href="#">Add to My favourite songs</a>
+              <a href="#">Add to my favourite songs</a>
             </div>
 
         </div>
@@ -92,12 +97,12 @@
           </div>
 
           <div class="date">
-            <h3> Genres:
+            <h3> Genres:&nbsp
             <% x.genres.forEach((genre, i) => { %>
               <% if(i == x.genres.length -1){ %>
                 <span><%= genre %></span>
             <% } else { %>
-              <span><%= genre %>,</span>
+              <span><%= genre %>,&nbsp</span>
             <% } %>
 
             <% }) %>

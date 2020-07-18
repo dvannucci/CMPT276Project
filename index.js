@@ -162,7 +162,10 @@ app.get('/admin', checkLogin, async (req,res) => {
         for (each of data.body.artists.items){
           var artist = {}
           artist.name = each.name
-          artist.genres = each.genres
+
+          // This function takes each genre and capitalizes the first letters.
+          artist.genres = each.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+
           artist.picture = each.images[0].url
           artist.popularity = each.popularity
 
