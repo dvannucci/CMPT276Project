@@ -21,32 +21,104 @@
       <% } else { %>
         <h2>Click on any of the users below to view their profile.</h3>
         <br><br>
-      <% } %>
+        <h1>Users:</h1>
       <% results.forEach(function(x){ %>
         <a href="/userSelect/<%= x.id %>">
         <div class="matches">
           <img src="<%= x.picture %>" alt="Can't display image">
 
           <div class="username">
-            <h2> <%=x.username %> </h2>
+            <h2><%=x.username %></h2>
           </div>
 
           <div class="date">
             <h3> Date Joined: <%=x.date_joined.toDateString() %> </h3>
           </div>
 
-
-
           <% if(followers.includes(x.id)){ %>
             <div class="recognize">
               <h2>Following</h2>
             </div>
-
           <% } %>
         </div>
         </a>
 
       <% }) %>
+
+      <h1>Songs:</h1>
+      <% if(spotifySongs) { %>
+
+        <% spotifySongs.forEach(function(x){ %>
+        <div class="matches">
+          <img src="<%= x.picture %>" alt="Can't display image">
+
+          <div class="username">
+            <h2> <%=x.name %> </h2>
+          </div>
+
+          <div class="date">
+           <%  if(x.artists.length > 1){ %>
+             <h3> Artists:
+             <% x.artists.forEach((artist, i) => { %>
+               <% if(i == x.artists.length -1){ %>
+                 <span><%= artist %></span>
+             <% } else { %>
+               <span><%= artist %>,</span>
+             <% } %>
+             <% }) %>
+             </h3>
+
+           <% } else { %>
+             <h3> Artist: <%= x.artists[0] %> </h3>
+           <% } %>
+
+          </div>
+
+            <div class="recognize">
+              <a href="#">Add to my favourite songs</a>
+            </div>
+
+        </div>
+
+      <% }) } else { %>
+        <h2>No songs matched your search.</h2>
+      <% }%>
+
+      <h1>Artists:</h1>
+      <% if(spotifyArtists) { %>
+
+        <% spotifyArtists.forEach(function(x){ %>
+
+        <div class="matches">
+          <img src="<%= x.picture %>" alt="Can't display image">
+
+          <div class="username">
+            <h2> <%=x.name %> </h2>
+          </div>
+
+          <div class="date">
+            <h3> Genres:&nbsp
+            <% x.genres.forEach((genre, i) => { %>
+              <% if(i == x.genres.length -1){ %>
+                <span><%= genre %></span>
+            <% } else { %>
+              <span><%= genre %>,&nbsp</span>
+            <% } %>
+
+            <% }) %>
+          </h3>
+          </div>
+
+            <div class="recognize">
+              <a href="#">Add to my favourite artists</a>
+            </div>
+
+        </div>
+
+      <% }) } else { %>
+        <h2>No artists matched your search.</h2>
+      <% } } %>
+
 
     </div>
 
