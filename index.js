@@ -277,7 +277,28 @@ app.get('/admin', checkLogin, async (req,res) => {
     }
 
     else {
-      console.log('message')
+      var checkforchat = "SELECT chatid FROM chats WHERE participants = array['" 
+      + req.session.username 
+      + "',(SELECT username FROM users WHERE id = "
+      + req.params.id
+      + ")] OR participants = array[(SELECT username FROM users WHERE id = "
+      + req.params.id
+      + "),'"
+      + req.session.username
+      + "'] ORDER BY chatid DESC LIMIT 1";
+      pool.query(checkforchat, (error, result) => {
+        if(error){
+          res.send(error);
+        }
+        else{
+          if (result.rows.length > 0){
+            res.redirect('/chat/' + result.rows[0].chatid)
+          }
+          else{
+            console.log("doesnt exist yet")
+          }
+        }
+      })
     }
 
   })

@@ -18,8 +18,7 @@ module.exports = {
         `${baseURL}/auth_callback`
       ],
       scopes: [
-        'https://www.googleapis.com/auth/youtube',
-        
+        'https://www.googleapis.com/auth/youtube.readonly',
       ]
     }
   };
