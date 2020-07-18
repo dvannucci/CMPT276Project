@@ -126,34 +126,82 @@ app.get('/admin', checkLogin, async (req,res) => {
 
   })
 
-  app.post('/userSearch', checkLogin, (req, res) => {
+  app.post('/search', checkLogin, async (req, res) => {
 
-    var searchQuery = `select * from users where username like'${req.body.searchInput}%'`
+    var current = {'username' : req.session.username}
 
-    pool.query(searchQuery, (error, result) => {
-      if(error)
+    if( req.body.searchInput == ""){
+      current.results = []
+      res.render('pages/resultsPage', current)
+    }
+    else {
+
+    await SpotifyAPI.searchTracks(`${req.body.searchInput}`, {limit: 5}).then( (data, error) => {
+      if(error){
         res.send(error)
-      var current = {'username' : req.session.username}
-      current.results = result.rows
+      } else {
+        var songs = []
+        for (each of data.body.tracks.items){
+          var song = {}
+          song.name = each.name
+          song.artists = each.artists.map(a => a.name)
+          song.picture = each.album.images[0].url
 
-      var checkFollowers = `select is_following from followers where the_user = ${req.session.loggedID} `
+          song.populariity = each.popularity
+          songs.push(song)
+        }
+        current.spotifySongs = songs
+      }
+    });
 
-      pool.query(checkFollowers, (error, result) => {
+    await SpotifyAPI.searchArtists(`${req.body.searchInput}`, {limit: 5}).then( (data, error) => {
+      if(error){
+        res.send(error)
+      } else {
+        var artists = []
+        for (each of data.body.artists.items){
+          var artist = {}
+          artist.name = each.name
+          artist.genres = each.genres
+          artist.picture = each.images[0].url
+          artist.popularity = each.popularity
+
+          artists.push(artist)
+
+        }
+        current.spotifyArtists = artists
+      }
+
+    });
+
+
+      var searchQuery = `select * from users where username like'${req.body.searchInput}%'`
+
+      pool.query(searchQuery, (error, result) => {
         if(error)
           res.send(error)
 
-        var check = []
+        current.results = result.rows
 
-        result.rows.filter(function(each) {
-          check.push(each.is_following)
+        var checkFollowers = `select is_following from followers where the_user = ${req.session.loggedID} `
+
+        pool.query(checkFollowers, (error, result) => {
+          if(error)
+            res.send(error)
+
+          var check = []
+
+          result.rows.filter(function(each) {
+            check.push(each.is_following)
+          })
+
+          current.followers = check
+
+          res.render('pages/resultsPage', current)
         })
 
-        current.followers = check
-
-        res.render('pages/resultsPage', current)
       })
-
-    })
+    }
 
   })
 
@@ -241,10 +289,10 @@ app.get('/admin', checkLogin, async (req,res) => {
 
       var data = result.rows[0]
       data.alert = alert
+      data.spotify = req.session.Spotify
 
       res.render('pages/profile', data )
     })
-
 
   })
 
@@ -315,6 +363,16 @@ app.get('/admin', checkLogin, async (req,res) => {
              req.session.loggedin = true;
              req.session.loggedID = results.rows[0].id
              req.session.username = results.rows[0].username
+
+             // Regular Client credentials for users without spotify.
+             SpotifyAPI.clientCredentialsGrant().then( (data, error) => {
+               if(error){
+                 res.send(error)
+               } else {
+                 SpotifyAPI.setAccessToken(data.body['access_token']);
+               }
+             })
+
              res.redirect('/home')
            }
            else{
@@ -351,7 +409,7 @@ app.get('/admin', checkLogin, async (req,res) => {
           }
         });
   // This function updates the users profile picture. If the picture is valid it will change, if not, and error will be sent.
-  app.post('/pictureChoose', checkLogin, pictures.single('profilePicture'), async (req, res) => {
+  app.post('/pictureChoose', checkLogin, pictures.single('profilePicture'), (req, res) => {
 
     if (!req.file){
       res.redirect('/profile' + '?valid=false' + '&field=pic')
@@ -361,7 +419,7 @@ app.get('/admin', checkLogin, async (req,res) => {
 
       var picturedelete =  `select picture from users where id = ${req.session.loggedID}`
 
-      await pool.query(picturedelete, (error, result) => {
+      pool.query(picturedelete, (error, result) => {
         if(error)
           res.send(error)
 
@@ -374,11 +432,12 @@ app.get('/admin', checkLogin, async (req,res) => {
 
           pool.query(pictureUpdate, (error, resut) => {
             if(error)
-            res.send(error)
+              res.send(error)
+            res.redirect('/profile' + '?valid=true' + '&field=pic')
           })
 
         })
-        res.redirect('/profile' + '?valid=true' + '&field=pic')
+
     }
 
   })
@@ -401,8 +460,10 @@ app.get('/admin', checkLogin, async (req,res) => {
         pool.query(usernameChange, (error, result) => {
           if(error)
             res.send(error)
+
+          res.redirect('/profile' + '?valid=' + true)
         })
-        res.redirect('/profile' + '?valid=' + true)
+
       }
 
     })
@@ -512,7 +573,7 @@ app.get('/admin', checkLogin, async (req,res) => {
 
   var SpotifyWebApi = require('spotify-web-api-node');
 
-  var scopes = ['user-read-private', 'user-read-email']
+  var scopes = ['user-top-read', 'user-read-currently-playing', 'user-read-recently-played', 'user-library-read']
   var state = 'the_secret'
 
   var SpotifyAPI = new SpotifyWebApi({
@@ -523,7 +584,7 @@ app.get('/admin', checkLogin, async (req,res) => {
 
   var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
 
-  app.post('/spotifyTry', (req, res) => {
+  app.post('/spotifyTry', checkLogin, (req, res) => {
     res.redirect(authorizeURL)
   })
 
@@ -535,10 +596,11 @@ app.get('/admin', checkLogin, async (req,res) => {
         SpotifyAPI.setRefreshToken(data.body['refresh_token']);
       },
       function(err) {
-        console.log(err);
+        res.send(err);
       }
     )
-    res.redirect('/home')
+    req.session.Spotify = true;
+    res.redirect('/profile')
   })
 
 
