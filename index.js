@@ -6,6 +6,14 @@ const PORT = process.env.PORT || 5000
 const multer = require('multer')
 const fs = require('fs')
 
+const google = require('googleapis').google;
+const jwt = require('jsonwebtoken');
+const CONFIG = require('./config');
+// Google's OAuth2 client
+const OAuth2 = google.auth.OAuth2;
+// Allowing ourselves to use cookies
+const cookieParser = require('cookie-parser');
+
 require('dotenv').config();
 
 // Storgae destination for profile pictures, and the name of the picture.
@@ -58,7 +66,7 @@ const io = require('socket.io').listen(server);
     resave : true,
     saveUninitialized : true
   }))
-
+  app.use(cookieParser());
   app.use(express.json())
   app.use(express.urlencoded({extended:false}))
   app.use(bodyParser.urlencoded({extended : true}))
@@ -67,6 +75,7 @@ const io = require('socket.io').listen(server);
   app.use('/pictures', express.static('pictures'))
   app.set('views', path.join(__dirname, 'views'))
   app.set('view engine', 'ejs')
+
 
   // Takes you to the login page whenever the app is opened.
   app.get('/', (req, res) => res.render('pages/Login', {'alert' : req.query.valid}))
@@ -121,10 +130,28 @@ app.get('/admin', checkLogin, async (req,res) => {
 
 
   app.get('/mymusic', checkLogin, (req, res) => {
+    if (!req.cookies.jwt) {
+      // We haven't logged in
+      return res.redirect('/google_login');
+    }
+    // Create an OAuth2 client object from the credentials in our config file
+    const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
+    // Add this specific user's credentials to our OAuth2 client
+    oauth2Client.credentials = jwt.verify(req.cookies.jwt, CONFIG.JWTsecret);
+    // Get the youtube service
+    const service = google.youtube('v3');
+    // Get five of the user's subscriptions (the channels they're subscribed to)
+    service.search.list({
+      auth: oauth2Client,
+      part: 'snippet',
+      maxResults: 25,
+      q: "daft punk"
+    }).then(response => {
+      // Render the data view, passing the subscriptions to it
+      return  res.render('pages/mymusic', { 'username' : req.session.username, 'id' : req.session.loggedID, search: response.data.items });
+    });
+  });
 
-    res.render('pages/mymusic', {'username' : req.session.username, 'id' : req.session.loggedID})
-
-  })
 
   app.post('/search', checkLogin, async (req, res) => {
 
@@ -178,6 +205,29 @@ app.get('/admin', checkLogin, async (req,res) => {
       }
 
     });
+
+    if (!req.cookies.jwt) {
+      current.youtubevideos = '/google_login'
+    } else {
+      var ytube;
+      // Create an OAuth2 client object from the credentials in our config file
+      const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
+      // Add this specific user's credentials to our OAuth2 client
+      oauth2Client.credentials = jwt.verify(req.cookies.jwt, CONFIG.JWTsecret);
+      // Get the youtube service
+      const service = google.youtube('v3');
+      // Get five of the user's subscriptions (the channels they're subscribed to)
+      await service.search.list({
+        auth: oauth2Client,
+        part: 'snippet',
+        maxResults: 25,
+        q: req.body.searchInput
+      }).then(response => {
+        // Render the data view, passing the subscriptions to it
+        current.youtubevideos = response.data.items
+      });
+    }
+
 
       var searchQuery = `select * from users where username like'${req.body.searchInput}%'`
 
@@ -345,7 +395,48 @@ app.get('/admin', checkLogin, async (req,res) => {
     }
 
     else {
-      console.log('message')
+      var checkforchat = "SELECT chatid FROM chats WHERE participants = array['"
+      + req.session.username
+      + "',(SELECT username FROM users WHERE id = "
+      + req.params.id
+      + ")] OR participants = array[(SELECT username FROM users WHERE id = "
+      + req.params.id
+      + "),'"
+      + req.session.username
+      + "'] ORDER BY chatid DESC LIMIT 1";
+      pool.query(checkforchat, (error, result) => {
+        if(error){
+          res.send(error);
+        }
+        else{
+          if (result.rows.length > 0){
+            res.redirect('/chat/' + result.rows[0].chatid)
+          }
+          else{
+            var makeDMchat = "INSERT INTO chats VALUES (default, CONCAT('"
+            + req.session.username
+            + " and ',"
+            + "(SELECT username FROM users WHERE id = "
+            + req.params.id
+            + ")), ARRAY ['" + req.session.username + "',(SELECT username FROM users WHERE id = "
+            + req.params.id
+            + ")]);SELECT chatid FROM chats WHERE participants = array['"
+            + req.session.username
+            + "',(SELECT username FROM users WHERE id = "
+            + req.params.id
+            + ")] OR participants = array[(SELECT username FROM users WHERE id = "
+            + req.params.id
+            + "),'"
+            + req.session.username
+            + "'] ORDER BY chatid DESC LIMIT 1";
+            pool.query(makeDMchat, (error, result) => {
+              if(error)
+                res.send(error);
+              res.redirect('/chat/' + result[1].rows[0].chatid)
+            });
+          }
+        }
+      })
     }
 
   })
@@ -602,6 +693,7 @@ app.get('/admin', checkLogin, async (req,res) => {
     })
   })
 
+  //Socket.IO Messages Setup
   io.on('connection', (socket) => {
     console.log('user connected');
     socket.join(chatID);
@@ -655,6 +747,7 @@ app.get('/admin', checkLogin, async (req,res) => {
   // Spotify set up
 
   var SpotifyWebApi = require('spotify-web-api-node');
+const { create } = require('domain')
 
   var scopes = ['user-top-read', 'user-read-currently-playing', 'user-read-recently-played', 'user-library-read']
   var state = 'the_secret'
@@ -687,16 +780,7 @@ app.get('/admin', checkLogin, async (req,res) => {
   })
 
 
-  // Google OAuth 2.0 Setup //
-
-const google = require('googleapis').google;
-const jwt = require('jsonwebtoken');
-const CONFIG = require('./config');
-// Google's OAuth2 client
-const OAuth2 = google.auth.OAuth2;
-// Allowing ourselves to use cookies
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+// Google OAuth 2.0 Setup //
 
 app.get('/google_login', (req,res)=> {
   // Create an OAuth2 client object from the credentials in our config file
@@ -714,7 +798,7 @@ app.get('/auth_callback', function (req, res) {
   const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
   if (req.query.error) {
     // The user did not give us permission.
-    return res.redirect('/');
+    return res.redirect('/home');
   } else {
     oauth2Client.getToken(req.query.code, function(err, token) {
       if (err)

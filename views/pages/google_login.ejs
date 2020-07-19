@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Express Google OAuth2 Login Link</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="/stylesheets/google_loginStyle.css" />
+    <title>Google Login Link</title>
 </head>
 <body>
-  <a href="<%= loginLink %>">Login</a>
+    <div>
+        <p>Please login to your Google account to continue</p>
+        <a href="<%= loginLink %>">Login</a>
+    </div>
 </body>
 </html>
