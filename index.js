@@ -544,13 +544,14 @@ app.get('/admin', checkLogin, async (req,res) => {
              req.session.username = results.rows[0].username
 
              // Regular Client credentials for users without spotify.
-             SpotifyAPI.clientCredentialsGrant().then( (data, error) => {
-               if(error){
-                 res.send(error)
-               } else {
+             SpotifyAPI.clientCredentialsGrant().then( 
+               function(data){
                  SpotifyAPI.setAccessToken(data.body['access_token']);
+               },
+               function(error){
+                 res.send(error)
                }
-             })
+             )
 
              res.redirect('/home')
            }
