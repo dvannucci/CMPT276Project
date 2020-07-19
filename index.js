@@ -71,8 +71,11 @@ var state = 'the_secret'
 
 var SpotifyAPI = new SpotifyWebApi({
   clientId: '66ad16283b5f40c7a94c0b2af7485926',
-  clientSecret: process.env.SPOTIFY_KEY
+  clientSecret: process.env.SPOTIFY_KEY,
+  redirectUri: 'http://localhost:5000/spotifyAuth'
 });
+
+var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
 
   app.use(session({
     secret : 'theSecret',
@@ -766,15 +769,8 @@ app.get('/admin', checkLogin, async (req,res) => {
 
   app.post('/spotifyTry', checkLogin, (req, res) => {
 
-    SpotifyAPI = new SpotifyWebApi({
-      clientId: '66ad16283b5f40c7a94c0b2af7485926',
-      clientSecret: process.env.SPOTIFY_KEY,
-      redirectUri: 'http://localhost:5000/spotifyAuth'
-    });
-
-    var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
-
     res.redirect(authorizeURL)
+
   })
 
   app.get('/spotifyAuth', (req, res) => {
