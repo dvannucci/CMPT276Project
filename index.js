@@ -163,48 +163,51 @@ app.get('/admin', checkLogin, async (req,res) => {
     }
     else {
 
-    await SpotifyAPI.searchTracks(`${req.body.searchInput}`, {limit: 5}).then( (data, error) => {
-      if(error){
-        res.send(error)
-      } else {
-        var songs = []
-        for (each of data.body.tracks.items){
-          var song = {}
-          song.name = each.name
-          song.id = each.id
-          song.artists = each.artists.map(a => a.name)
-          song.picture = each.album.images[0].url
+      await SpotifyAPI.searchTracks(`${req.body.searchInput}`, {limit: 5}).then( (data, error) => {
+        if(error){
+          res.send(error)
+        } else {
+          var songs = []
+          for (each of data.body.tracks.items){
+            var song = {}
+            song.name = each.name
+            song.id = each.id
+            song.artists = each.artists.map(a => a.name)
+            song.picture = each.album.images[0].url
 
-          song.populariity = each.popularity
-          songs.push(song)
+            song.populariity = each.popularity
+            songs.push(song)
+          }
+          current.spotifySongs = songs
         }
-        current.spotifySongs = songs
-      }
-    });
+      });
 
-    await SpotifyAPI.searchArtists(`${req.body.searchInput}`, {limit: 5}).then( (data, error) => {
-      if(error){
-        res.send(error)
-      } else {
-        var artists = []
-        for (each of data.body.artists.items){
-          var artist = {}
-          artist.name = each.name
-          artist.id = each.id
 
-          // This function takes each genre and capitalizes the first letters.
-          artist.genres = each.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+      await SpotifyAPI.searchArtists(`${req.body.searchInput}`, {limit: 5}).then( (data, error) => {
+            if(error){
+              res.send(error)
+            } else {
+              var artists = []
+              for (each of data.body.artists.items){
+                var artist = {}
+                artist.name = each.name
+                artist.id = each.id
 
-          artist.picture = each.images[0].url
-          artist.popularity = each.popularity
+                // This function takes each genre and capitalizes the first letters.
+                artist.genres = each.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
 
-          artists.push(artist)
+                artist.picture = each.images[0].url
+                artist.popularity = each.popularity
 
-        }
-        current.spotifyArtists = artists
-      }
+                artists.push(artist)
 
-    });
+              }
+              current.spotifyArtists = artists
+            }
+
+          });
+
+
 
     if (!req.cookies.jwt) {
       current.youtubevideos = '/google_login'
@@ -225,8 +228,11 @@ app.get('/admin', checkLogin, async (req,res) => {
       }).then(response => {
         // Render the data view, passing the subscriptions to it
         current.youtubevideos = response.data.items
+      }).catch(error => {
+        res.send(error)
       });
     }
+
 
 
       var searchQuery = `select * from users where username like'${req.body.searchInput}%'`
