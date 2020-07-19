@@ -61,6 +61,19 @@ const http = require('http').Server(express())
 const server = app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 const io = require('socket.io').listen(server);
 
+// Spotify set up
+
+var SpotifyWebApi = require('spotify-web-api-node');
+const { create } = require('domain')
+
+var scopes = ['user-top-read', 'user-read-currently-playing', 'user-read-recently-played', 'user-library-read']
+var state = 'the_secret'
+
+var SpotifyAPI = new SpotifyWebApi({
+  clientId: '66ad16283b5f40c7a94c0b2af7485926',
+  clientSecret: process.env.SPOTIFY_KEY
+});
+
   app.use(session({
     secret : 'theSecret',
     resave : true,
@@ -547,10 +560,10 @@ app.get('/admin', checkLogin, async (req,res) => {
              SpotifyAPI.clientCredentialsGrant().then(
                function(data){
                  SpotifyAPI.setAccessToken(data.body['access_token']);
-                 res.redirect('/home')
+                 res.redirect('/home');
                },
                function(error){
-                 res.send(error)
+                 res.send(error);
                }
              )
 
@@ -751,23 +764,16 @@ app.get('/admin', checkLogin, async (req,res) => {
     })
   });
 
-  // Spotify set up
-
-  var SpotifyWebApi = require('spotify-web-api-node');
-const { create } = require('domain')
-
-  var scopes = ['user-top-read', 'user-read-currently-playing', 'user-read-recently-played', 'user-library-read']
-  var state = 'the_secret'
-
-  var SpotifyAPI = new SpotifyWebApi({
-    clientId: '66ad16283b5f40c7a94c0b2af7485926',
-    clientSecret: process.env.SPOTIFY_KEY,
-    redirectUri: 'http://localhost:5000/spotifyAuth'
-  });
-
-  var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
-
   app.post('/spotifyTry', checkLogin, (req, res) => {
+
+    SpotifyAPI = new SpotifyWebApi({
+      clientId: '66ad16283b5f40c7a94c0b2af7485926',
+      clientSecret: process.env.SPOTIFY_KEY,
+      redirectUri: 'http://localhost:5000/spotifyAuth'
+    });
+
+    var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
+
     res.redirect(authorizeURL)
   })
 
@@ -777,13 +783,14 @@ const { create } = require('domain')
       function(data) {
         SpotifyAPI.setAccessToken(data.body['access_token']);
         SpotifyAPI.setRefreshToken(data.body['refresh_token']);
+        req.session.Spotify = true;
+        res.redirect('/profile')
       },
       function(err) {
         res.send(err);
       }
     )
-    req.session.Spotify = true;
-    res.redirect('/profile')
+
   })
 
 
