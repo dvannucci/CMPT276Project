@@ -295,7 +295,27 @@ app.get('/admin', checkLogin, async (req,res) => {
             res.redirect('/chat/' + result.rows[0].chatid)
           }
           else{
-            console.log("doesnt exist yet")
+            var makeDMchat = "INSERT INTO chats VALUES (default, CONCAT('" 
+            + req.session.username 
+            + " and ',"
+            + "(SELECT username FROM users WHERE id = "
+            + req.params.id
+            + ")), ARRAY ['" + req.session.username + "',(SELECT username FROM users WHERE id = "
+            + req.params.id
+            + ")]);SELECT chatid FROM chats WHERE participants = array['" 
+            + req.session.username 
+            + "',(SELECT username FROM users WHERE id = "
+            + req.params.id
+            + ")] OR participants = array[(SELECT username FROM users WHERE id = "
+            + req.params.id
+            + "),'"
+            + req.session.username
+            + "'] ORDER BY chatid DESC LIMIT 1";
+            pool.query(makeDMchat, (error, result) => {
+              if(error)
+                res.send(error);
+              res.redirect('/chat/' + result[1].rows[0].chatid)
+            });
           }
         }
       })
@@ -608,6 +628,7 @@ app.get('/admin', checkLogin, async (req,res) => {
   // Spotify set up
 
   var SpotifyWebApi = require('spotify-web-api-node');
+const { create } = require('domain')
 
   var scopes = ['user-top-read', 'user-read-currently-playing', 'user-read-recently-played', 'user-library-read']
   var state = 'the_secret'
