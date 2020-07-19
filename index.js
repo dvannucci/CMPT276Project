@@ -525,10 +525,9 @@ app.get('/admin', checkLogin, async (req,res) => {
     });
 
   // This function accepts the login details from the user, and checks if they are in the database. If they are, it brings them to their homepage, if not, it sends an error message.
-  app.post('/authentification', async (req,res)=> {
+  app.post('/authentification', (req,res)=> {
     var username=req.body.username;
     var upassword=req.body.mypassword;
-    const client = await pool.connect();
     var selectQuery= `SELECT id, username, password FROM users WHERE username='${username}'`;
          pool.query(selectQuery,(error,result) =>{
            if(error){res.send(error)}
