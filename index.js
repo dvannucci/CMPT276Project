@@ -544,16 +544,17 @@ app.get('/admin', checkLogin, async (req,res) => {
              req.session.username = results.rows[0].username
 
              // Regular Client credentials for users without spotify.
-             SpotifyAPI.clientCredentialsGrant().then( 
+             SpotifyAPI.clientCredentialsGrant().then(
                function(data){
                  SpotifyAPI.setAccessToken(data.body['access_token']);
+                 res.redirect('/home')
                },
                function(error){
                  res.send(error)
                }
              )
 
-             res.redirect('/home')
+
            }
            else{
              res.redirect('/' + '?valid=password');  // After user enters wrong password they will get rendered to this page
