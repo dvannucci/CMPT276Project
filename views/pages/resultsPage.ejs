@@ -119,7 +119,13 @@
         <h2>No artists matched your search.</h2>
       <% } } %>
 
-
+      <% if(youtubevideos == '/google_login') { %>
+        <a href='/google_login'>Please login to Google to see Youtube results</a>
+      <% } else {%>
+        <% youtubevideos.forEach(function (youtubevideos) { %>
+          <li style="color: white;"><%= youtubevideos.snippet.title %></li>
+        <% }) %>
+      <% } %>
     </div>
 
 

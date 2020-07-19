@@ -5,6 +5,7 @@ const path = require('path')
 const PORT = process.env.PORT || 5000
 const multer = require('multer')
 const fs = require('fs')
+
 const google = require('googleapis').google;
 const jwt = require('jsonwebtoken');
 const CONFIG = require('./config');
@@ -133,8 +134,22 @@ app.get('/admin', checkLogin, async (req,res) => {
       // We haven't logged in
       return res.redirect('/google_login');
     }
-   
-    res.render('pages/mymusic', { 'username' : req.session.username, 'id' : req.session.loggedID });
+    // Create an OAuth2 client object from the credentials in our config file
+    const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
+    // Add this specific user's credentials to our OAuth2 client
+    oauth2Client.credentials = jwt.verify(req.cookies.jwt, CONFIG.JWTsecret);
+    // Get the youtube service
+    const service = google.youtube('v3');
+    // Get five of the user's subscriptions (the channels they're subscribed to)
+    service.search.list({
+      auth: oauth2Client,
+      part: 'snippet',
+      maxResults: 25,
+      q: "daft punk"
+    }).then(response => {
+      // Render the data view, passing the subscriptions to it
+      return  res.render('pages/mymusic', { 'username' : req.session.username, 'id' : req.session.loggedID, search: response.data.items });
+    });
   });
   
 
@@ -188,6 +203,28 @@ app.get('/admin', checkLogin, async (req,res) => {
       }
 
     });
+
+    if (!req.cookies.jwt) {
+      current.youtubevideos = '/google_login'
+    } else {
+      var ytube;
+      // Create an OAuth2 client object from the credentials in our config file
+      const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
+      // Add this specific user's credentials to our OAuth2 client
+      oauth2Client.credentials = jwt.verify(req.cookies.jwt, CONFIG.JWTsecret);
+      // Get the youtube service
+      const service = google.youtube('v3');
+      // Get five of the user's subscriptions (the channels they're subscribed to)
+      await service.search.list({
+        auth: oauth2Client,
+        part: 'snippet',
+        maxResults: 25,
+        q: req.body.searchInput
+      }).then(response => {
+        // Render the data view, passing the subscriptions to it
+        current.youtubevideos = response.data.items
+      });
+    }
 
 
       var searchQuery = `select * from users where username like'${req.body.searchInput}%'`
@@ -575,6 +612,7 @@ app.get('/admin', checkLogin, async (req,res) => {
     })
   })
 
+  //Socket.IO Messages Setup
   io.on('connection', (socket) => {
     console.log('user connected');
     socket.join(chatID);
@@ -661,7 +699,7 @@ const { create } = require('domain')
   })
 
 
-  // Google OAuth 2.0 Setup //
+// Google OAuth 2.0 Setup //
 
 app.get('/google_login', (req,res)=> {
   // Create an OAuth2 client object from the credentials in our config file
