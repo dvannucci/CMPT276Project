@@ -144,6 +144,7 @@ app.get('/admin', checkLogin, async (req,res) => {
         for (each of data.body.tracks.items){
           var song = {}
           song.name = each.name
+          song.id = each.id
           song.artists = each.artists.map(a => a.name)
           song.picture = each.album.images[0].url
 
@@ -162,6 +163,7 @@ app.get('/admin', checkLogin, async (req,res) => {
         for (each of data.body.artists.items){
           var artist = {}
           artist.name = each.name
+          artist.id = each.id
 
           // This function takes each genre and capitalizes the first letters.
           artist.genres = each.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
@@ -177,7 +179,6 @@ app.get('/admin', checkLogin, async (req,res) => {
 
     });
 
-
       var searchQuery = `select * from users where username like'${req.body.searchInput}%'`
 
       pool.query(searchQuery, (error, result) => {
@@ -192,19 +193,52 @@ app.get('/admin', checkLogin, async (req,res) => {
           if(error)
             res.send(error)
 
-          var check = []
+          var followers = []
 
           result.rows.filter(function(each) {
-            check.push(each.is_following)
+            followers.push(each.is_following)
           })
 
-          current.followers = check
+          current.followers = followers
 
-          res.render('pages/resultsPage', current)
+          var checkSongs = `select track_id from favouritetracks where user_id = ${req.session.loggedID}`
+
+          pool.query(checkSongs, (error, result) => {
+            if(error)
+              res.send(error)
+
+            var myTracks = []
+
+            result.rows.filter(function(each) {
+              myTracks.push(each.track_id)
+            })
+
+            current.myTracks = myTracks
+
+            var checkArtists = `select artist_id from favouriteartists where user_id = ${req.session.loggedID}`
+
+            pool.query(checkArtists, (error, result) => {
+              if(error)
+                res.send(error)
+
+              var myArtists = []
+
+              result.rows.filter(function(each) {
+                myArtists.push(each.artist_id)
+              })
+
+              current.myArtists = myArtists
+
+              res.render('pages/resultsPage', current)
+
+          })
+
+
         })
 
       })
-    }
+    })
+  }
 
   })
 
@@ -236,6 +270,52 @@ app.get('/admin', checkLogin, async (req,res) => {
       })
 
     })
+
+  })
+
+  app.post('/songToFaves', checkLogin, (req, res) => {
+
+    if(req.body.add){
+      var addSong = `insert into favouritetracks values(DEFAULT, ${req.session.loggedID}, '${req.body.add}')`
+
+      pool.query(addSong, (error, result) => {
+        if(error)
+          res.status(400).send(error)
+        res.status(200).send({'add': `${req.body.add}` })
+      })
+    }
+    else {
+      var removeSong = `delete from favouritetracks where user_id = ${req.session.loggedID} and track_id = '${req.body.delete}'`
+
+      pool.query(removeSong, (error, result) => {
+        if(error)
+          res.status(400).send(error)
+        res.status(200).send({'delete': `${req.body.delete}`})
+      })
+    }
+
+  })
+
+  app.post('/artistToFaves', checkLogin, (req, res) => {
+
+    if(req.body.add){
+      var addArtist = `insert into favouriteartists values(DEFAULT, ${req.session.loggedID}, '${req.body.add}')`
+
+      pool.query(addArtist, (error, result) => {
+        if(error)
+          res.status(400).send(error)
+        res.status(200).send({'add': `${req.body.add}` })
+      })
+    }
+    else {
+      var removeArtist = `delete from favouriteartists where user_id = ${req.session.loggedID} and artist_id = '${req.body.delete}'`
+
+      pool.query(removeArtist, (error, result) => {
+        if(error)
+          res.status(400).send(error)
+        res.status(200).send({'delete': `${req.body.delete}` })
+      })
+    }
 
   })
 
