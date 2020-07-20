@@ -49,7 +49,11 @@
 
         <% spotifySongs.forEach(function(x, i){ %>
         <div class="matches">
-          <img src="<%= x.picture %>" alt="Can't display image">
+          <% if(x.picture){ %>
+            <img src="<%= x.picture %>" alt="Can't display image">
+          <% } else { %>
+            <img src="/pictures/lang-logo.png" alt="Can't display image">
+          <% } %>
 
           <div class="username">
             <h2> <%=x.name %> </h2>
@@ -98,7 +102,12 @@
         <% spotifyArtists.forEach(function(x){ %>
 
         <div class="matches">
-          <img src="<%= x.picture %>" alt="Can't display image">
+          <% if(x.picture){ %>
+            <img src="<%= x.picture %>" alt="Can't display image">
+          <% } else { %>
+            <img src="/pictures/lang-logo.png" alt="Can't display image">
+          <% } %>
+
 
           <div class="username">
             <h2> <%=x.name %> </h2>

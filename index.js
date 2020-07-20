@@ -104,15 +104,30 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
   // The homepage for every user, customized to their personal info.
   app.get('/home', checkLogin, (req, res) => {
 
-    var userPageQuery = `select * from users where id = ${req.session.loggedID}`;
+    var user = {'username' : req.session.username}
 
-    pool.query(userPageQuery, (error, result) => {
-      if(error)
+    SpotifyAPI.getNewReleases({ limit : 6 }).then(
+      function(data) {
+        var recent = []
+        data.body.albums.items.forEach(function(each) {
+          var item = {}
+          item.id = each.id
+          item.name = each.name
+          item.artists =  each.artists.map(a => a.name)
+          item.type = each.album_type
+          item.picture = each.images[0].url
+          item.released = each.release_date
+
+          recent.push(item)
+        })
+        user.hotRightNow = recent
+
+      },
+      function(error) {
         res.send(error)
-
-      res.render('pages/userHomepage', {'username' : req.session.username, 'id' :req.session.loggedID})
     })
 
+    res.render('pages/userHomepage', user )
 
   })
 
@@ -179,7 +194,7 @@ app.get('/admin', checkLogin, async (req,res) => {
     }
     else {
 
-      await SpotifyAPI.searchTracks(`${req.body.searchInput}`, {limit: 5}).then( (data, error) => {
+      await SpotifyAPI.searchTracks(`'${req.body.searchInput}'`, {limit: 5}).then( (data, error) => {
         if(error){
           res.send(error)
         } else {
@@ -189,7 +204,12 @@ app.get('/admin', checkLogin, async (req,res) => {
             song.name = each.name
             song.id = each.id
             song.artists = each.artists.map(a => a.name)
-            song.picture = each.album.images[0].url
+
+            if(each.album.images != []){
+              song.picture = each.album.images[0].url
+            } else {
+              song.picture = false
+            }
 
             song.populariity = each.popularity
             songs.push(song)
@@ -198,8 +218,7 @@ app.get('/admin', checkLogin, async (req,res) => {
         }
       });
 
-
-      await SpotifyAPI.searchArtists(`${req.body.searchInput}`, {limit: 5}).then( (data, error) => {
+      await SpotifyAPI.searchArtists(`'${req.body.searchInput}'`, {limit: 5}).then( (data, error) => {
             if(error){
               res.send(error)
             } else {
@@ -212,7 +231,14 @@ app.get('/admin', checkLogin, async (req,res) => {
                 // This function takes each genre and capitalizes the first letters.
                 artist.genres = each.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
 
-                artist.picture = each.images[0].url
+                console.log(each.images)
+
+                if(each.images.length){
+                  artist.picture = each.images[0].url
+                } else {
+                  artist.picture = false
+                }
+
                 artist.popularity = each.popularity
 
                 artists.push(artist)
@@ -258,6 +284,7 @@ app.get('/admin', checkLogin, async (req,res) => {
           res.send(error)
 
         current.results = result.rows
+        console.log(current)
 
         var checkFollowers = `select is_following from followers where the_user = ${req.session.loggedID} `
 
@@ -479,7 +506,7 @@ app.get('/admin', checkLogin, async (req,res) => {
     }
 
     var allQuery = `select * from users where id = ${req.session.loggedID};`
-    + `SELECT * FROM profile_history where id = ${req.session.loggedID};`;
+    + `SELECT * FROM profile_history where id = ${req.session.loggedID} order by stamp;`;
 
     pool.query(allQuery, (error, result) => {
       if(error)
@@ -490,6 +517,8 @@ app.get('/admin', checkLogin, async (req,res) => {
 
       mesData.alert = alert
       mesData.spotify = req.session.Spotify
+
+      console.log(mesData)
 
       res.render('pages/profile', mesData)
     })
