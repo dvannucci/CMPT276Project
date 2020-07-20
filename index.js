@@ -6,6 +6,14 @@ const PORT = process.env.PORT || 5000
 const multer = require('multer')
 const fs = require('fs')
 
+const google = require('googleapis').google;
+const jwt = require('jsonwebtoken');
+const CONFIG = require('./config');
+// Google's OAuth2 client
+const OAuth2 = google.auth.OAuth2;
+// Allowing ourselves to use cookies
+const cookieParser = require('cookie-parser');
+
 require('dotenv').config();
 
 // Storgae destination for profile pictures, and the name of the picture.
@@ -53,12 +61,28 @@ const http = require('http').Server(express())
 const server = app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 const io = require('socket.io').listen(server);
 
+// Spotify set up
+
+var SpotifyWebApi = require('spotify-web-api-node');
+const { create } = require('domain')
+
+var scopes = ['user-top-read', 'user-read-currently-playing', 'user-read-recently-played', 'user-library-read']
+var state = 'the_secret'
+
+var SpotifyAPI = new SpotifyWebApi({
+  clientId: '66ad16283b5f40c7a94c0b2af7485926',
+  clientSecret: process.env.SPOTIFY_KEY,
+  redirectUri: 'http://localhost:5000/spotifyAuth'
+});
+
+var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
+
   app.use(session({
     secret : 'theSecret',
     resave : true,
     saveUninitialized : true
   }))
-
+  app.use(cookieParser());
   app.use(express.json())
   app.use(express.urlencoded({extended:false}))
   app.use(bodyParser.urlencoded({extended : true}))
@@ -67,6 +91,7 @@ const io = require('socket.io').listen(server);
   app.use('/pictures', express.static('pictures'))
   app.set('views', path.join(__dirname, 'views'))
   app.set('view engine', 'ejs')
+
 
   // Takes you to the login page whenever the app is opened.
   app.get('/', (req, res) => res.render('pages/Login', {'alert' : req.query.valid}))
@@ -121,10 +146,28 @@ app.get('/admin', checkLogin, async (req,res) => {
 
 
   app.get('/mymusic', checkLogin, (req, res) => {
+    if (!req.cookies.jwt) {
+      // We haven't logged in
+      return res.redirect('/google_login');
+    }
+    // Create an OAuth2 client object from the credentials in our config file
+    const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
+    // Add this specific user's credentials to our OAuth2 client
+    oauth2Client.credentials = jwt.verify(req.cookies.jwt, CONFIG.JWTsecret);
+    // Get the youtube service
+    const service = google.youtube('v3');
+    // Get five of the user's subscriptions (the channels they're subscribed to)
+    service.search.list({
+      auth: oauth2Client,
+      part: 'snippet',
+      maxResults: 25,
+      q: "daft punk"
+    }).then(response => {
+      // Render the data view, passing the subscriptions to it
+      return  res.render('pages/mymusic', { 'username' : req.session.username, 'id' : req.session.loggedID, search: response.data.items });
+    });
+  });
 
-    res.render('pages/mymusic', {'username' : req.session.username, 'id' : req.session.loggedID})
-
-  })
 
   app.post('/search', checkLogin, async (req, res) => {
 
@@ -136,46 +179,76 @@ app.get('/admin', checkLogin, async (req,res) => {
     }
     else {
 
-    await SpotifyAPI.searchTracks(`${req.body.searchInput}`, {limit: 5}).then( (data, error) => {
-      if(error){
-        res.send(error)
-      } else {
-        var songs = []
-        for (each of data.body.tracks.items){
-          var song = {}
-          song.name = each.name
-          song.artists = each.artists.map(a => a.name)
-          song.picture = each.album.images[0].url
+      await SpotifyAPI.searchTracks(`${req.body.searchInput}`, {limit: 5}).then( (data, error) => {
+        if(error){
+          res.send(error)
+        } else {
+          var songs = []
+          for (each of data.body.tracks.items){
+            var song = {}
+            song.name = each.name
+            song.id = each.id
+            song.artists = each.artists.map(a => a.name)
+            song.picture = each.album.images[0].url
 
-          song.populariity = each.popularity
-          songs.push(song)
+            song.populariity = each.popularity
+            songs.push(song)
+          }
+          current.spotifySongs = songs
         }
-        current.spotifySongs = songs
-      }
-    });
+      });
 
-    await SpotifyAPI.searchArtists(`${req.body.searchInput}`, {limit: 5}).then( (data, error) => {
-      if(error){
+
+      await SpotifyAPI.searchArtists(`${req.body.searchInput}`, {limit: 5}).then( (data, error) => {
+            if(error){
+              res.send(error)
+            } else {
+              var artists = []
+              for (each of data.body.artists.items){
+                var artist = {}
+                artist.name = each.name
+                artist.id = each.id
+
+                // This function takes each genre and capitalizes the first letters.
+                artist.genres = each.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+
+                artist.picture = each.images[0].url
+                artist.popularity = each.popularity
+
+                artists.push(artist)
+
+              }
+              current.spotifyArtists = artists
+            }
+
+          });
+
+
+
+    if (!req.cookies.jwt) {
+      current.youtubevideos = '/google_login'
+    } else {
+      var ytube;
+      // Create an OAuth2 client object from the credentials in our config file
+      const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
+      // Add this specific user's credentials to our OAuth2 client
+      oauth2Client.credentials = jwt.verify(req.cookies.jwt, CONFIG.JWTsecret);
+      // Get the youtube service
+      const service = google.youtube('v3');
+      // Get five of the user's subscriptions (the channels they're subscribed to)
+      await service.search.list({
+        auth: oauth2Client,
+        part: 'snippet',
+        maxResults: 25,
+        q: req.body.searchInput
+      }).then(response => {
+        // Render the data view, passing the subscriptions to it
+        current.youtubevideos = response.data.items
+      }).catch(error => {
         res.send(error)
-      } else {
-        var artists = []
-        for (each of data.body.artists.items){
-          var artist = {}
-          artist.name = each.name
+      });
+    }
 
-          // This function takes each genre and capitalizes the first letters.
-          artist.genres = each.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
-
-          artist.picture = each.images[0].url
-          artist.popularity = each.popularity
-
-          artists.push(artist)
-
-        }
-        current.spotifyArtists = artists
-      }
-
-    });
 
 
       var searchQuery = `select * from users where username like'${req.body.searchInput}%'`
@@ -192,19 +265,52 @@ app.get('/admin', checkLogin, async (req,res) => {
           if(error)
             res.send(error)
 
-          var check = []
+          var followers = []
 
           result.rows.filter(function(each) {
-            check.push(each.is_following)
+            followers.push(each.is_following)
           })
 
-          current.followers = check
+          current.followers = followers
 
-          res.render('pages/resultsPage', current)
+          var checkSongs = `select track_id from favouritetracks where user_id = ${req.session.loggedID}`
+
+          pool.query(checkSongs, (error, result) => {
+            if(error)
+              res.send(error)
+
+            var myTracks = []
+
+            result.rows.filter(function(each) {
+              myTracks.push(each.track_id)
+            })
+
+            current.myTracks = myTracks
+
+            var checkArtists = `select artist_id from favouriteartists where user_id = ${req.session.loggedID}`
+
+            pool.query(checkArtists, (error, result) => {
+              if(error)
+                res.send(error)
+
+              var myArtists = []
+
+              result.rows.filter(function(each) {
+                myArtists.push(each.artist_id)
+              })
+
+              current.myArtists = myArtists
+
+              res.render('pages/resultsPage', current)
+
+          })
+
+
         })
 
       })
-    }
+    })
+  }
 
   })
 
@@ -239,6 +345,52 @@ app.get('/admin', checkLogin, async (req,res) => {
 
   })
 
+  app.post('/songToFaves', checkLogin, (req, res) => {
+
+    if(req.body.add){
+      var addSong = `insert into favouritetracks values(DEFAULT, ${req.session.loggedID}, '${req.body.add}')`
+
+      pool.query(addSong, (error, result) => {
+        if(error)
+          res.status(400).send(error)
+        res.status(200).send({'add': `${req.body.add}` })
+      })
+    }
+    else {
+      var removeSong = `delete from favouritetracks where user_id = ${req.session.loggedID} and track_id = '${req.body.delete}'`
+
+      pool.query(removeSong, (error, result) => {
+        if(error)
+          res.status(400).send(error)
+        res.status(200).send({'delete': `${req.body.delete}`})
+      })
+    }
+
+  })
+
+  app.post('/artistToFaves', checkLogin, (req, res) => {
+
+    if(req.body.add){
+      var addArtist = `insert into favouriteartists values(DEFAULT, ${req.session.loggedID}, '${req.body.add}')`
+
+      pool.query(addArtist, (error, result) => {
+        if(error)
+          res.status(400).send(error)
+        res.status(200).send({'add': `${req.body.add}` })
+      })
+    }
+    else {
+      var removeArtist = `delete from favouriteartists where user_id = ${req.session.loggedID} and artist_id = '${req.body.delete}'`
+
+      pool.query(removeArtist, (error, result) => {
+        if(error)
+          res.status(400).send(error)
+        res.status(200).send({'delete': `${req.body.delete}` })
+      })
+    }
+
+  })
+
   app.post('/interact/:id', checkLogin, (req, res) => {
     if(req.body.follow){
 
@@ -265,7 +417,48 @@ app.get('/admin', checkLogin, async (req,res) => {
     }
 
     else {
-      console.log('message')
+      var checkforchat = "SELECT chatid FROM chats WHERE participants = array['"
+      + req.session.username
+      + "',(SELECT username FROM users WHERE id = "
+      + req.params.id
+      + ")] OR participants = array[(SELECT username FROM users WHERE id = "
+      + req.params.id
+      + "),'"
+      + req.session.username
+      + "'] ORDER BY chatid DESC LIMIT 1";
+      pool.query(checkforchat, (error, result) => {
+        if(error){
+          res.send(error);
+        }
+        else{
+          if (result.rows.length > 0){
+            res.redirect('/chat/' + result.rows[0].chatid)
+          }
+          else{
+            var makeDMchat = "INSERT INTO chats VALUES (default, CONCAT('"
+            + req.session.username
+            + " and ',"
+            + "(SELECT username FROM users WHERE id = "
+            + req.params.id
+            + ")), ARRAY ['" + req.session.username + "',(SELECT username FROM users WHERE id = "
+            + req.params.id
+            + ")]);SELECT chatid FROM chats WHERE participants = array['"
+            + req.session.username
+            + "',(SELECT username FROM users WHERE id = "
+            + req.params.id
+            + ")] OR participants = array[(SELECT username FROM users WHERE id = "
+            + req.params.id
+            + "),'"
+            + req.session.username
+            + "'] ORDER BY chatid DESC LIMIT 1";
+            pool.query(makeDMchat, (error, result) => {
+              if(error)
+                res.send(error);
+              res.redirect('/chat/' + result[1].rows[0].chatid)
+            });
+          }
+        }
+      })
     }
 
   })
@@ -353,10 +546,9 @@ app.get('/admin', checkLogin, async (req,res) => {
     });
 
   // This function accepts the login details from the user, and checks if they are in the database. If they are, it brings them to their homepage, if not, it sends an error message.
-  app.post('/authentification', async (req,res)=> {
+  app.post('/authentification', (req,res)=> {
     var username=req.body.username;
     var upassword=req.body.mypassword;
-    const client = await pool.connect();
     var selectQuery= `SELECT id, username, password FROM users WHERE username='${username}'`;
          pool.query(selectQuery,(error,result) =>{
            if(error){res.send(error)}
@@ -373,15 +565,17 @@ app.get('/admin', checkLogin, async (req,res) => {
              req.session.username = results.rows[0].username
 
              // Regular Client credentials for users without spotify.
-             SpotifyAPI.clientCredentialsGrant().then( (data, error) => {
-               if(error){
-                 res.send(error)
-               } else {
+             SpotifyAPI.clientCredentialsGrant().then(
+               function(data){
                  SpotifyAPI.setAccessToken(data.body['access_token']);
+                 res.redirect('/home');
+               },
+               function(error){
+                 res.send(error);
                }
-             })
+             )
 
-             res.redirect('/home')
+
            }
            else{
              res.redirect('/' + '?valid=password');  // After user enters wrong password they will get rendered to this page
@@ -527,6 +721,7 @@ app.get('/admin', checkLogin, async (req,res) => {
     })
   })
 
+  //Socket.IO Messages Setup
   io.on('connection', (socket) => {
     console.log('user connected');
     socket.join(chatID);
@@ -577,23 +772,10 @@ app.get('/admin', checkLogin, async (req,res) => {
     })
   });
 
-  // Spotify set up
-
-  var SpotifyWebApi = require('spotify-web-api-node');
-
-  var scopes = ['user-top-read', 'user-read-currently-playing', 'user-read-recently-played', 'user-library-read']
-  var state = 'the_secret'
-
-  var SpotifyAPI = new SpotifyWebApi({
-    clientId: '66ad16283b5f40c7a94c0b2af7485926',
-    clientSecret: process.env.SPOTIFY_KEY,
-    redirectUri: 'http://localhost:5000/spotifyAuth'
-  });
-
-  var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
-
   app.post('/spotifyTry', checkLogin, (req, res) => {
+
     res.redirect(authorizeURL)
+
   })
 
   app.get('/spotifyAuth', (req, res) => {
@@ -602,26 +784,18 @@ app.get('/admin', checkLogin, async (req,res) => {
       function(data) {
         SpotifyAPI.setAccessToken(data.body['access_token']);
         SpotifyAPI.setRefreshToken(data.body['refresh_token']);
+        req.session.Spotify = true;
+        res.redirect('/profile')
       },
       function(err) {
         res.send(err);
       }
     )
-    req.session.Spotify = true;
-    res.redirect('/profile')
+
   })
 
 
-  // Google OAuth 2.0 Setup //
-
-const google = require('googleapis').google;
-const jwt = require('jsonwebtoken');
-const CONFIG = require('./config');
-// Google's OAuth2 client
-const OAuth2 = google.auth.OAuth2;
-// Allowing ourselves to use cookies
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+// Google OAuth 2.0 Setup //
 
 app.get('/google_login', (req,res)=> {
   // Create an OAuth2 client object from the credentials in our config file
@@ -639,7 +813,7 @@ app.get('/auth_callback', function (req, res) {
   const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
   if (req.query.error) {
     // The user did not give us permission.
-    return res.redirect('/');
+    return res.redirect('/home');
   } else {
     oauth2Client.getToken(req.query.code, function(err, token) {
       if (err)

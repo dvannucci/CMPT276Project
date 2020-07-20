@@ -16,11 +16,10 @@
       <h1 class="resultHeader">Results:</h1>
 
       <% if(results.length == 0){ %>
-        <br><br>
-        <h2>No users matched your search.</h2>
+
+        <h1>Users:</h1>
+        <h2 style="margin:20px;">No users matched your search.</h2>
       <% } else { %>
-        <h2>Click on any of the users below to view their profile.</h3>
-        <br><br>
         <h1>Users:</h1>
       <% results.forEach(function(x){ %>
         <a href="/userSelect/<%= x.id %>">
@@ -43,12 +42,12 @@
         </div>
         </a>
 
-      <% }) %>
+      <% })} %>
 
       <h1>Songs:</h1>
       <% if(spotifySongs) { %>
 
-        <% spotifySongs.forEach(function(x){ %>
+        <% spotifySongs.forEach(function(x, i){ %>
         <div class="matches">
           <img src="<%= x.picture %>" alt="Can't display image">
 
@@ -75,7 +74,16 @@
           </div>
 
             <div class="recognize">
-              <a href="#">Add to my favourite songs</a>
+              <form class="tracks" method="post">
+                <% if(myTracks.includes(x.id)){ %>
+                  <input type="hidden" id="<%= x.id %>Hidden" name="delete" value="<%= x.id %>">
+                  <input type="submit" id="<%= x.id %>Input" name="sub" value="Remove from my favourite songs">
+                <% } else { %>
+                  <input type="hidden" id="<%= x.id %>Hidden" name="add" value="<%= x.id %>">
+                  <input type="submit" id="<%= x.id %>Input" name="sub" value="Add to my favourite songs">
+                <% } %>
+
+              </form>
             </div>
 
         </div>
@@ -110,24 +118,36 @@
           </div>
 
             <div class="recognize">
-              <a href="#">Add to my favourite artists</a>
+              <form class="artists" method="post">
+                <% if(myArtists.includes(x.id)){ %>
+                <input type="hidden" id="<%= x.id %>Hidden" name="delete" value="<%= x.id %>">
+                <input type="submit" id="<%= x.id %>Input" name="sub" value="Remove from my favourite artists">
+                <% } else { %>
+                <input type="hidden" id="<%= x.id %>Hidden" name="add" value="<%= x.id %>">
+                <input type="submit" id="<%= x.id %>Input" name="sub" value="Add to my favourite artists">
+                <% } %>
+              </form>
             </div>
 
         </div>
 
       <% }) } else { %>
         <h2>No artists matched your search.</h2>
-      <% } } %>
+      <% } %>
 
-
+      <% if(youtubevideos == '/google_login') { %>
+        <a href='/google_login'>Please login to Google to see Youtube results</a>
+      <% } else { %>
+        <% youtubevideos.forEach(function (youtubevideos) { %>
+          <li style="color: white;"><%= youtubevideos.snippet.title %></li>
+        <% }) %>
+      <% } %>
     </div>
-
-
-
 
     <script type="text/javascript">
 
     $(() => {
+
       $('#confirmLogout').click(function(){
         if(confirm('Are you sure you wish to logout?')) {
             return true;
@@ -135,8 +155,47 @@
 
           return false;
         });
-    });
 
+      $('.tracks').submit(function(x) {
+        x.preventDefault();
+        $.ajax({
+          type: "POST",
+          url: "/songToFaves",
+          data: $(this).serialize(),
+          success: function(res){
+            if(res.add){
+              $(`#${res.add}Input`).val("Remove from my favourite songs");
+              $(`#${res.add}Hidden`).attr('name', 'delete');
+            }
+            else {
+              $(`#${res.delete}Input`).val("Add to my favourite songs");
+              $(`#${res.delete}Hidden`).attr('name', 'add');
+            }
+          }
+        })
+      })
+
+
+      $('.artists').submit(function(x) {
+        x.preventDefault();
+        $.ajax({
+          type: "POST",
+          url: "/artistToFaves",
+          data: $(this).serialize(),
+          success : function(res){
+            if(res.add){
+              $(`#${res.add}Input`).val("Remove from my favourite artists");
+              $(`#${res.add}Hidden`).attr('name', 'delete');
+            }
+            else {
+              $(`#${res.delete}Input`).val("Add to my favourite artists");
+              $(`#${res.delete}Hidden`).attr('name', 'add');
+            }
+          }
+        })
+      })
+
+    });
     </script>
 
   </body>
