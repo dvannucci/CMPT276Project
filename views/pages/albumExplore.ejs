@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="/stylesheets/pageStyle.css">
+    <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <title>Results</title>
+  </head>
+  <body>
+
+    <% include ../partials/nav.ejs %>
+
+    <div class="results">
+
+      <h1 class="resultHeader">Album: <%= album %> </h1>
+
+      <h1>Songs:</h1>
+
+      <% songs.forEach(function(x){ %>
+        <div class="matches">
+          <img src="<%= picture %>" alt="Can't display image">
+
+          <div class="username">
+            <h2> <%=x.name %> </h2>
+          </div>
+
+          <div class="date">
+           <%  if(x.artists.length > 1){ %>
+             <h3> Artists:
+             <% x.artists.forEach((artist, i) => { %>
+               <% if(i == x.artists.length -1){ %>
+                 <span><%= artist.name %></span>
+             <% } else { %>
+               <span><%= artist.name %>,</span>
+             <% } %>
+             <% }) %>
+             </h3>
+
+           <% } else { %>
+             <h3> Artist: <%= x.artists[0].name %> </h3>
+           <% } %>
+
+          </div>
+
+            <div class="recognize">
+              <form class="tracks" method="post">
+                <% if(myTracks.includes(x.id)){ %>
+                  <input type="hidden" id="<%= x.id %>Hidden" name="delete" value="<%= x.id %>">
+                  <input type="submit" id="<%= x.id %>Input" name="sub" value="Remove from my favourite songs">
+                <% } else { %>
+                  <input type="hidden" id="<%= x.id %>Hidden" name="add" value="<%= x.id %>">
+                  <input type="submit" id="<%= x.id %>Input" name="sub" value="Add to my favourite songs">
+                <% } %>
+
+              </form>
+            </div>
+
+        </div>
+        <% }) %>
+
+
+        </div>
+
+    <script type="text/javascript">
+
+    $(() => {
+
+      $('#confirmLogout').click(function(){
+        if(confirm('Are you sure you wish to logout?')) {
+            return true;
+          }
+
+          return false;
+        });
+
+      $('.tracks').submit(function(x) {
+        x.preventDefault();
+        $.ajax({
+          type: "POST",
+          url: "/songToFaves",
+          data: $(this).serialize(),
+          success: function(res){
+            if(res.add){
+              $(`#${res.add}Input`).val("Remove from my favourite songs");
+              $(`#${res.add}Hidden`).attr('name', 'delete');
+            }
+            else {
+              $(`#${res.delete}Input`).val("Add to my favourite songs");
+              $(`#${res.delete}Hidden`).attr('name', 'add');
+            }
+          }
+        })
+      })
+
+
+      $('.artists').submit(function(x) {
+        x.preventDefault();
+        $.ajax({
+          type: "POST",
+          url: "/artistToFaves",
+          data: $(this).serialize(),
+          success : function(res){
+            if(res.add){
+              $(`#${res.add}Input`).val("Remove from my favourite artists");
+              $(`#${res.add}Hidden`).attr('name', 'delete');
+            }
+            else {
+              $(`#${res.delete}Input`).val("Add to my favourite artists");
+              $(`#${res.delete}Hidden`).attr('name', 'add');
+            }
+          }
+        })
+      })
+
+    });
+    </script>
+
+  </body>
+</html>

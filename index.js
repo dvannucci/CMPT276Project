@@ -102,24 +102,30 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
   })
 
   // The homepage for every user, customized to their personal info.
-  app.get('/home', checkLogin, (req, res) => {
+  app.get('/home', checkLogin, async (req, res) => {
 
     var user = {'username' : req.session.username}
 
-    SpotifyAPI.getNewReleases({ limit : 6 }).then(
+    await SpotifyAPI.getNewReleases({ limit : 6 }).then(
       function(data) {
         var recent = []
-        data.body.albums.items.forEach(function(each) {
+        for (each of data.body.albums.items) {
           var item = {}
           item.id = each.id
           item.name = each.name
           item.artists =  each.artists.map(a => a.name)
           item.type = each.album_type
-          item.picture = each.images[0].url
+
+          if(each.images.length){
+            item.picture = each.images[0].url
+          } else {
+            item.picture = false
+          }
+
           item.released = each.release_date
 
           recent.push(item)
-        })
+        }
         user.hotRightNow = recent
 
       },
@@ -127,8 +133,23 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
         res.send(error)
     })
 
-    res.render('pages/userHomepage', user )
+    var checkSongs = `select track_id from favouritetracks where user_id = ${req.session.loggedID}`
 
+    pool.query(checkSongs, (error, result) => {
+      if(error)
+        res.send(error)
+
+      var myTracks = []
+
+      result.rows.filter(function(each) {
+        myTracks.push(each.track_id)
+      })
+
+      user.myTracks = myTracks
+
+      res.render('pages/userHomepage', user )
+
+    })
   })
 
   app.get('/notifications', checkLogin, (req, res) => {
@@ -231,8 +252,6 @@ app.get('/admin', checkLogin, async (req,res) => {
                 // This function takes each genre and capitalizes the first letters.
                 artist.genres = each.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
 
-                console.log(each.images)
-
                 if(each.images.length){
                   artist.picture = each.images[0].url
                 } else {
@@ -248,7 +267,6 @@ app.get('/admin', checkLogin, async (req,res) => {
             }
 
           });
-
 
 
     if (!req.cookies.jwt) {
@@ -275,8 +293,6 @@ app.get('/admin', checkLogin, async (req,res) => {
       });
     }
 
-
-
       var searchQuery = `select * from users where username like'${req.body.searchInput}%'`
 
       pool.query(searchQuery, (error, result) => {
@@ -284,7 +300,6 @@ app.get('/admin', checkLogin, async (req,res) => {
           res.send(error)
 
         current.results = result.rows
-        console.log(current)
 
         var checkFollowers = `select is_following from followers where the_user = ${req.session.loggedID} `
 
@@ -418,6 +433,39 @@ app.get('/admin', checkLogin, async (req,res) => {
 
   })
 
+  app.post('/albumExplore', checkLogin, async (req, res) => {
+
+    var info = {'username' : req.session.username, 'album' : req.body.album, 'picture' : req.body.picture}
+
+    await SpotifyAPI.getAlbumTracks(`${req.body.id}`).then(
+      function(data) {
+        info.songs = data.body.items
+      },
+      function(error) {
+        res.send(error)
+      });
+
+    var checkSongs = `select track_id from favouritetracks where user_id = ${req.session.loggedID}`
+
+    pool.query(checkSongs, (error, result) => {
+      if(error)
+        res.send(error)
+
+      var myTracks = []
+
+      result.rows.filter(function(each) {
+        myTracks.push(each.track_id)
+      })
+
+      info.myTracks = myTracks
+
+      res.render('pages/albumExplore', info)
+    })
+
+
+
+  })
+
   app.post('/interact/:id', checkLogin, (req, res) => {
     if(req.body.follow){
 
@@ -517,8 +565,6 @@ app.get('/admin', checkLogin, async (req,res) => {
 
       mesData.alert = alert
       mesData.spotify = req.session.Spotify
-
-      console.log(mesData)
 
       res.render('pages/profile', mesData)
     })
