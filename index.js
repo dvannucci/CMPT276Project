@@ -285,16 +285,20 @@ app.get('/admin', checkLogin, async (req,res) => {
       var alert = false
     }
 
-    var allQuery = `select * from users where id = ${req.session.loggedID}`
+    var allQuery = `select * from users where id = ${req.session.loggedID};`
+    + `SELECT * FROM profile_history where id = ${req.session.loggedID};`;
+
     pool.query(allQuery, (error, result) => {
       if(error)
         res.send(error)
 
-      var data = result.rows[0]
-      data.alert = alert
-      data.spotify = req.session.Spotify
+      var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username}
 
-      res.render('pages/profile', data )
+
+      mesData.alert = alert
+      mesData.spotify = req.session.Spotify
+
+      res.render('pages/profile', mesData)
     })
 
   })
@@ -332,6 +336,7 @@ app.get('/admin', checkLogin, async (req,res) => {
           }
         })
       }
+
       else{
 
         var insertQuery=`INSERT INTO users(username,email,password) VALUES('${uname}','${email}','${password2}')`;

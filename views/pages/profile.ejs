@@ -12,7 +12,7 @@
 
     <div class="info">
 
-      <img src=" <%= picture %> " alt="Can't display your image">
+      <img src=" <%=user_info[user_info.length-1].picture %> " alt="Can't display your image">
 
       <h3>Your current profile picture</h3> <br>
 
@@ -51,12 +51,6 @@
              <input type="submit" name="spotify" value="Spotify">
           </form>
         <% }%>
-
-
-
-
-
-
     </div>
 
     <div class="tabs floater">
@@ -64,7 +58,23 @@
     </div>
 
     <div class="activity">
-      <h3>Nothing to share yet :(</h3>
+      <h4>
+        <% for(var i=0 ; i< user_history.length ; i++) { %>
+            <% if(user_history[i].operation == 'I') { %>
+                <li> <%= user_history[i].stamp %> profile created </li>
+            <% } else if(user_history[i].operation == 'U') { %>
+              <% if(user_history[i].name.localeCompare(user_history[i-1].name)!=0) { %>
+                <li> <%= user_history[i].stamp %> username changed to <%= user_history[i].name %>. </li>
+              <% } else if(user_history[i].email.localeCompare(user_history[i-1].email) != 0) { %>
+                <li> <%= user_history[i].stamp %> email changed to <%= user_history[i].email %>. </li>
+              <% } else if(user_history[i].password.localeCompare(user_history[i-1].password)!=0) { %>
+                <li> <%= user_history[i].stamp %> password updated. </li>
+              <% } else if(user_history[i].picture.localeCompare(user_history[i-1].picture) !=0 ) { %>
+                <li> <%= user_history[i].stamp %> profile picture updated. </li>
+              <% } %>
+            <% } %>
+        <% } %>
+      </h4>
     </div>
 
     <div class="tabs floater">
