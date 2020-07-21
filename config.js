@@ -1,5 +1,5 @@
 
-const baseURL = 'https://museical.herokuapp.com' // needs to be changed to museical.herokuapp.com when deployed
+const baseURL = 'http://museical.herokuapp.com' // needs to be changed to museical.herokuapp.com when deployed
 
 module.exports = {
     // The secret for the encryption of the jsonwebtoken
