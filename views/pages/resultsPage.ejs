@@ -144,11 +144,23 @@
         <h2>No artists matched your search.</h2>
       <% } %>
 
+      <h1>Videos</h1>
       <% if(youtubevideos == '/google_login') { %>
-        <a href='/google_login'>Please login to Google to see Youtube results</a>
+        <a id= "glogin" href='/google_login'>Please login to Google to see Youtube results</a>
       <% } else { %>
         <% youtubevideos.forEach(function (youtubevideos) { %>
-          <li style="color: white;"><%= youtubevideos.snippet.title %></li>
+          <div class="matches">
+            <img src="<%= youtubevideos.snippet.thumbnails.default.url %>" alt="Can't display image">
+            <div class="username">
+              <h2> <%= youtubevideos.snippet.title %> </h2>
+            </div>
+            <div class="date">
+              <h3><%= youtubevideos.snippet.channelTitle %></h3>
+            </div>
+            <div class="recognize">
+              <a href="https://www.youtube.com/watch?v=<%= youtubevideos.id.videoId %>" target="_blank">Watch now</a>
+            </div>
+          </div>
         <% }) %>
       <% } %>
     </div>
