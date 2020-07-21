@@ -144,7 +144,67 @@
         <h2>No artists matched your search.</h2>
       <% } %>
 
+
+
+      <h1>Albums:</h1>
+      <% if(spotifyAlbums) { %>
+
+        <% spotifyAlbums.forEach(function(x){ %>
+
+        <div class="matches">
+          <% if(x.picture){ %>
+            <img src="<%= x.picture %>" alt="Can't display image">
+          <% } else { %>
+            <img src="/pictures/lang-logo.png" alt="Can't display image">
+          <% } %>
+
+
+          <div class="username">
+            <h2> <%=x.name %> </h2>
+          </div>
+
+          <div class="date">
+           <%  if(x.artists.length > 1){ %>
+             <h3> Artists:
+             <% x.artists.forEach((artist, i) => { %>
+               <% if(i == x.artists.length -1){ %>
+                 <span><%= artist.name %></span>
+             <% } else { %>
+               <span><%= artist.name %>,</span>
+             <% } %>
+             <% }) %>
+             </h3>
+
+           <% } else { %>
+             <h3> Artist: <%= x.artists[0].name %> </h3>
+           <% } %>
+
+          </div>
+
+          <div class="recognize">
+            <form action="/albumExplore" method="post">
+              <input type="hidden" name="id" value="<%= x.id %>">
+              <input type="hidden" name="album" value="<%= x.name %>">
+              <% if(x.picture){ %>
+                <input type="hidden" name="picture" value="<%= x.picture %>">
+              <% } else { %>
+                <input type="hidden" name="picture" value="/pictures/lang-logo.png">
+              <% } %>
+              <input type="submit"  name="sub" value="Explore this album">
+            </form>
+          </div>
+
+        </div>
+
+      <% }) } else { %>
+        <h2>No albums matched your search.</h2>
+      <% } %>
+
+
+
+
       <h1>Videos:</h1>
+
       <% if(youtubevideos == '/google_login') { %>
         <a id= "glogin" href='/google_login'>Please login to Google to see Youtube results</a>
       <% } else { %>

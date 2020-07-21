@@ -271,6 +271,31 @@ app.get('/admin', checkLogin, async (req,res) => {
 
           });
 
+        await SpotifyAPI.searchAlbums(`'${req.body.searchInput}'`, {limit: 5}).then( (data, error) => {
+              if(error){
+                res.send(error)
+              } else {
+                var albums = []
+                for (each of data.body.albums.items){
+                  var album = {}
+                  album.name = each.name
+                  album.id = each.id
+                  album.artists = each.artists
+
+                  if(each.images.length){
+                    album.picture = each.images[0].url
+                  } else {
+                    album.picture = false
+                  }
+
+                  albums.push(album)
+
+                }
+                current.spotifyAlbums = albums
+              }
+
+            });
+
 
     if (!req.cookies.jwt) {
       current.youtubevideos = '/google_login'
