@@ -5,7 +5,7 @@ module.exports = {
     // The secret for the encryption of the jsonwebtoken
     JWTsecret: 'mysecret',
     baseURL: baseURL,
-    port: 5000,
+    port: 80,
     // The credentials and information for OAuth2
     oauth2Credentials: {
       client_id: "603204963619-jklvtgamuv2u4gjleafavj63cojk9jsj.apps.googleusercontent.com",
