@@ -193,14 +193,17 @@ app.get('/admin', checkLogin, async (req,res) => {
     // Get the youtube service
     const service = google.youtube('v3');
     // Get five of the user's subscriptions (the channels they're subscribed to)
-    service.search.list({
+    service.videos.list({
       auth: oauth2Client,
       part: 'snippet',
-      maxResults: 25,
-      q: "daft punk"
+      maxResults: 10,
+      chart:"mostPopular",
+      regionCode: "US",
+      type: "video",
+      videoCategoryId: "10"
     }).then(response => {
       // Render the data view, passing the subscriptions to it
-      return  res.render('pages/mymusic', { 'username' : req.session.username, 'id' : req.session.loggedID, search: response.data.items });
+      return  res.render('pages/mymusic', { 'username' : req.session.username, 'id' : req.session.loggedID, popularVids: response.data.items });
     });
   });
 
@@ -284,7 +287,9 @@ app.get('/admin', checkLogin, async (req,res) => {
         auth: oauth2Client,
         part: 'snippet',
         maxResults: 25,
-        q: req.body.searchInput
+        q: req.body.searchInput,
+        type: "video",
+        videoCategoryId: "10"
       }).then(response => {
         // Render the data view, passing the subscriptions to it
         current.youtubevideos = response.data.items
@@ -896,7 +901,7 @@ app.get('/auth_callback', function (req, res) {
 
       // Store the credentials given by google into a jsonwebtoken in a cookie called 'jwt'
       res.cookie('jwt', jwt.sign(token, CONFIG.JWTsecret));
-      return res.redirect('/mymusic');
+      return res.redirect('/home');
     });
   }
 });

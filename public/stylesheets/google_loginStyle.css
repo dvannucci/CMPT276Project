@@ -2,29 +2,33 @@ body{
     height: 100%;
     width: 100%;
     font-family: sans-serif;
+    background-color: black;
+    min-width: 1050px;
 }
 p{
     text-align: center;
     display: inline-block;
     font-size: 1.4em;
     width: 100%;
+    color: white;
 }
 a{
     background-color: mediumblue;
+    border: white solid 2px;
     color: white;
     padding: 5px;
     border-radius: 8px 8px 8px 8px;
     display: inline-block;
-    width: 10%;
+    width: 30%;
     height: 10%;
-    margin-left: 45%;
-    margin-right: 45%;
+    margin-left: 35%;
+    margin-right: 35%;
     text-decoration: none;
     font-size: 1.2em;
     text-align: center;
 }
 div{
-    border: solid black 2px;
+    border: solid white 2px;
     width: 50%;
     height: 80%;
     margin-left: 25%;
@@ -33,4 +37,9 @@ div{
     margin-top: 10%;
     padding: 10px;
     border-radius: 8px 8px 8px 8px;
+}
+
+#cancelbtn{
+    background-color: darkred;
+    margin-top: 15px;
 }

@@ -144,12 +144,12 @@
         <h2>No artists matched your search.</h2>
       <% } %>
 
-      <h1>Videos</h1>
+      <h1>Videos:</h1>
       <% if(youtubevideos == '/google_login') { %>
         <a id= "glogin" href='/google_login'>Please login to Google to see Youtube results</a>
       <% } else { %>
         <% youtubevideos.forEach(function (youtubevideos) { %>
-          <div class="matches">
+          <div class="matches-vids">
             <img src="<%= youtubevideos.snippet.thumbnails.default.url %>" alt="Can't display image">
             <div class="username">
               <h2> <%= youtubevideos.snippet.title %> </h2>
