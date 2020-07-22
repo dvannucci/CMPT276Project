@@ -29,34 +29,6 @@ const storage = multer.diskStorage({
   }
 })
 
-// Google Sign in To Museical App
-function onSignIn(googleUser) {
-  var id_token = googleUser.getAuthResponse().id_token;
-  
-}
-var xhr = new XMLHttpRequest();
-xhr.open('POST', 'https://yourbackend.example.com/tokensignin');
-xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-xhr.onload = function() {
-  console.log('Signed in as: ' + xhr.responseText);
-};
-xhr.send('idtoken=' + id_token);
-async function verify() {
-  const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
-      // Or, if multiple clients access the backend:
-      //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
-  });
-  const payload = ticket.getPayload();
-  const userid = payload['sub'];
-  // If request specified a G Suite domain:
-  // const domain = payload['hd'];
-}
-verify().catch(console.error);
-
-
-
 
 // Only allowing jpeg or png files for profile pictures.
 const fileFilter = (req, file, func) => {
