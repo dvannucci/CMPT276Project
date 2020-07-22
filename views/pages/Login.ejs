@@ -57,7 +57,9 @@
   <br><br>
 <form class="tyler" action="/authentification" method="post">
     <div class="g-signin2" data-onsuccess="onSignIn"></div>
-    
+
+
+
     <br><br>
   </form>
 
@@ -84,7 +86,7 @@ function signOut() {
     console.log('Image URL: ' + profile.getImageUrl());
     console.log('Email: ' + profile.getEmail());
   }
-  gapi.load('auth2', function() {
+  /*gapi.load('auth2', function() {
   auth2 = gapi.auth2.init({
     client_id: 'CLIENT_ID.apps.googleusercontent.com',
     fetch_basic_profile: false,
@@ -96,7 +98,7 @@ function signOut() {
     console.log(auth2.currentUser.get().getId());
   });
 });
-
+*/
 
 
 
