@@ -106,50 +106,190 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
   // The homepage for every user, customized to their personal info.
   app.get('/home', checkLogin, async (req, res) => {
 
-      var myTracks = []
-      var albumsYouMayLike = []
-      var relatedArtists = []
-      var artists = []
-      var user = {'username' : req.session.username}
+    var myTracks = []
+    var artists = []
+    var user = {'username' : req.session.username}
+    user.albumsYouMayLike = []
+    user.relatedArtists = []
 
+    function theSongCheck(x){
+      return new Promise(resolve => {
 
-    var checkSongs = `select track_id from favouritetracks where user_id = ${req.session.loggedID}`
+        var checkSongs = `select track_id from favouritetracks where user_id = ${req.session.loggedID}`
 
-     await pool.query(checkSongs, (error, result) => {
-      if(error)
-        res.send(error)
-
-      result.rows.filter(function(each) {
-        myTracks.push(each.track_id)
-      })
-
-      user.myTracks = myTracks
-
-      })
-
-      var artistsGet = `select artist_id from favouriteartists where user_id = ${req.session.loggedID}`
-
-
-      await pool.query(artistsGet, (error, result) => {
-        if(error)
-          res.send(error)
-
-        if(result.rows.length == 0){
-          user.artists = []
-          res.render('pages/userHomepage', user )
-
-        } else {
+         pool.query(checkSongs, (error, result) => {
+          if(error)
+            res.send(error)
 
           result.rows.filter(function(each) {
-            artists.push(each.artist_id)
+            myTracks.push(each.track_id)
           })
 
-          user.myArtists = artists
+          x.myTracks = myTracks
 
-          }
-        })
+          resolve(x);
 
-        await SpotifyAPI.getNewReleases({ limit : 6 }).then(
+          })
+      })
+
+    }
+
+    function theArtistGet(user){
+      return new Promise(resolve => {
+
+        var artistsGet = `select artist_id from favouriteartists where user_id = ${req.session.loggedID}`
+
+        pool.query(artistsGet, (error, result) => {
+          if(error)
+            res.send(error)
+
+          if(result.rows.length == 0){
+            user.artists = []
+            res.render('pages/userHomepage', user )
+
+          } else {
+
+            result.rows.filter(function(each) {
+              artists.push(each.artist_id)
+            })
+
+            user.myArtists = artists
+
+            resolve(user)
+
+            }
+          })
+      })
+
+    }
+
+    function relatedAlbums(user, index, max){
+      return new Promise(resolve => {
+
+          SpotifyAPI.getArtistAlbums(artists[index]).then(
+            function(data) {
+              if(data.body.items.length == 0){
+                resolve(user)
+              } else if(data.body.items.length == 1 | !max){
+                  var theAlbum = {}
+                  theAlbum.name = data.body.items[0].name
+                  theAlbum.artists = data.body.items[0].artists
+                  theAlbum.id = data.body.items[0].id
+
+                  if(data.body.items[0].images.length == 0){
+                    theAlbum.picture = false
+                  } else {
+                    theAlbum.picture = data.body.items[0].images[0].url
+                  }
+                  user.albumsYouMayLike.push(theAlbum)
+                  resolve(user)
+              } else{
+
+                var theAlbum = {}
+                theAlbum.name = data.body.items[0].name
+                theAlbum.artists = data.body.items[0].artists
+                theAlbum.id = data.body.items[0].id
+
+                if(data.body.items[0].images.length == 0){
+                  theAlbum.picture = false
+                } else {
+                  theAlbum.picture = data.body.items[0].images[0].url
+                }
+                user.albumsYouMayLike.push(theAlbum)
+
+                var theAlbum = {}
+                theAlbum.name = data.body.items[1].name
+                theAlbum.artists = data.body.items[1].artists
+                theAlbum.id = data.body.items[1].id
+
+                if(data.body.items[1].images.length == 0){
+                  theAlbum.picture = false
+                } else {
+                  theAlbum.picture = data.body.items[1].images[0].url
+                }
+                user.albumsYouMayLike.push(theAlbum)
+
+                resolve(user)
+
+              }
+
+
+            },
+            function(error) {
+            res.send(error)
+          });
+
+      })
+    }
+
+    function relatedArtists(user, index, max){
+      return new Promise(resolve => {
+
+        SpotifyAPI.getArtistRelatedArtists(artists[index]).then(
+          function(data) {
+            if(data.body.artists.length == 0){
+              resolve(user)
+            } else if(data.body.artists.length == 1 | !max){
+
+              var theArtist = {}
+              theArtist.name = data.body.artists[0].name
+              theArtist.id = data.body.artists[0].id
+
+              theArtist.genres = data.body.artists[0].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+
+              if(data.body.artists[0].images.length == 0){
+                theArtist.picture = false
+              } else {
+                theArtist.picture = data.body.artists[0].images[0].url
+              }
+
+              user.relatedArtists.push(theArtist)
+              resolve(user)
+            } else {
+
+              var theArtist = {}
+              theArtist.name = data.body.artists[0].name
+              theArtist.id = data.body.artists[0].id
+
+              theArtist.genres = data.body.artists[0].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+
+              if(data.body.artists[0].images.length == 0){
+                theArtist.picture = false
+              } else {
+                theArtist.picture = data.body.artists[0].images[0].url
+              }
+
+              user.relatedArtists.push(theArtist)
+
+              var theArtist = {}
+              theArtist.name = data.body.artists[0].name
+              theArtist.id = data.body.artists[0].id
+
+              theArtist.genres = data.body.artists[0].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+
+              if(data.body.artists[0].images.length == 0){
+                theArtist.picture = false
+              } else {
+                theArtist.picture = data.body.artists[0].images[0].url
+              }
+
+              user.relatedArtists.push(theArtist)
+              resolve(user)
+            }
+
+          },
+          function(error) {
+          res.send(error)
+        });
+
+      })
+
+    }
+
+    function hotNow(user){
+      return new Promise(resolve => {
+
+        SpotifyAPI.getNewReleases({ limit : 6 }).then(
           async function(data) {
             var recent = []
             for (each of data.body.albums.items) {
@@ -171,85 +311,6 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
             }
             user.hotRightNow = recent
 
-            for(var i = 0; i < artists.length & i < 4; i++){
-
-              await SpotifyAPI.getArtistAlbums(artists[i]).then(
-                function(data) {
-                  if(data.body.items.length != 0){
-                      var theAlbum = {}
-                      theAlbum.name = data.body.items[0].name
-                      theAlbum.artists = data.body.items[0].artists
-                      theAlbum.id = data.body.items[0].id
-
-                      if(data.body.items[0].images.length == 0){
-                        theAlbum.picture = false
-                      } else {
-                        theAlbum.picture = data.body.items[0].images[0].url
-                      }
-
-                      albumsYouMayLike.push(theAlbum)
-                  }
-                  if(artists.length == 1 & data.body.items.length >= 2){
-                    var theAlbum = {}
-                    theAlbum.name = data.body.items[1].name
-                    theAlbum.artists = data.body.items[1].artists
-                    theAlbum.id = data.body.items[1].id
-
-                    if(data.body.items[1].images.length == 0){
-                      theAlbum.picture = false
-                    } else {
-                      theAlbum.picture = data.body.items[1].images[0].url
-                    }
-
-                    albumsYouMayLike.push(theAlbum)
-                  }
-                },
-                function(error) {
-                res.send(error)
-              });
-
-              await SpotifyAPI.getArtistRelatedArtists(artists[i]).then(
-                function(data) {
-                  if(data.body.artists.length != 0){
-                    var theArtist = {}
-                    theArtist.name = data.body.artists[0].name
-                    theArtist.id = data.body.artists[0].id
-
-                    theArtist.genres = data.body.artists[0].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
-
-                    if(data.body.artists[0].images.length == 0){
-                      theArtist.picture = false
-                    } else {
-                      theArtist.picture = data.body.artists[0].images[0].url
-                    }
-
-                    relatedArtists.push(theArtist)
-                  }
-                  if(artists.length == 1 & data.body.artists.length >= 2){
-                    var theArtist = {}
-                    theArtist.name = data.body.artists[1].name
-                    theArtist.id = data.body.artists[1].id
-
-                    theArtist.genres = data.body.artists[1].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
-
-                    if(data.body.artists[1].images.length == 0){
-                      theArtist.picture = false
-                    } else {
-                      theArtist.picture = data.body.artists[1].images[0].url
-                    }
-
-                    relatedArtists.push(theArtist)
-                  }
-
-                },
-                function(error) {
-                res.send(error)
-              });
-
-            }
-
-            user.albumsYouMayLike = albumsYouMayLike
-            user.relatedArtists = relatedArtists
             res.render('pages/userHomepage', user )
 
           },
@@ -257,7 +318,26 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
             res.send(error)
         })
 
+      })
+    }
 
+
+    var try1 = await theSongCheck(user);
+    var try2 = await theArtistGet(try1);
+
+    var try3;
+
+    if(artists.length == 1){
+      try3 = await relatedAlbums(try2, 0, true)
+      try3 = await relatedArtists(try2, 0, true)
+    } else {
+      for(var index = 0; index < artists.length & index < 4; index++){
+        try3 = await relatedAlbums(try2, index, false)
+        try3 = await relatedArtists(try2, index, false)
+      }
+    }
+
+    var try4 = await hotNow(try3)
 
 
 
