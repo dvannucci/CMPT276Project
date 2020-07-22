@@ -340,9 +340,18 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
       }
     }
 
+    try4 = []
+
     var try4 = await hotNow(try3)
 
-    res.render('pages/userHomepage', try4 )
+    if(try4 == []){
+      setTimeout(500)
+    } else {
+      res.render('pages/userHomepage', try4 )
+    }
+
+
+
 
 
   })
