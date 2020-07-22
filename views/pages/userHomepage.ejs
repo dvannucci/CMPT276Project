@@ -111,8 +111,8 @@
         <div class="date">
          <%  if(hotRightNow[i+1].artists.length > 1){ %>
            <h3> Artists:
-           <% hotRightNow[i+1].artists.forEach((artist, i) => { %>
-             <% if(i == hotRightNow[i+1].artists.length -1){ %>
+           <% hotRightNow[i+1].artists.forEach((artist, y) => { %>
+             <% if(y == hotRightNow[i+1].artists.length -1){ %>
                <span><%= artist %></span>
            <% } else { %>
              <span><%= artist %>,</span>
@@ -157,9 +157,6 @@
 
         </div>
 
-
-
-
           </div>
 
         <% } %>
@@ -169,24 +166,212 @@
 
 
     <div class="tabs">
-      <h2>
-        Based On Your Picks
-      </h2>
+      <h2>Albums You May Like</h2>
     </div>
 
-      <div class="activity">
-        <h3>To be added soon!</h3>
-      </div>
+    <% if(albumsYouMayLike){ %>
+      <% for(var i=0; i < albumsYouMayLike.length - 1; i += 2) { %>
+        <div class="containHot">
+
+        <div class="hot">
+
+        <% if(albumsYouMayLike[i].picture){ %>
+          <img src="<%= albumsYouMayLike[i].picture %>" alt="Can't display image">
+        <% } else { %>
+          <img src="/pictures/lang-logo.png" alt="Can't display image">
+        <% } %>
+
+        <div class="username">
+            <h2><%= albumsYouMayLike[i].name %> </h2>
+        </div>
+
+        <div class="date">
+         <%  if(albumsYouMayLike[i].artists.length > 1){ %>
+           <h3> Artists:
+           <% albumsYouMayLike[i].artists.forEach((artist, y) => { %>
+             <% if(y == albumsYouMayLike[i].artists.length -1){ %>
+               <span><%= artist.name %></span>
+           <% } else { %>
+             <span><%= artist.name %>,</span>
+           <% } %>
+           <% }) %>
+           </h3>
+
+         <% } else { %>
+           <h3> Artist: <%= albumsYouMayLike[i].artists[0].name %> </h3>
+         <% } %>
+
+          </div>
+
+            <div class="recognize">
+              <form action="/albumExplore" method="post">
+                <input type="hidden" name="id" value="<%= albumsYouMayLike[i].id %>">
+                <input type="hidden" name="album" value="<%= albumsYouMayLike[i].name %>">
+                <% if(albumsYouMayLike[i].picture){ %>
+                  <input type="hidden" name="picture" value="<%= albumsYouMayLike[i].picture %>">
+                <% } else { %>
+                  <<input type="hidden" name="picture" value="/pictures/lang-logo.png">
+                <% } %>
+                <input type="submit" name="sub" value="Explore this album">
+              </form>
+            </div>
+
+        </div>
+
+      <% if(albumsYouMayLike[i+1]){ %>
+        <div class="hot">
+
+        <% if(albumsYouMayLike[i+1].picture){ %>
+          <img src="<%= albumsYouMayLike[i+1].picture %>" alt="Can't display image">
+        <% } else { %>
+          <img src="/pictures/lang-logo.png" alt="Can't display image">
+        <% } %>
+
+        <div class="username">
+            <h2><%= albumsYouMayLike[i+1].name %> </h2>
+        </div>
+
+        <div class="date">
+         <%  if(albumsYouMayLike[i+1].artists.length > 1){ %>
+           <h3> Artists:
+           <% albumsYouMayLike[i+1].artists.forEach((artist, y) => { %>
+             <% if(y == albumsYouMayLike[i+1].artists.length -1){ %>
+               <span><%= artist.name %></span>
+           <% } else { %>
+             <span><%= artist.name %>,</span>
+           <% } %>
+           <% }) %>
+           </h3>
+
+         <% } else { %>
+           <h3> Artist: <%= albumsYouMayLike[i+1].artists[0].name %> </h3>
+         <% } %>
+
+          </div>
+
+            <div class="recognize">
+              <form action="/albumExplore" method="post">
+                <input type="hidden" name="id" value="<%= albumsYouMayLike[i+1].id %>">
+                <input type="hidden" name="album" value="<%= albumsYouMayLike[i+1].name %>">
+                <% if(albumsYouMayLike[i+1].picture){ %>
+                  <input type="hidden" name="picture" value="<%= albumsYouMayLike[i+1].picture %>">
+                <% } else { %>
+                  <input type="hidden" name="picture" value="/pictures/lang-logo.png">
+                <% } %>
+
+                <input type="submit"  name="sub" value="Explore this album">
+              </form>
+            </div>
+
+        </div>
+
+      <% } %>
+
+        </div>
+
+      <% } %>
+    <% } else { %>
+      <h2>Add some artists to your favourites to get recommendations!</h2>
+    <% }%>
 
     <div class="tabs">
       <h2>
-        Your Friends Activity
+        Artists You May Like
       </h2>
     </div>
 
-    <div class="activity">
-      <h3>To be added soon!</h3>
-    </div>
+    <% if(relatedArtists){ %>
+      <% for(var i=0; i < relatedArtists.length - 1; i += 2) { %>
+        <div class="containHot">
+
+        <div class="hot">
+
+        <% if(relatedArtists[i].picture){ %>
+          <img src="<%= relatedArtists[i].picture %>" alt="Can't display image">
+        <% } else { %>
+          <img src="/pictures/lang-logo.png" alt="Can't display image">
+        <% } %>
+
+        <div class="username">
+            <h2><%= relatedArtists[i].name %> </h2>
+        </div>
+
+        <div class="date">
+          <h3> Genres:&nbsp
+          <% relatedArtists[i].genres.forEach((genre, y) => { %>
+            <% if(y == relatedArtists[i].genres.length -1){ %>
+              <span><%= genre %></span>
+          <% } else { %>
+            <span><%= genre %>,&nbsp</span>
+          <% } %>
+
+          <% }) %>
+        </h3>
+
+          </div>
+
+          <div class="recognize">
+            <form class="artists" method="post">
+              <% if(myArtists.includes(relatedArtists[i].id)){ %>
+              <input type="hidden" id="<%= relatedArtists[i].id %>Hidden" name="delete" value="<%= relatedArtists[i].id %>">
+              <input type="submit" id="<%= relatedArtists[i].id %>Input" name="sub" value="Remove from my favourite artists">
+              <% } else { %>
+              <input type="hidden" id="<%= relatedArtists[i].id %>Hidden" name="add" value="<%= relatedArtists[i].id %>">
+              <input type="submit" id="<%= relatedArtists[i].id %>Input" name="sub" value="Add to my favourite artists">
+              <% } %>
+            </form>
+          </div>
+
+        </div>
+
+      <% if(relatedArtists[i+1]){ %>
+        <div class="hot">
+
+        <% if(relatedArtists[i+1].picture){ %>
+          <img src="<%= relatedArtists[i+1].picture %>" alt="Can't display image">
+        <% } else { %>
+          <img src="/pictures/lang-logo.png" alt="Can't display image">
+        <% } %>
+
+        <div class="username">
+            <h2><%= relatedArtists[i+1].name %> </h2>
+        </div>
+
+        <div class="date">
+          <h3> Genres:&nbsp
+          <% relatedArtists[i+1].genres.forEach((genre, y) => { %>
+            <% if(y == relatedArtists[i+1].genres.length -1){ %>
+              <span><%= genre %></span>
+          <% } else { %>
+            <span><%= genre %>,&nbsp</span>
+          <% } %>
+
+          <% }) %>
+
+          </div>
+
+          <div class="recognize">
+            <form class="artists" method="post">
+              <% if(myArtists.includes(relatedArtists[i+1].id)){ %>
+              <input type="hidden" id="<%= relatedArtists[i+1].id %>Hidden" name="delete" value="<%= relatedArtists[i+1].id %>">
+              <input type="submit" id="<%= relatedArtists[i+1].id %>Input" name="sub" value="Remove from my favourite artists">
+              <% } else { %>
+              <input type="hidden" id="<%= relatedArtists[i+1].id %>Hidden" name="add" value="<%= relatedArtists[i+1].id %>">
+              <input type="submit" id="<%= relatedArtists[i+1].id %>Input" name="sub" value="Add to my favourite artists">
+              <% } %>
+            </form>
+          </div>
+
+        </div>
+
+      <% } %>
+
+        </div>
+
+      <% } %>
+    <% } else { %>
+      <h2>Add some artists to your favourites to get recommendations!</h2>
+    <% }%>
 
     <script type="text/javascript">
 
