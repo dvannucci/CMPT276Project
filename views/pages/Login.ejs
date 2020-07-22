@@ -49,7 +49,6 @@
     </form>
 </div >
 
-
   <div class="rat">
     <a href="/register"> If not registered click here</a>
     <br> <br>
@@ -90,12 +89,26 @@ function signOut() {
     fetch_basic_profile: false,
     scope: 'profile'
   });
+<<<<<<< HEAD
 
   // Sign the user in, and then retrieve their ID.
   auth2.signIn().then(function() {
     console.log(auth2.currentUser.get().getId());
   });
 });
+=======
+
+  // Sign the user in, and then retrieve their ID.
+  auth2.signIn().then(function() {
+    console.log(auth2.currentUser.get().getId());
+  });
+});
+
+
+
+
+  </script>
+>>>>>>> cc7d285214b8bf8ff21650a653c757d121b6f087
 
   </script>
 

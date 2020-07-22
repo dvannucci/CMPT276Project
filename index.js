@@ -4,6 +4,8 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const multer = require('multer')
+
+
 const fs = require('fs')
 
 const google = require('googleapis').google;
@@ -26,6 +28,7 @@ const storage = multer.diskStorage({
     func(null, `id${req.session.loggedID}` )
   }
 })
+
 
 // Only allowing jpeg or png files for profile pictures.
 const fileFilter = (req, file, func) => {
