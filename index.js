@@ -32,7 +32,7 @@ const storage = multer.diskStorage({
 // Google Sign in To Museical App
 function onSignIn(googleUser) {
   var id_token = googleUser.getAuthResponse().id_token;
-  ...
+  
 }
 var xhr = new XMLHttpRequest();
 xhr.open('POST', 'https://yourbackend.example.com/tokensignin');
