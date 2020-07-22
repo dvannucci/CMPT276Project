@@ -4,8 +4,8 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const multer = require('multer')
-const {OAuth2Client} = require('google-auth-library');
-const client = new OAuth2Client(CLIENT_ID);
+
+
 const fs = require('fs')
 
 const google = require('googleapis').google;
