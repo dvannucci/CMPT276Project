@@ -114,6 +114,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
     var user = {'username' : req.session.username}
     user.albumsYouMayLike = []
     user.relatedArtists = []
+    user.hotRightNow = []
 
     function theSongCheck(x){
       return new Promise(resolve => {
@@ -293,7 +294,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
       return new Promise(resolve => {
 
         SpotifyAPI.getNewReleases({ limit : 6 }).then(
-          async function(data) {
+          function(data) {
             var recent = []
             for (each of data.body.albums.items) {
               var item = {}
@@ -310,11 +311,10 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
 
               item.released = each.release_date
 
-              recent.push(item)
+              user.hotRightNow.push(item)
             }
-            user.hotRightNow = recent
 
-            res.render('pages/userHomepage', user )
+            resolve(user)
 
           },
           function(error) {
@@ -342,7 +342,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
 
     var try4 = await hotNow(try3)
 
-
+    res.render('pages/userHomepage', try4 )
 
 
   })
