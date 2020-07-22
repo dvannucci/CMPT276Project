@@ -90,7 +90,6 @@ function signOut() {
     scope: 'profile'
   });
 
-
   // Sign the user in, and then retrieve their ID.
   auth2.signIn().then(function() {
     console.log(auth2.currentUser.get().getId());
@@ -98,11 +97,6 @@ function signOut() {
 });
 
 
-  // Sign the user in, and then retrieve their ID.
-  auth2.signIn().then(function() {
-    console.log(auth2.currentUser.get().getId());
-  });
-});
 
 
 
