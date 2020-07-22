@@ -106,41 +106,12 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
   // The homepage for every user, customized to their personal info.
   app.get('/home', checkLogin, async (req, res) => {
 
-    try{
+      var myTracks = []
+      var albumsYouMayLike = []
+      var relatedArtists = []
+      var artists = []
+      var user = {'username' : req.session.username}
 
-    var done = _.after(4, finish);
-    var almost = _.after(3, cont);
-
-    var user = {'username' : req.session.username}
-
-    await SpotifyAPI.getNewReleases({ limit : 6 }).then(
-      function(data) {
-        var recent = []
-        for (each of data.body.albums.items) {
-          var item = {}
-          item.id = each.id
-          item.name = each.name
-          item.artists =  each.artists.map(a => a.name)
-          item.type = each.album_type
-
-          if(each.images.length){
-            item.picture = each.images[0].url
-          } else {
-            item.picture = false
-          }
-
-          item.released = each.release_date
-
-          recent.push(item)
-        }
-        user.hotRightNow = recent
-        almost()
-        done()
-
-      },
-      function(error) {
-        res.send(error)
-    })
 
     var checkSongs = `select track_id from favouritetracks where user_id = ${req.session.loggedID}`
 
@@ -148,26 +119,19 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
       if(error)
         res.send(error)
 
-      var myTracks = []
-
       result.rows.filter(function(each) {
         myTracks.push(each.track_id)
       })
 
       user.myTracks = myTracks
 
-      almost()
-      done()
-
       })
 
       var artistsGet = `select artist_id from favouriteartists where user_id = ${req.session.loggedID}`
 
-      var albumsYouMayLike = []
-      var relatedArtists = []
-      var artists = []
 
-      await pool.query(artistsGet, async (error, result) => {
+
+      await pool.query(artistsGet, (error, result) => {
         if(error)
           res.send(error)
 
@@ -182,13 +146,37 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
           })
 
           user.myArtists = artists
-          almost()
-          done()
 
           }
         })
 
-        async function cont(){
+        await SpotifyAPI.getNewReleases({ limit : 6 }).then(
+          function(data) {
+            var recent = []
+            for (each of data.body.albums.items) {
+              var item = {}
+              item.id = each.id
+              item.name = each.name
+              item.artists =  each.artists.map(a => a.name)
+              item.type = each.album_type
+
+              if(each.images.length){
+                item.picture = each.images[0].url
+              } else {
+                item.picture = false
+              }
+
+              item.released = each.release_date
+
+              recent.push(item)
+            }
+            user.hotRightNow = recent
+
+          },
+          function(error) {
+            res.send(error)
+        })
+
 
           for(var i = 0; i < artists.length & i < 4; i++){
 
@@ -269,18 +257,8 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
           }
           user.albumsYouMayLike = albumsYouMayLike
           user.relatedArtists = relatedArtists
-          done()
+          res.render('pages/userHomepage', user )
 
-        }
-
-      } catch(err){
-        res.send(err)
-      }
-
-
-    function finish(){
-      res.render('pages/userHomepage', user )
-    }
 
   })
 
