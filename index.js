@@ -106,6 +106,8 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
   // The homepage for every user, customized to their personal info.
   app.get('/home', checkLogin, async (req, res) => {
 
+    try{
+
     var done = _.after(4, finish);
     var almost = _.after(3, cont);
 
@@ -174,7 +176,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
           res.render('pages/userHomepage', user )
 
         } else {
-          
+
           result.rows.filter(function(each) {
             artists.push(each.artist_id)
           })
@@ -270,6 +272,10 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
           done()
 
         }
+
+      } catch(err){
+        res.send(err)
+      }
 
 
     function finish(){
