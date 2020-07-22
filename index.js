@@ -13,6 +13,7 @@ const CONFIG = require('./config');
 const OAuth2 = google.auth.OAuth2;
 // Allowing ourselves to use cookies
 const cookieParser = require('cookie-parser');
+const _ = require("underscore");
 
 require('dotenv').config();
 
@@ -105,6 +106,9 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
   // The homepage for every user, customized to their personal info.
   app.get('/home', checkLogin, async (req, res) => {
 
+    var done = _.after(4, finish);
+    var almost = _.after(3, cont);
+
     var user = {'username' : req.session.username}
 
     await SpotifyAPI.getNewReleases({ limit : 6 }).then(
@@ -128,6 +132,8 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
           recent.push(item)
         }
         user.hotRightNow = recent
+        almost()
+        done()
 
       },
       function(error) {
@@ -136,7 +142,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
 
     var checkSongs = `select track_id from favouritetracks where user_id = ${req.session.loggedID}`
 
-    pool.query(checkSongs, async (error, result) => {
+     await pool.query(checkSongs, async (error, result) => {
       if(error)
         res.send(error)
 
@@ -148,7 +154,16 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
 
       user.myTracks = myTracks
 
+      almost()
+      done()
+
+      })
+
       var artistsGet = `select artist_id from favouriteartists where user_id = ${req.session.loggedID}`
+
+      var albumsYouMayLike = []
+      var relatedArtists = []
+      var artists = []
 
       await pool.query(artistsGet, async (error, result) => {
         if(error)
@@ -159,16 +174,19 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
           res.render('pages/userHomepage', user )
 
         } else {
-          var artists = []
-
+          
           result.rows.filter(function(each) {
             artists.push(each.artist_id)
           })
 
           user.myArtists = artists
+          almost()
+          done()
 
-          var albumsYouMayLike = []
-          var relatedArtists = []
+          }
+        })
+
+        async function cont(){
 
           for(var i = 0; i < artists.length & i < 4; i++){
 
@@ -245,18 +263,19 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
               res.send(error)
             });
 
+
           }
           user.albumsYouMayLike = albumsYouMayLike
           user.relatedArtists = relatedArtists
-          res.render('pages/userHomepage', user )
+          done()
 
         }
 
 
-      })
+    function finish(){
+      res.render('pages/userHomepage', user )
+    }
 
-
-    })
   })
 
   app.get('/notifications', checkLogin, (req, res) => {
