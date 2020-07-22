@@ -35,6 +35,7 @@ vertical-align: middle;
 body{
 font: 13px Helvetica, Arial;
 height: 100vh;
+min-width: 1050px;
 }
 #chatForm{
 background: #fff;

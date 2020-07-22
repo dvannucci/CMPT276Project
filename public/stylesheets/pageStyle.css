@@ -198,6 +198,21 @@ body {
   color: white;
 }
 
+.recognize a{
+  background-color: rgb(0,0,0);
+  text-decoration: none;
+  color: white;
+  font-size: 17px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.recognize a:hover {
+  text-decoration: underline;
+  color: white;
+}
+
 .spotify input{
   text-align: center;
   display: inline;
@@ -235,4 +250,71 @@ body {
 
 .containHot {
   text-align: center;
+}
+
+#glogin{
+  text-decoration: none;
+  font-size: 17px;
+  color: white;
+  padding: 8px;
+  background-color: black;
+  border: white solid 2px;
+  border-radius: 5px 5px 5px 5px;
+}
+
+#glogin:hover{
+  color: lightgray;
+  background-color:midnightblue;
+  border-color: lightgray;
+}
+
+.matches-vids {
+  position: relative;
+  color: white;
+  height: fit-content;
+  margin: 20px;
+  width: 70%;
+  border-style: groove;
+  border-color: white;
+  border-width: thin;
+}
+
+.matches-vids img {
+  float: left;
+  height: 124px;
+  border-style: solid;
+  border-color: white;
+  border-width: medium;
+}
+
+.matches-vids h2, h3{
+  padding: 10px;
+  overflow: hidden;
+}
+
+.hot-vids {
+  display: inline-block;
+  position: relative;
+  color: white;
+  height: 130px;
+  margin: 15px;
+  width: 47%;
+  border-style: groove;
+  border-color: white;
+  border-width: thin;
+  text-align: left;
+}
+
+.hot-vids img {
+  float: left;
+  height: 124px;
+  border-style: solid;
+  border-color: white;
+  border-width: medium;
+}
+
+.hot-vids h2, h3 {
+  padding: 10px;
+  overflow: hidden;
+  height: 10px;
 }

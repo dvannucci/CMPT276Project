@@ -11,13 +11,38 @@
 
     <% include ../partials/nav.ejs %>
 
-      <div class="activity" style="margin-top:20%;font-size:150%">
-        <h3>My music section will be implemented on the next iteration after connecting to the Spotify and YouTube APIs.</h3>
+      <div class="video_window" style="display: inline-block; border: 2px solid white; width: 80%; height: 25%; margin-left: 10%; margin-right: 10%;">
+        <h3 class="video_text" style="color: white;">My Liked Videos:</h3>
+        <% likedVids.forEach(function (likedVids) { %>
+          <div class="hot-vids">
+            <img src="<%= likedVids.snippet.thumbnails.default.url %>" alt="Can't display image">
+            <div class="username">
+              <h2> <%= likedVids.snippet.title %> </h2>
+            </div>
+            <div class="date">
+              <h3><%= likedVids.snippet.channelTitle %></h3>
+            </div>
+            <div class="recognize">
+              <a href="https://www.youtube.com/watch?v=<%= likedVids.id %>" target="_blank">Watch now</a>
+            </div>
+          </div>
+        <% }) %>
       </div>
       <div class="video_window" style="display: inline-block; border: 2px solid white; width: 80%; height: 25%; margin-left: 10%; margin-right: 10%;">
-        <p class="video_text" style="color: white;">Videos I Like:</p>
-        <% search.forEach(function (search) { %>
-          <li style="color: white;"><%= search.snippet.title %></li>
+        <h3 class="video_text" style="color: white;">Popular Videos:</h3>
+        <% popularVids.forEach(function (popularVids) { %>
+          <div class="hot-vids">
+            <img src="<%= popularVids.snippet.thumbnails.default.url %>" alt="Can't display image">
+            <div class="username">
+              <h2> <%= popularVids.snippet.title %> </h2>
+            </div>
+            <div class="date">
+              <h3><%= popularVids.snippet.channelTitle %></h3>
+            </div>
+            <div class="recognize">
+              <a href="https://www.youtube.com/watch?v=<%= popularVids.id %>" target="_blank">Watch now</a>
+            </div>
+          </div>
         <% }) %>
       </div>
 

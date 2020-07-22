@@ -65,6 +65,7 @@ const io = require('socket.io').listen(server);
 
 var SpotifyWebApi = require('spotify-web-api-node');
 const { create } = require('domain')
+const { promiseImpl } = require('ejs')
 
 var scopes = ['user-top-read', 'user-read-currently-playing', 'user-read-recently-played', 'user-library-read']
 var state = 'the_secret'
@@ -298,15 +299,28 @@ app.get('/admin', checkLogin, async (req,res) => {
     oauth2Client.credentials = jwt.verify(req.cookies.jwt, CONFIG.JWTsecret);
     // Get the youtube service
     const service = google.youtube('v3');
-    // Get five of the user's subscriptions (the channels they're subscribed to)
-    service.search.list({
-      auth: oauth2Client,
-      part: 'snippet',
-      maxResults: 25,
-      q: "daft punk"
-    }).then(response => {
+    // Get top 10 most popular music related videos
+    Promise.all([
+      service.videos.list({
+        auth: oauth2Client,
+        part: 'snippet',
+        maxResults: 10,
+        chart:"mostPopular",
+        regionCode: "US",
+        type: "video",
+        videoCategoryId: "10"
+      }),
+      service.videos.list({
+        auth: oauth2Client,
+        part: 'snippet',
+        maxResults: 10,
+        myRating: 'like',
+        type: "video",
+        videoCategoryId: "10"
+      }),
+    ]).then(response => {
       // Render the data view, passing the subscriptions to it
-      return  res.render('pages/mymusic', { 'username' : req.session.username, 'id' : req.session.loggedID, search: response.data.items });
+      return  res.render('pages/mymusic', { 'username' : req.session.username, 'id' : req.session.loggedID, popularVids: response[0].data.items, likedVids: response[1].data.items });
     });
   });
 
@@ -415,7 +429,9 @@ app.get('/admin', checkLogin, async (req,res) => {
         auth: oauth2Client,
         part: 'snippet',
         maxResults: 25,
-        q: req.body.searchInput
+        q: req.body.searchInput,
+        type: "video",
+        videoCategoryId: "10"
       }).then(response => {
         // Render the data view, passing the subscriptions to it
         current.youtubevideos = response.data.items
@@ -1023,7 +1039,7 @@ app.get('/auth_callback', function (req, res) {
   } else {
     oauth2Client.getToken(req.query.code, function(err, token) {
       if (err)
-        return res.redirect('/');
+        return res.redirect('/home');
 
       // Store the credentials given by google into a jsonwebtoken in a cookie called 'jwt'
       res.cookie('jwt', jwt.sign(token, CONFIG.JWTsecret));
