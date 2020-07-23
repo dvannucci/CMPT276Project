@@ -50,12 +50,14 @@ function getConnectionUrl(auth) {
     scope: defaultScope
   });
 }
-
-
-
-
-
-
+/**
+ * Create the google url to be sent to the client.
+ */
+function urlGoogle() {
+  const auth = createConnection();
+  const url = getConnectionUrl(auth);
+  return url;
+}
 
 // Storgae destination for profile pictures, and the name of the picture.
 const storage = multer.diskStorage({
