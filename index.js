@@ -4,7 +4,7 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const multer = require('multer')
-import { google } from 'googleapis';
+
 const googleConfig = {
   clientId: '279562630685-3hv4pg7a5vm45s9rpgph0e6vv07943pn.apps.googleusercontent.com',
   clientSecret: 'FzuBw_NZ1_WS_7vrLcJvfJj9',
