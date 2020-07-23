@@ -672,7 +672,6 @@ app.get('/admin', checkLogin, async (req,res) => {
 
       var gatherUser = `select * from users where id = ${req.params.id}`
           + `SELECT * FROM profile_history where id = ${req.params.id} order by stamp;`;
-      var current = {'username' : req.session.username}
 
       if(result.rows.length == 0){
         current.following = false
@@ -682,11 +681,13 @@ app.get('/admin', checkLogin, async (req,res) => {
       }
 
       pool.query(gatherUser, (error, result) => {
+
+        console.log(result)
+
         if(error)
           res.send(error)
 
-        current.results = result[0].rows[0]
-        current.history = result[1].row
+        var current = {'username' : req.session.username, 'results' : result[0].rows[0], 'history' = result[1].rows}
 
         res.render('pages/requestedPage', current)
       })
