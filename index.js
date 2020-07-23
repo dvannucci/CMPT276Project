@@ -4,7 +4,12 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const multer = require('multer')
-
+var cors = require('cors')
+const googleConfig = {
+  clientId: '279562630685-3hv4pg7a5vm45s9rpgph0e6vv07943pn.apps.googleusercontent.com',
+  clientSecret: 'FzuBw_NZ1_WS_7vrLcJvfJj9',
+  redirect: 'https://museical.herokuapp.com'
+};
 
 const fs = require('fs')
 
@@ -18,6 +23,41 @@ const cookieParser = require('cookie-parser');
 const _ = require("underscore");
 
 require('dotenv').config();
+
+/**
+* Create the google auth object which gives us access to talk to google's apis.
+ */
+function createConnection() {
+  return new google.auth.OAuth2(
+    googleConfig.clientId,
+    googleConfig.clientSecret,
+    googleConfig.redirect
+  );
+}
+
+const defaultScope = [
+  'https://www.googleapis.com/auth/plus.me',
+  'https://www.googleapis.com/auth/userinfo.email',
+];
+
+/**
+ * Get a url which will open the google sign-in page and request access to the scope provided
+ */
+function getConnectionUrl(auth) {
+  return auth.generateAuthUrl({
+    access_type: 'offline',
+    prompt: 'consent',
+    scope: defaultScope
+  });
+}
+/**
+ * Create the google url to be sent to the client.
+ */
+function urlGoogle() {
+  const auth = createConnection();
+  const url = getConnectionUrl(auth);
+  return url;
+}
 
 // Storgae destination for profile pictures, and the name of the picture.
 const storage = multer.diskStorage({
@@ -94,6 +134,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
   app.use(bodyParser.json())
   app.use(express.static(path.join(__dirname, 'public')))
   app.use('/pictures', express.static('pictures'))
+  app.use('/', cors());
   app.set('views', path.join(__dirname, 'views'))
   app.set('view engine', 'ejs')
 
@@ -366,7 +407,7 @@ app.get('/admin', checkLogin, async (req,res) => {
       req.session.destroy()
       return res.redirect("/" + '?valid=accessDenied')
     } else {
-      var insertQuery=`SELECT * FROM users`;
+      var insertQuery=`SELECT * FROM users ORDER BY ID ASC`;
       pool.query(insertQuery, (error, result) => {
         if(error)
           res.send(error)
@@ -989,7 +1030,7 @@ app.get('/admin', checkLogin, async (req,res) => {
   //identifies current chat
   var chatID;
   //link to chat page
-  app.get('/chat/:chatID', (req,res)=>{
+  app.get('/chat/:chatID', checkLogin, (req,res)=>{
     var uname =req.session.username;
     chatID = req.params.chatID;
     var getmessagesQuery = "SELECT * FROM messages where chatID = " + chatID + "ORDER BY time ASC;"
@@ -1004,7 +1045,7 @@ app.get('/admin', checkLogin, async (req,res) => {
     })
   })
 
-  app.post('/chat/create', (req,res)=>{
+  app.post('/chat/create', checkLogin, (req,res)=>{
     var uname = req.session.username;
     let quotemoddedchatname = req.body.chatnameinput.replace(/'/g,"''");
     var makechatQuery = "INSERT INTO chats VALUES (default, '" + quotemoddedchatname + "', ARRAY ['" + uname + "'])";
@@ -1022,7 +1063,7 @@ app.get('/admin', checkLogin, async (req,res) => {
     })
   })
 
-  app.post('/chat/:chatID/leave', (req,res)=>{
+  app.post('/chat/:chatID/leave', checkLogin, (req,res)=>{
     var uname = req.session.username;
     chatID = req.params.chatID;
     var leavechatQuery = "UPDATE chats SET participants = array_remove(participants, '" + uname + "') WHERE chatid = " + chatID;
@@ -1138,3 +1179,5 @@ app.get('/auth_callback', function (req, res) {
     });
   }
 });
+
+module.exports = app;
