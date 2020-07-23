@@ -28,6 +28,23 @@
           </div>
         <% }) %>
       </div>
+      <div class="video_window" style="margin-top: 15px; display: inline-block; border: 2px solid white; width: 80%; height: 25%; margin-left: 10%; margin-right: 10%;">
+        <h3 class="video_text" style="color: white;">Popular Videos:</h3>
+        <% popularVids.forEach(function (popularVids) { %>
+          <div class="hot-vids">
+            <img src="<%= popularVids.snippet.thumbnails.default.url %>" alt="Can't display image">
+            <div class="username">
+              <h2> <%= popularVids.snippet.title %> </h2>
+            </div>
+            <div class="date">
+              <h3><%= popularVids.snippet.channelTitle %></h3>
+            </div>
+            <div class="recognize">
+              <a href="https://www.youtube.com/watch?v=<%= popularVids.id %>" target="_blank">Watch now</a>
+            </div>
+          </div>
+        <% }) %>
+      </div>
 
     <script type="text/javascript">
 
