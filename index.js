@@ -73,7 +73,7 @@ function getGooglePlusApi(auth) {
   return google.plus({ version: 'v1', auth });
 }
 
-/**
+
 
 
 
