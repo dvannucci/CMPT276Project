@@ -674,13 +674,13 @@ app.get('/admin', checkLogin, async (req,res) => {
           + `SELECT * FROM profile_history where id = ${req.params.id} order by stamp;`;
 
 
-      var current = {'username' : req.session.username}
+      var following
 
       if(result.rows.length == 0){
-        current.following = false
+        following = false
       }
       else {
-        current.following = true
+        following = true
       }
 
       pool.query(gatherUser, (error, result) => {
@@ -688,7 +688,7 @@ app.get('/admin', checkLogin, async (req,res) => {
         if(error)
           res.send(error)
 
-        current = {'username' : req.session.username, 'results' : result[0].rows, 'history' : result[1].rows}
+        current = {'username' : req.session.username, 'results' : result[0].rows, 'history' : result[1].rows, 'following' : following}
 
         res.render('pages/requestedPage', current)
       })
