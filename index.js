@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const PORT = process.env.PORT || 5000
 const multer = require('multer')
+var cors = require('cors')
 
 
 const fs = require('fs')
@@ -94,6 +95,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
   app.use(bodyParser.json())
   app.use(express.static(path.join(__dirname, 'public')))
   app.use('/pictures', express.static('pictures'))
+  app.use('/', cors());
   app.set('views', path.join(__dirname, 'views'))
   app.set('view engine', 'ejs')
 
@@ -995,7 +997,7 @@ app.get('/admin', checkLogin, async (req,res) => {
   //identifies current chat
   var chatID;
   //link to chat page
-  app.get('/chat/:chatID', (req,res)=>{
+  app.get('/chat/:chatID', checkLogin, (req,res)=>{
     var uname =req.session.username;
     chatID = req.params.chatID;
     var getmessagesQuery = "SELECT * FROM messages where chatID = " + chatID + "ORDER BY time ASC;"
@@ -1010,7 +1012,7 @@ app.get('/admin', checkLogin, async (req,res) => {
     })
   })
 
-  app.post('/chat/create', (req,res)=>{
+  app.post('/chat/create', checkLogin, (req,res)=>{
     var uname = req.session.username;
     let quotemoddedchatname = req.body.chatnameinput.replace(/'/g,"''");
     var makechatQuery = "INSERT INTO chats VALUES (default, '" + quotemoddedchatname + "', ARRAY ['" + uname + "'])";
@@ -1028,7 +1030,7 @@ app.get('/admin', checkLogin, async (req,res) => {
     })
   })
 
-  app.post('/chat/:chatID/leave', (req,res)=>{
+  app.post('/chat/:chatID/leave', checkLogin, (req,res)=>{
     var uname = req.session.username;
     chatID = req.params.chatID;
     var leavechatQuery = "UPDATE chats SET participants = array_remove(participants, '" + uname + "') WHERE chatid = " + chatID;
@@ -1144,3 +1146,5 @@ app.get('/auth_callback', function (req, res) {
     });
   }
 });
+
+module.exports = app;
