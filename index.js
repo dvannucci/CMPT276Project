@@ -59,12 +59,7 @@ function urlGoogle() {
   return url;
 }
 
-/**
- * Helper function to get the library with access to the google plus api.
- */
-function getGooglePlusApi(auth) {
-  return google.plus({ version: 'v1', auth });
-}
+
 
 
 // Storgae destination for profile pictures, and the name of the picture.
