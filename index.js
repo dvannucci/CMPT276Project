@@ -685,12 +685,10 @@ app.get('/admin', checkLogin, async (req,res) => {
 
       pool.query(gatherUser, (error, result) => {
 
-        console.log(result)
-
         if(error)
           res.send(error)
 
-        current = {'username' : req.session.username, 'results' : result[0].rows[0], 'history' : result[1].rows}
+        current = {'username' : req.session.username, 'results' : result[0].rows, 'history' : result[1].rows}
 
         res.render('pages/requestedPage', current)
       })
