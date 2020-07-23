@@ -407,7 +407,7 @@ app.get('/admin', checkLogin, async (req,res) => {
       req.session.destroy()
       return res.redirect("/" + '?valid=accessDenied')
     } else {
-      var insertQuery=`SELECT * FROM users`;
+      var insertQuery=`SELECT * FROM users ORDER BY ID ASC`;
       pool.query(insertQuery, (error, result) => {
         if(error)
           res.send(error)
