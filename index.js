@@ -687,7 +687,7 @@ app.get('/admin', checkLogin, async (req,res) => {
         if(error)
           res.send(error)
 
-        var current = {'username' : req.session.username, 'results' : result[0].rows[0], 'history' = result[1].rows}
+        var current = {'username' : req.session.username, 'results' : result[0].rows[0], 'history' : result[1].rows}
 
         res.render('pages/requestedPage', current)
       })
