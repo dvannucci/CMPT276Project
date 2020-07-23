@@ -59,10 +59,10 @@
     <div class="g-signin2" data-onsuccess="onSignIn">
 <button> Click here</button>
     </div>
-
+<br><br>
 <a href="#" onclick="signOut();">Sign out</a>
 
-    <br><br>
+
   </form>
 
   <script>
@@ -88,7 +88,7 @@ function signOut() {
     console.log('Image URL: ' + profile.getImageUrl());
     console.log('Email: ' + profile.getEmail());
   }
-  /*gapi.load('auth2', function() {
+  gapi.load('auth2', function() {
   auth2 = gapi.auth2.init({
     client_id: 'CLIENT_ID.apps.googleusercontent.com',
     fetch_basic_profile: false,
@@ -100,7 +100,7 @@ function signOut() {
     console.log(auth2.currentUser.get().getId());
   });
 });
-*/
+
 
 
   </script>
