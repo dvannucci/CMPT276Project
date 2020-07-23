@@ -24,6 +24,28 @@ const _ = require("underscore");
 
 require('dotenv').config();
 
+/**
+* Create the google auth object which gives us access to talk to google's apis.
+ */
+function createConnection() {
+  return new google.auth.OAuth2(
+    googleConfig.clientId,
+    googleConfig.clientSecret,
+    googleConfig.redirect
+  );
+}
+
+const defaultScope = [
+  'https://www.googleapis.com/auth/plus.me',
+  'https://www.googleapis.com/auth/userinfo.email',
+];
+
+
+
+
+
+
+
 // Storgae destination for profile pictures, and the name of the picture.
 const storage = multer.diskStorage({
   destination: (req, file, func) => {
