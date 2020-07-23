@@ -5,7 +5,11 @@ const path = require('path')
 const PORT = process.env.PORT || 5000
 const multer = require('multer')
 var cors = require('cors')
-
+const googleConfig = {
+  clientId: '279562630685-3hv4pg7a5vm45s9rpgph0e6vv07943pn.apps.googleusercontent.com',
+  clientSecret: 'FzuBw_NZ1_WS_7vrLcJvfJj9',
+  redirect: 'https://museical.herokuapp.com'
+};
 
 const fs = require('fs')
 
@@ -19,6 +23,42 @@ const cookieParser = require('cookie-parser');
 const _ = require("underscore");
 
 require('dotenv').config();
+/**
+* Create the google auth object which gives us access to talk to google's apis.
+ */
+function createConnection() {
+  return new google.auth.OAuth2(
+    googleConfig.clientId,
+    googleConfig.clientSecret,
+    googleConfig.redirect
+  );
+}
+
+const defaultScope = [
+  'https://www.googleapis.com/auth/plus.me',
+  'https://www.googleapis.com/auth/userinfo.email',
+];
+
+/**
+ * Get a url which will open the google sign-in page and request access to the scope provided
+ */
+function getConnectionUrl(auth) {
+  return auth.generateAuthUrl({
+    access_type: 'offline',
+    prompt: 'consent',
+    scope: defaultScope
+  });
+}
+
+/**
+ * Create the google url to be sent to the client.
+ */
+function urlGoogle() {
+  const auth = createConnection();
+  const url = getConnectionUrl(auth);
+  return url;
+}
+
 
 // Storgae destination for profile pictures, and the name of the picture.
 const storage = multer.diskStorage({
@@ -368,7 +408,7 @@ app.get('/admin', checkLogin, async (req,res) => {
       req.session.destroy()
       return res.redirect("/" + '?valid=accessDenied')
     } else {
-      var insertQuery=`SELECT * FROM users`;
+      var insertQuery=`SELECT * FROM users ORDER BY ID ASC`;
       pool.query(insertQuery, (error, result) => {
         if(error)
           res.send(error)

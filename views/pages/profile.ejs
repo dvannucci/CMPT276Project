@@ -29,7 +29,7 @@
 
       <br>
 
-      <h3> Your current username: <br> <%= username %> </h3>
+      <h3> Your current username: <br> <br><%= username %> </h3> <br><br>
 
       <h4>If you wish to change your username, enter a new username below.</h4>
 
@@ -46,7 +46,7 @@
        <% if (spotify){ %>
          <h3>You have connected to your Spotify account.</h3>
         <% } else { %>
-          <h3>To connect to your Spotify account, click below.</h3>
+          <h3>To connect to your Spotify account, click below.</h3><br><br>
           <form class="spotify follow" action="/spotifyTry" method="post">
              <input type="submit" name="spotify" value="Spotify">
           </form>

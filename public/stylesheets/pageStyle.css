@@ -64,6 +64,7 @@ body {
 
 .info h3 {
   text-align: center;
+  overflow: visible;
 }
 
 .info h2 {
