@@ -68,8 +68,8 @@ function getGooglePlusApi(auth) {
 
 function getGoogleAccountFromCode(code) {
   const data = await auth.getToken(code);
-  /*const tokens = data.tokens;
-  const auth = createConnection();
+  const tokens = data.tokens;
+  /*const auth = createConnection();
   auth.setCredentials(tokens);
   const plus = getGooglePlusApi(auth);
   const me = await plus.people.get({ userId: 'me' });
