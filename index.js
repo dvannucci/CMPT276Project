@@ -12,7 +12,7 @@ const googleConfig = {
 };
 const queryString = require('query-string');
 
-console.log(location.search);
+//console.log(location.search);
 //=> '?foo=bar'
 
 const parsed = queryString.parse(location.search);
