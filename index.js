@@ -645,7 +645,7 @@ app.get('/admin', checkLogin, async (req,res) => {
         res.send(error)
 
       var gatherUser = `select * from users where id = ${req.params.id}`
-          + `SELECT * FROM profile_history where id = ${req.session.loggedID} order by stamp;`;
+          + `SELECT * FROM profile_history where id = ${req.params.id} order by stamp;`;
       var current = {'username' : req.session.username}
 
       if(result.rows.length == 0){
