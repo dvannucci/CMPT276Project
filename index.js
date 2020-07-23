@@ -438,6 +438,33 @@ app.get('/admin', checkLogin, async (req,res) => {
         auth: oauth2Client,
         part: 'snippet',
         maxResults: 10,
+        myRating: 'like',
+        type: "video",
+        videoCategoryId: "10"
+      }),
+    ]).then(response => {
+      // Render the data view, passing the subscriptions to it
+      return  res.render('pages/mymusic', { 'username' : req.session.username, 'id' : req.session.loggedID, likedVids: response[0].data.items });
+    });
+  });
+
+  app.get('/videos', checkLogin, (req, res) => {
+    if (!req.cookies.jwt) {
+      // We haven't logged in
+      return res.redirect('/google_login');
+    }
+    // Create an OAuth2 client object from the credentials in our config file
+    const oauth2Client = new OAuth2(CONFIG.oauth2Credentials.client_id, CONFIG.oauth2Credentials.client_secret, CONFIG.oauth2Credentials.redirect_uris[0]);
+    // Add this specific user's credentials to our OAuth2 client
+    oauth2Client.credentials = jwt.verify(req.cookies.jwt, CONFIG.JWTsecret);
+    // Get the youtube service
+    const service = google.youtube('v3');
+    // Get top 10 most popular music related videos
+    Promise.all([
+      service.videos.list({
+        auth: oauth2Client,
+        part: 'snippet',
+        maxResults: 10,
         chart:"mostPopular",
         regionCode: "US",
         type: "video",
@@ -453,10 +480,9 @@ app.get('/admin', checkLogin, async (req,res) => {
       }),
     ]).then(response => {
       // Render the data view, passing the subscriptions to it
-      return  res.render('pages/mymusic', { 'username' : req.session.username, 'id' : req.session.loggedID, popularVids: response[0].data.items, likedVids: response[1].data.items });
+      return  res.render('pages/videos', { 'username' : req.session.username, 'id' : req.session.loggedID, popularVids: response[0].data.items, likedVids: response[1].data.items });
     });
   });
-
 
   app.post('/search', checkLogin, async (req, res) => {
 
