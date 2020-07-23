@@ -55,10 +55,15 @@
     <a href="/passwordReset"> Forgot Password? </a>
   </div>
   <br><br>
+<form class="tyler" action="/Google-authenticate" method="post">
+    <div class="g-signin2" data-onsuccess="onSignIn">
+<button> Click here</button>
+    </div>
 
-    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+<a href="#" onclick="signOut();">Sign out</a>
+
     <br><br>
-    <a href="#" onclick="signOut();">Sign out</a>
+  </form>
 
   <script>
   function onSignIn(googleUser) {
@@ -83,7 +88,7 @@ function signOut() {
     console.log('Image URL: ' + profile.getImageUrl());
     console.log('Email: ' + profile.getEmail());
   }
-  gapi.load('auth2', function() {
+  /*gapi.load('auth2', function() {
   auth2 = gapi.auth2.init({
     client_id: 'CLIENT_ID.apps.googleusercontent.com',
     fetch_basic_profile: false,
@@ -95,10 +100,7 @@ function signOut() {
     console.log(auth2.currentUser.get().getId());
   });
 });
-
-
-
-
+*/
 
 
   </script>

@@ -111,12 +111,12 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
   // The homepage for every user, customized to their personal info.
   app.get('/home', checkLogin, async (req, res) => {
 
-    var myTracks = []
-    var artists = []
     var user = {'username' : req.session.username}
     user.albumsYouMayLike = []
     user.relatedArtists = []
     user.hotRightNow = []
+    user.myTracks = []
+    user.myArtists = []
 
     function theSongCheck(x){
       return new Promise(resolve => {
@@ -128,10 +128,8 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
             res.send(error)
 
           result.rows.filter(function(each) {
-            myTracks.push(each.track_id)
+            user.myTracks.push(each.track_id)
           })
-
-          x.myTracks = myTracks
 
           resolve(x);
 
@@ -150,16 +148,14 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
             res.send(error)
 
           if(result.rows.length == 0){
-            user.artists = []
-            res.render('pages/userHomepage', user )
+            user.myArtists = []
+            resolve(user)
 
           } else {
 
             result.rows.filter(function(each) {
-              artists.push(each.artist_id)
+              user.myArtists.push(each.artist_id)
             })
-
-            user.myArtists = artists
 
             resolve(user)
 
@@ -172,7 +168,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
     function relatedAlbums(user, index, max){
       return new Promise(resolve => {
 
-          SpotifyAPI.getArtistAlbums(artists[index]).then(
+          SpotifyAPI.getArtistAlbums(user.myArtists[index]).then(
             function(data) {
               if(data.body.items.length == 0){
                 resolve(user)
@@ -231,7 +227,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
     function relatedArtists(user, index, max){
       return new Promise(resolve => {
 
-        SpotifyAPI.getArtistRelatedArtists(artists[index]).then(
+        SpotifyAPI.getArtistRelatedArtists(user.myArtists[index]).then(
           function(data) {
             if(data.body.artists.length == 0){
               resolve(user)
@@ -326,33 +322,31 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
       })
     }
 
+    function done(try4){
+      res.render('pages/userHomepage', try4 )
+    }
 
     var try1 = await theSongCheck(user);
     var try2 = await theArtistGet(try1);
 
-    var try3;
 
-    if(artists.length == 1){
+    var try3;
+    if(user.myArtists.length == 0){
+      try3 = try2
+    }
+    else if(user.myArtists.length == 1){
       try3 = await relatedAlbums(try2, 0, true)
       try3 = await relatedArtists(try2, 0, true)
     } else {
-      for(var index = 0; index < artists.length & index < 4; index++){
+      for(var index = 0; index < user.myArtists.length & index < 4; index++){
         try3 = await relatedAlbums(try2, index, false)
         try3 = await relatedArtists(try2, index, false)
       }
     }
 
-    try4 = []
-
     var try4 = await hotNow(try3)
 
-    if(try4 == []){
-      setTimeout(500)
-    } else {
-      res.render('pages/userHomepage', try4 )
-    }
-
-
+    done(try4)
 
 
 

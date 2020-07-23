@@ -18,8 +18,8 @@
     </div>
 
 
-      <% if(hotRightNow){ %>
-        <% for(var i=0; i < hotRightNow.length - 1; i += 2) { %>
+      <% if(hotRightNow != []){ %>
+        <% for(var i=0; i < hotRightNow.length; i += 2) { %>
           <div class="containHot">
 
           <div class="hot">
@@ -169,8 +169,8 @@
       <h2>Albums You May Like</h2>
     </div>
 
-    <% if(albumsYouMayLike){ %>
-      <% for(var i=0; i < albumsYouMayLike.length - 1; i += 2) { %>
+    <% if(albumsYouMayLike.length > 0){ %>
+      <% for(var i=0; i < albumsYouMayLike.length; i += 2) { %>
         <div class="containHot">
 
         <div class="hot">
@@ -218,7 +218,7 @@
 
         </div>
 
-      <% if(albumsYouMayLike[i+1]){ %>
+      <% if(albumsYouMayLike[i+1] && albumsYouMayLike[i+1].id != albumsYouMayLike[i].id){ %>
         <div class="hot">
 
         <% if(albumsYouMayLike[i+1].picture){ %>
@@ -271,8 +271,11 @@
 
       <% } %>
     <% } else { %>
-      <h2>Add some artists to your favourites to get recommendations!</h2>
-    <% }%>
+      <div class="activity">
+        <h3>Add some artists to your favourites to get album recommendations!</h3>
+      </div>
+
+    <% } %>
 
     <div class="tabs">
       <h2>
@@ -280,8 +283,8 @@
       </h2>
     </div>
 
-    <% if(relatedArtists){ %>
-      <% for(var i=0; i < relatedArtists.length - 1; i += 2) { %>
+    <% if(relatedArtists.length > 0){ %>
+      <% for(var i=0; i < relatedArtists.length; i += 2) { %>
         <div class="containHot">
 
         <div class="hot">
@@ -324,7 +327,7 @@
 
         </div>
 
-      <% if(relatedArtists[i+1]){ %>
+      <% if(relatedArtists[i+1] && relatedArtists[i+1].id != relatedArtists[i].id){ %>
         <div class="hot">
 
         <% if(relatedArtists[i+1].picture){ %>
@@ -370,7 +373,9 @@
 
       <% } %>
     <% } else { %>
-      <h2>Add some artists to your favourites to get recommendations!</h2>
+      <div class="activity">
+        <h3>Add some artists to your favourites to get recommendations for other artists!</h3>
+      </div>
     <% }%>
 
     <script type="text/javascript">
