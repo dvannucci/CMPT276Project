@@ -24,9 +24,9 @@ table {
       <form action="/userInfoUpdate" method="post">
       <td><%= r.id%></td>
       <td><%= r.username%></td>
-      <td><input name="email" value="<%= r.email%>"></td>
-      <td><input name="password" value="<%= r.password%>"></td>
-      <td><input name="usertype" value="<%= r.usertype%>"></td>
+      <td><input type="text" name="email" value="<%= r.email%>"></td>
+      <td><input type="text" name="password" value="<%= r.password%>"></td>
+      <td><input type="text" name="usertype" value="<%= r.usertype%>"></td>
       <td><input href="/admin" type="submit" name="submit" value="Update"></td>
     </tr>
   <% }); %>
