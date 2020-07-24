@@ -22,41 +22,96 @@ before(function(done){
 
 
 describe('GET /chat/1', function(done){
-    //addresses 2nd bullet point: if the user is not logged in we should get a 302 response code and be directed to the /login page
-    it('should return a 302 response and redirect to /', function(done){
-        chai.request(app).get('/chat/0')
-        .end(function(error,res){
-            expect(res).to.have.status(200);
-            expect(res).to.have.header('location', '/');
-            done();
-        });
+  //if the user is not logged in we should be redirected to '/' page
+  it('should return a 200 response and redirect to /', function(done){
+      chai.request(app).get('/chat/1')
+      .end(function(error,res){
+          expect(res).to.have.status(200);
+          done();
       });
-    //addresses 1st bullet point: if the user is logged in we should get a 200 status code
-    it('should return a 200 response if the user is logged in', function(done){
-        authenticatedUser.get('/chat/1')
-        .end(function(error,res){
-            res.should.have.status(200);
-            done();
-        });
+  });
+  //if the user is logged in we should get a 200 status code
+  it('should return a 200 response if the user is logged in', function(done){
+      authenticatedUser.get('/chat/1')
+      .end(function(error,res){
+          res.should.have.status(200);
+          done();
+      });
+  });
+});
+
+describe('POST /chat/create', function(done){
+  //if the user is not logged in we should be redirected to '/' page
+  it('should return a 200 response and redirect to /', function(done){
+      chai.request(app).post('/chat/create')
+      .end(function(error,res){
+        res.should.have.status(200);
+          done();
+      });
+  });
+  //if the user is logged in we should get a 200 status code
+  it('should return a 200 response if the user is logged in', function(done){
+      authenticatedUser.post('/chat/create')
+      .send({chatnameinput:'test'})
+      .end(function(error,res){
+          res.should.have.status(200);
+          done();
+      });
+  });
+});
+
+describe('POST /chat/1/leave', function(done){
+  //if the user is not logged in we should be redirected to '/' page
+  it('should return a 200 response and redirect to /', function(done){
+      chai.request(app).post('/chat/1/leave')
+      .end(function(error,res){
+        res.should.have.status(200);
+          done();
+      });
+  });
+  //if the user is logged in we should get a 200 status code
+  it('should return a 200 response if the user is logged in', function(done){
+      authenticatedUser.post('/chat/1/leave')
+      .end(function(error,res){
+          res.should.have.status(200);
+          done();
+      });
+  });
+});
+
+describe('GET /videos', function(done){
+  it('should return a 200 response and redirect to /login', function(done){
+      chai.request(app).get('/videos')
+      .end(function(error,res){
+          res.should.have.status(200)
+          done();
+      });
+  });
+  //if the user is logged in we should get a 200 status code
+  it('should return a 200 response if the user is logged in', function(done){
+      authenticatedUser.get('/videos')
+      .end(function(error,res){
+          res.should.have.status(200);
+          done();
       });
     });
+});
 
-    describe('GET /videos', function(done){
-      //addresses 2nd bullet point: if the user is not logged in we should get a 302 response code and be directed to the /login page
-      it('should return a 302 response and redirect to /login', function(done){
-          chai.request(app).get('/chat/0')
-          .end(function(error,res){
-              res.should.have.status(200)
-              expect(res).to.have.header('location', '/');
-              done();
-          });
-        });
-      //addresses 1st bullet point: if the user is logged in we should get a 200 status code
-      it('should return a 200 response if the user is logged in', function(done){
-          authenticatedUser.get('/chat/1')
-          .end(function(error,res){
-              res.should.have.status(200);
-              done();
-          });
-        });
+describe('GET /mymusic', function(done){
+  //if the user is not logged in we should be redirected to '/' page
+  it('should return a 200 response and redirect to /', function(done){
+      chai.request(app).get('/mymusic')
+      .end(function(error,res){
+        res.should.have.status(200);
+          done();
       });
+  });
+  //if the user is logged in we should get a 200 status code
+  it('should return a 200 response if the user is logged in', function(done){
+      authenticatedUser.get('/mymusic')
+      .end(function(error,res){
+          res.should.have.status(200);
+          done();
+      });
+  });
+});
