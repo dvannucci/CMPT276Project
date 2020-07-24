@@ -1,11 +1,10 @@
 
-const baseURL = 'http://museical.herokuapp.com' // needs to be changed to museical.herokuapp.com when deployed
+const baseURL = 'http://localhost:5000' // needs to be changed to museical.herokuapp.com when deployed
 
 module.exports = {
     // The secret for the encryption of the jsonwebtoken
     JWTsecret: process.env.GOOGLE_CLIENT_ID,
     baseURL: baseURL,
-    port: 80,
     // The credentials and information for OAuth2
     oauth2Credentials: {
       client_id: process.env.GOOGLE_CLIENT_ID,

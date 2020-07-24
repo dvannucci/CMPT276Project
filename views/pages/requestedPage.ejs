@@ -33,7 +33,25 @@
     </div>
 
     <div class="activity">
-      <h3>Nothing to share yet :(</h3>
+      <h4>
+        <% if (following){ %>
+          <% for(var i=0 ; i< history.length ; i++) { %>
+              <% if(history[i].operation == 'I') { %>
+                  <li> <%= history[i].stamp %> profile created </li>
+              <% } else if(history[i].operation == 'U') { %>
+                <% if(history[i].name.localeCompare(history[i-1].name)!=0) { %>
+                  <li> <%= history[i].stamp %> username changed to <%= history[i].name %>. </li>
+                <% } else if(history[i].email.localeCompare(history[i-1].email) != 0) { %>
+                  <li> <%= history[i].stamp %> email changed.%>. </li>
+                <% } else if(history[i].password.localeCompare(history[i-1].password)!=0) { %>
+                  <li> <%= history[i].stamp %> password updated. </li>
+                <% } else if(history[i].picture.localeCompare(history[i-1].picture) !=0 ) { %>
+                  <li> <%= history[i].stamp %> profile picture updated. </li>
+                <% } %>
+              <% } %>
+          <% } %>
+        <% } %>
+      </h4>
     </div>
 
 
