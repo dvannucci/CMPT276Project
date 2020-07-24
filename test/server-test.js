@@ -8,10 +8,6 @@ chai.use(chaiHttp);
 
 const userCredentials = {username:'john', mypassword:'guest'}
 
-
-
-
-
 var authenticatedUser = chai.request.agent(app);
 before(function(done){
   authenticatedUser
@@ -53,3 +49,28 @@ describe('GET /chat', function(done){
         });
       });
     });
+
+
+describe('Verify correct results on a user\'s homepage as well as when they search', function(){
+  it('Should return a 200 response if the user is logged in, and render the user\'s homepage with Spotify results', function(done){
+    authenticatedUser.get('/home')
+    .end(function(error, res){
+      res.should.have.status(200);
+      res.should.have.header('content-type', "text/html; charset=utf-8" );
+      res.text.should.include('Hot Right Now');
+      res.text.should.include('Artists You May Like');
+      res.text.should.include('Albums You May Like');
+      done();
+    });
+  });
+
+  it('Should return a 200 response, and have the user \'daniel\' show up when inputting \'dan\'', function(done){
+    authenticatedUser.post('/search').send({'searchInput': 'dan'})
+    .end(function(error, res){
+      res.should.have.status(200);
+      res.should.have.header('content-type', "text/html; charset=utf-8" );
+      res.text.should.include('daniel')
+      done();
+    });
+  });
+});
