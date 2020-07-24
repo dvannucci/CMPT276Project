@@ -422,7 +422,7 @@ app.get('/admin', checkLogin, async (req,res) => {
 app.post('/userInfoUpdate', checkLogin, async (req, res) => {
 
   var userInfoUpdate = `update users set email = '${req.body.email}', password = '${req.body.password}'
-    , usertype = '${req.body.usertype}' where id = ${req.session.loggedID};`
+    , usertype = '${req.body.usertype}' where id = ${req.body.id};`
 
   pool.query(userInfoUpdate, (error, result) => {
     if(error)
