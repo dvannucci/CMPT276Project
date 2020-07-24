@@ -421,10 +421,10 @@ app.get('/admin', checkLogin, async (req,res) => {
 
 app.post('/userInfoUpdate', checkLogin, async (req, res) => {
 
-  var usernameChange = `update users set email = '${req.body.email}', password = '${req.body.password}'
+  var userInfoUpdate = `update users set email = '${req.body.email}', password = '${req.body.password}'
     , usertype = '${req.body.usertype}' where id = ${req.session.loggedID}`
 
-  pool.query(usernameChange, (error, result) => {
+  await pool.query(userInfoUpdate, (error, result) => {
     if(error)
       res.send(error)
 
