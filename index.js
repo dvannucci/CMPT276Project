@@ -419,7 +419,19 @@ app.get('/admin', checkLogin, async (req,res) => {
     })
   })
 
+app.post('/userInfoUpdate', checkLogin, async (req, res) => {
 
+  var usernameChange = `update users set email = '${req.body.email}', password = '${req.body.password}'
+    , usertype = '${req.body.usertype}' where id = ${req.session.loggedID}`
+
+  pool.query(usernameChange, (error, result) => {
+    if(error)
+      res.send(error)
+
+    res.redirect('/admin')
+  })
+
+})
 
   app.get('/mymusic', checkLogin, (req, res) => {
     if (!req.cookies.jwt) {
@@ -688,7 +700,7 @@ app.get('/admin', checkLogin, async (req,res) => {
         if(error)
           res.send(error)
 
-        current = {'username' : req.session.username, 'results' : result[0].rows, 'history' : result[1].rows, 'following' : following}
+        current = {'username' : req.session.username, 'results' : result[0].rows[0], 'history' : result[1].rows, 'following' : following}
 
         res.render('pages/requestedPage', current)
       })

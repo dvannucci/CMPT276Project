@@ -21,11 +21,13 @@ table {
 <table>
   <% rows.forEach(function(r) { %>
     <tr>
-      <td><input value="<%= r.id%>"></td>
-      <td><input value="<%= r.username%>"></td>
-      <td><input value="<%= r.email%>"></td>
-      <td><input value="<%= r.password%>"></td>
-      <td><input value="<%= r.usertype%>"></td>
+      <form action="/userInfoUpdate" method="post">
+      <td><%= r.id%></td>
+      <td><%= r.username%></td>
+      <td><input name="email" value="<%= r.email%>"></td>
+      <td><input name="password" value="<%= r.password%>"></td>
+      <td><input name="usertype" value="<%= r.usertype%>"></td>
+      <td><input type="submit" name="submit" value="Update user information"></td>
     </tr>
   <% }); %>
 </table>
