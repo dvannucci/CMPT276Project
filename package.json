@@ -33,7 +33,7 @@
     "underscore": "^1.10.2"
   },
   "devDependencies": {
-    "got": "^11.5.0",
+    "got": "^11.5.1",
     "tape": "^4.13.3"
   },
   "repository": {
