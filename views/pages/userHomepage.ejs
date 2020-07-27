@@ -10,6 +10,7 @@
   <body>
 
     <% include ../partials/nav.ejs %>
+    <% include ../partials/notification.ejs %>
 
     <div class="tabs">
       <h2>
@@ -430,6 +431,8 @@
     });
 
     </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="/notification.js"></script>
 
   </body>
 </html>
