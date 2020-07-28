@@ -2,13 +2,15 @@ CREATE TABLE Customer(id SERIAL UNIQUE, name VARCHAR(40), email VARCHAR(40) UNIQ
 
 Create table users(id SERIAL UNIQUE, username varchar(30) UNIQUE NOT NULL, email varchar(50) UNIQUE NOT NULL, password varchar(30) NOT NULL, picture varchar(100) DEFAULT '/pictures/lang-logo.png', usertype varchar(1) DEFAULT 'R', date_joined Date NOT NULL DEFAULT CURRENT_DATE, PRIMARY KEY (id) );
 
-NEW **********
-
 Create table followers(entry_number SERIAL UNIQUE, the_user integer NOT NULL, is_following integer NOT NULL, PRIMARY KEY(entry_number), FOREIGN KEY (the_user) REFERENCES users(id) );
 
 Create table favouriteTracks(entry_number SERIAL UNIQUE, user_id integer NOT NULL, track_id char(22) NOT NULL );
 
 Create table favouriteArtists(entry_number SERIAL UNIQUE, user_id integer NOT NULL, artist_id char(22) NOT NULL );
+
+NEW **********
+
+Create table ratings(entry_number SERIAL UNIQUE, user_id integer NOT NULL, rating_target char(22) NOT NULL, rating integer NOT NULL CHECK (rating > 0 and rating <= 5), PRIMARY KEY(entry_number), FOREIGN KEY (user_id) REFERENCES users(id) );
 
 **********
 
