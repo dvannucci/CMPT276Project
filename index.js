@@ -613,7 +613,13 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
       });
     }
 
-      var searchQuery = `select * from users where username like'${req.body.searchInput}%'`
+
+      var input = `${req.body.searchInput}`
+      var cleaned = input.replace(/'/g, "''")
+
+
+      var searchQuery = `select * from users where username like '${cleaned}'`
+
 
       pool.query(searchQuery, (error, result) => {
         if(error)
@@ -948,6 +954,9 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
   app.post('/authentification', (req,res)=> {
     var username=req.body.username;
     var upassword=req.body.mypassword;
+
+    var username = username.replace(/'/g, "''")
+
     var selectQuery= `SELECT id, username, password FROM users WHERE username='${username}'`;
          pool.query(selectQuery,(error,result) =>{
            if(error){res.send(error)}
@@ -1048,7 +1057,10 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
   // Similar to the /pictureChoose function, this allows the user to change their username if they wish.
   app.post('/usernameChange', checkLogin, async (req, res) => {
 
-    var checkDatabase = `select * from users where username = '${req.body.uname}'`
+    var input = `${req.body.uname}`
+    var cleaned = input.replace(/'/g, "''")
+
+    var checkDatabase = `select * from users where username = '${cleaned}'`
 
     await pool.query(checkDatabase, (error, result) => {
       if(error)
@@ -1058,7 +1070,7 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
         res.redirect('/profile' + '?valid=' + false + '&field=uname')
       }
       else {
-        var usernameChange = `update users set username = '${req.body.uname}' where id = ${req.session.loggedID}`
+        var usernameChange = `update users set username = '${cleaned}' where id = ${req.session.loggedID}`
 
         pool.query(usernameChange, (error, result) => {
           if(error)

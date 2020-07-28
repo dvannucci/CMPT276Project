@@ -46,7 +46,7 @@
       <% })} %>
 
       <h1>Songs:</h1>
-      <% if(spotifySongs) { %>
+      <% if(spotifySongs.length != 0) { %>
 
         <% spotifySongs.forEach(function(x, i){ %>
         <div class="matches">
@@ -94,11 +94,11 @@
         </div>
 
       <% }) } else { %>
-        <h2>No songs matched your search.</h2>
+        <h2 style="margin:20px;">No songs matched your search.</h2>
       <% }%>
 
       <h1>Artists:</h1>
-      <% if(spotifyArtists) { %>
+      <% if(spotifyArtists.length != 0) { %>
 
         <% spotifyArtists.forEach(function(x){ %>
 
@@ -142,13 +142,13 @@
         </div>
 
       <% }) } else { %>
-        <h2>No artists matched your search.</h2>
+        <h2 style="margin:20px;">No artists matched your search.</h2>
       <% } %>
 
 
 
       <h1>Albums:</h1>
-      <% if(spotifyAlbums) { %>
+      <% if(spotifyAlbums.length != 0) { %>
 
         <% spotifyAlbums.forEach(function(x){ %>
 
@@ -198,7 +198,7 @@
         </div>
 
       <% }) } else { %>
-        <h2>No albums matched your search.</h2>
+        <h2 style="margin:20px;">No albums matched your search.</h2>
       <% } %>
 
 
