@@ -2,7 +2,7 @@ body {
   background-color: rgb(0,0,0);
   margin: 0;
   font: 13px Helvetica, Arial;
-  min-width: 1050px;
+  min-width: 1080px;
 }
 
 .nav {
@@ -320,35 +320,66 @@ body {
   height: 10px;
 }
 
-/* The actual popup (appears on top) */
-.popuptext {
-  visibility: hidden;
-  width: fit-content;
-  background-color: #555;
-  color: #fff;
+
+.alertbtn {
+  text-decoration: none;
+  color: black;
   text-align: center;
-  border-radius: 6px;
-  padding: 8px 0;
-  z-index: 3;
+  padding: 10px 20px;
+  float: left;
+  user-select: none; /* supported by Chrome and Opera */
+   -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+   -moz-user-select: none; /* Firefox */
+   -ms-user-select: none; /* Internet Explorer/Edge */
+}
+
+.alertbtn:hover, .alertbtn:focus {
+  background-color: rgb(50,50,50);
+  cursor: pointer;
+}
+
+.notificationList {
+  text-align: left;
+  display: inline-block;
+  width:20%;
+  height: 100%;
   position: fixed;
-  top: 0;
   right: 0;
+  color: white;
+}
+.notificationList h2{
+  text-align: center;
 }
 
-/* Toggle this class when clicking on the popup container (hide and show the popup) */
-.popup .show {
-  visibility: visible;
-  -webkit-animation: fadeIn 1s;
-  animation: fadeIn 1s
+
+.noteList-content {
+  display: none;
+  position: absolute;
+  background-color: grey;
+  min-width: 160px;
+  overflow: auto;
+  z-index: 3;
 }
 
-/* Add animation (fade in the popup) */
-@-webkit-keyframes fadeIn {
-  from {opacity: 0;}
-  to {opacity: 1;}
+.noteList-content li {
+  color: white;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
 }
 
-@keyframes fadeIn {
-  from {opacity: 0;}
-  to {opacity:1 ;}
+
+.show {display: inline-block;}
+
+.alertbtn .badge {
+  position: absolute;
+  top: 1px;
+  padding: 5px 10px;
+  border-radius: 50%;
+  background: red;
+  color: white;
 }
+
+
+
