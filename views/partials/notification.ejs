@@ -1,7 +1,7 @@
 
 <div id="notList" class="notificationList">
+    <h2>Notifications</h2>
     <div id="alerts" class="noteList-content">
-        <h2>Notifications</h2>
     </div>
 </div>
 
@@ -9,10 +9,12 @@
     $(()=> {
         var socket = io();
         socket.on('notification', (note)=>{
-            console.log(note);
-            $('#alerts').append($("<li>").text(note));
-            $('#alerts').append($("<br>"));
-            updateAlertNumber()
+            console.log(window.location.pathname)
+            if(window.location.pathname != note.link){
+                $('#alerts').prepend($("<li>").text(note.message));
+                $('#alerts').prepend($("<br>"));
+                updateAlertNumber()
+            }
         });
         updateAlertNumber()
     });
@@ -28,10 +30,11 @@
         if (numAlerts > 0){
             $('.badge').html(numAlerts);
             $(".badge").css("display", "block");
+            $( '.noAlertMsg' ).remove();
         } else {
             $('.badge').html(numAlerts);
             $(".badge").css("display", "none");
-            $('#alerts').append($("<li>").text("No notifications to display"));
+            $('#alerts').append($("<span class = 'noAlertMsg'>").text("No notifications to display"));
         }
     }
 </script>

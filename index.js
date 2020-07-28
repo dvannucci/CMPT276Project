@@ -1164,7 +1164,7 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
       var getmembersQuery = "SELECT * FROM chats WHERE chatid = " + info.chatID;
       pool.query(getmembersQuery, (error, result)=> {
         result.rows[0].participants.forEach((member)=>{
-          socket.to(member).emit('notification', socket.username + ' sent a message in the chat: ' + result.rows[0].name)
+          socket.to(member).emit('notification', {link: '/chat/' + info.chatID, message: socket.username + ' sent a message in the chat: ' + result.rows[0].name });
         })
       })
     });
