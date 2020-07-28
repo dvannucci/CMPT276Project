@@ -345,9 +345,11 @@ body {
 .notificationList {
   text-align: left;
   display: none;
-  position: relative;
-  color: white;
+  width:20%;
+  height: 100%;
+  position: fixed;
   right: 0;
+  color: white;
   z-index: 3;
 }
 .notificationList h2{
@@ -372,11 +374,12 @@ body {
 }
 
 
-.show {display: block;}
+.show {display: inline-block;}
 
 .alertbtn .badge {
   position: absolute;
-  top: 1px;
+  top: 5px;
+  right: 130px;
   padding: 5px 10px;
   border-radius: 50%;
   background: red;
