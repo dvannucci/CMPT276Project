@@ -22,6 +22,8 @@ const OAuth2 = google.auth.OAuth2;
 const cookieParser = require('cookie-parser');
 const _ = require("underscore");
 
+var userRoomID;
+
 require('dotenv').config();
 /**
 * Create the google auth object which gives us access to talk to google's apis.
@@ -970,6 +972,8 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
              req.session.loggedID = results.rows[0].id
              req.session.username = results.rows[0].username
 
+             userRoomID = req.session.username;
+
              // Regular Client credentials for users without spotify.
              SpotifyAPI.clientCredentialsGrant().then(
                function(data){
@@ -1133,8 +1137,12 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
   //Socket.IO Messages Setup
   io.on('connection', (socket) => {
     console.log('user connected');
-    socket.join(chatID);
-    console.log("in chat: " + chatID)
+    if (chatID >= 0){
+      socket.join(chatID);
+      console.log("in chat: " + chatID);
+    }
+    socket.join(userRoomID)
+    console.log("joined room: " + userRoomID);
 
      //temporary ask for username
     socket.on('username', (username)=> {
@@ -1152,8 +1160,13 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
       var storemessageQuery = "INSERT INTO messages VALUES (" + info.chatID + ", default, '" + socket.username + "', " + "'" + quotemoddedmessage + "')";
       pool.query(storemessageQuery, (error,result)=> {
       })
-
       socket.emit("chat_message", {name: socket.username , message: info.msg });
+      var getmembersQuery = "SELECT * FROM chats WHERE chatid = " + info.chatID;
+      pool.query(getmembersQuery, (error, result)=> {
+        result.rows[0].participants.forEach((member)=>{
+          socket.to(member).emit('notification', socket.username + ' sent a message in the chat: ' + result.rows[0].name)
+        })
+      })
     });
 
     socket.on("add_participant", (info)=> {
