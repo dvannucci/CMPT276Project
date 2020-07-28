@@ -341,12 +341,13 @@ body {
 
 .notificationList {
   text-align: left;
-  display: inline-block;
+  display: none;
   width:20%;
   height: 100%;
   position: fixed;
   right: 0;
   color: white;
+  z-index: 3;
 }
 .notificationList h2{
   text-align: center;
