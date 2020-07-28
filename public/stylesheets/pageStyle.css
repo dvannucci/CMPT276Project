@@ -6,7 +6,10 @@ body {
 }
 
 .nav {
-  position: relative;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 3;
 }
 
 .options {
@@ -342,11 +345,9 @@ body {
 .notificationList {
   text-align: left;
   display: none;
-  width:20%;
-  height: 100%;
-  position: fixed;
-  right: 0;
+  position: relative;
   color: white;
+  right: 0;
   z-index: 3;
 }
 .notificationList h2{
@@ -371,7 +372,7 @@ body {
 }
 
 
-.show {display: inline-block;}
+.show {display: block;}
 
 .alertbtn .badge {
   position: absolute;

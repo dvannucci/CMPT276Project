@@ -1,18 +1,10 @@
-<!-- <div id="notificationList" class="notification-content">
-    <h2>Notifications</h2>
-    <ul id="notelist">
-        <li>test</li>
-        <li>example</li>
-        <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat enim delectus ad reiciendis ipsam recusandae consequatur, quibusdam assumenda! Ratione porro beatae, repellat magnam nesciunt reprehenderit error totam optio quod? Nihil?</li>
-    </ul>
-</div> -->
 
 <div id="notList" class="notificationList">
     <div id="alerts" class="noteList-content">
         <h2>Notifications</h2>
         
     </div>
-  </div>
+</div>
 
 <script>
     $(()=> {
@@ -42,20 +34,5 @@
             $(".badge").css("display", "none");
         }
     }
-
-
-    //hide notification onclick
-    // window.onclick = function(event) {
-    //     if (!event.target.matches('.alertbtn')) {
-    //             var dropdowns = document.getElementsByClassName("noteList-content");
-    //             var i;
-    //             for (i = 0; i < dropdowns.length; i++) {
-    //                 var openDropdown = dropdowns[i];
-    //                 if (openDropdown.classList.contains('show')) {
-    //                     openDropdown.classList.remove('show');
-    //                 }
-    //             }
-    //         }
-    //     }
 </script>
 <script src="/socket.io/socket.io.js"></script>
