@@ -461,7 +461,14 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
       return  res.render('pages/mymusic', { 'username' : req.session.username, 'id' : req.session.loggedID, likedVids: response[0].data.items });
     });
   });
+  app.get('/maps',(req,res)=>{
 
+    if(error){res.send(error)}
+    else{
+
+    return res.render('pages/Maps');
+  }
+  });
 
   app.get('/videos', checkLogin, (req, res) => {
     if (!req.cookies.jwt) {
