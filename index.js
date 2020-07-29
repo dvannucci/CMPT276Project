@@ -463,7 +463,11 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
   });
   app.get('/maps',(req,res)=>{
 
-    return res.render('/Maps');
+    if(error){res.send(error)}
+    else{
+
+    return res.render('pages/Maps');
+  }
   });
 
   app.get('/videos', checkLogin, (req, res) => {
