@@ -462,6 +462,7 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
     });
   });
 
+
   app.get('/videos', checkLogin, (req, res) => {
     if (!req.cookies.jwt) {
       // We haven't logged in
