@@ -466,7 +466,7 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
     if(error){res.send(error)}
     else{
 
-    return res.redirect('views/pages/Maps');
+    return res.render('pages/Maps');
   }
   });
 
