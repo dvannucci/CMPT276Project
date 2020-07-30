@@ -8,21 +8,24 @@
 <script>
     $(()=> {
         var socket = io();
+
+        var username = '<%= username %>';
+        socket.emit('username', username);
+
         socket.on('oldnotifications', (rows)=>{
-            console.log('oldNotifications recieved')
+            console.log('recieved old notification')
             rows.forEach((r)=>{
-                $('#alerts').prepend($("<li>").text(r.message));
+                $("<li>").text(r.message).prependTo($("#alerts")).append($("<span class = 'remove' onclick = removeAlert()>").text("x"))
                 $('#alerts').prepend($("<br>"));
                 updateAlertNumber()
             })
         })
 
-
         socket.on('notification', (note)=>{
             console.log(window.location.pathname)
             if(window.location.pathname != note.link){
                 $("#alerts").remove( ":contains(" + note.message + ")" )
-                $('#alerts').prepend($("<li>").text(note.message));
+                $("<li>").text(note.message).prependTo($("#alerts")).append($("<span class = 'remove' onclick = removeAlert()>").text("x"))
                 $('#alerts').prepend($("<br>"));
                 updateAlertNumber()
             }
@@ -47,6 +50,10 @@
             $(".badge").css("display", "none");
             $('#alerts').append($("<span class = 'noAlertMsg'>").text("No notifications to display"));
         }
+    }
+
+    function removeAlert(){
+        console.log('remove the alert')
     }
 </script>
 <script src="/socket.io/socket.io.js"></script>
