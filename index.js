@@ -22,7 +22,7 @@ const OAuth2 = google.auth.OAuth2;
 const cookieParser = require('cookie-parser');
 const _ = require("underscore");
 
-var userRoomID;
+var userRoomName;
 
 require('dotenv').config();
 /**
@@ -972,7 +972,7 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
              req.session.loggedID = results.rows[0].id
              req.session.username = results.rows[0].username
 
-             userRoomID = req.session.username;
+             userRoomName = req.session.username;
 
              // Regular Client credentials for users without spotify.
              SpotifyAPI.clientCredentialsGrant().then(
@@ -1141,8 +1141,15 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
       socket.join(chatID);
       console.log("in chat: " + chatID);
     }
-    socket.join(userRoomID)
-    console.log("joined room: " + userRoomID);
+    
+    socket.join(userRoomName);
+    console.log("joined room: " + userRoomName);
+
+    var getNotificationsQuery = "SELECT * FROM notifications WHERE recipient = '" + userRoomName + "' ORDER BY time ASC";
+    pool.query(getNotificationsQuery, (error,result)=> {
+      io.in(userRoomName).emit('oldnotifications', result.rows);
+      console.log("emit oldNotification")
+    })
 
      //temporary ask for username
     socket.on('username', (username)=> {
@@ -1164,7 +1171,12 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
       var getmembersQuery = "SELECT * FROM chats WHERE chatid = " + info.chatID;
       pool.query(getmembersQuery, (error, result)=> {
         result.rows[0].participants.forEach((member)=>{
-          socket.to(member).emit('notification', {link: '/chat/' + info.chatID, message: socket.username + ' sent a message in the chat: ' + result.rows[0].name });
+          var alertmessage = socket.username + ' sent a message in the chat: ' + result.rows[0].name;
+          if (member != socket.username){
+            var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = " + member + " AND message = " + alertmessage;
+            var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + member + "', '" + socket.username + " sent a message in the chat: " + result.rows[0].name + "')"
+            socket.to(member).emit('notification', {link: '/chat/' + info.chatID, message: alertmessage });
+          }
         })
       })
     });

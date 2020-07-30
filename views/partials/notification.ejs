@@ -8,9 +8,20 @@
 <script>
     $(()=> {
         var socket = io();
+        socket.on('oldnotifications', (rows)=>{
+            console.log('oldNotifications recieved')
+            rows.forEach((r)=>{
+                $('#alerts').prepend($("<li>").text(r.message));
+                $('#alerts').prepend($("<br>"));
+                updateAlertNumber()
+            })
+        })
+
+
         socket.on('notification', (note)=>{
             console.log(window.location.pathname)
             if(window.location.pathname != note.link){
+                $("#alerts").remove( ":contains(" + note.message + ")" )
                 $('#alerts').prepend($("<li>").text(note.message));
                 $('#alerts').prepend($("<br>"));
                 updateAlertNumber()

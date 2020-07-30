@@ -10,7 +10,11 @@
     <body>
 
         <% include ../partials/nav.ejs %>
-        <% include ../partials/notification.ejs %>
+        <div id="notList" class="notificationList">
+            <h2>Notifications</h2>
+            <div id="alerts" class="noteList-content">
+            </div>
+        </div>
 
 
         <div id="makechatwindow" class="modal">
@@ -143,6 +147,27 @@
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
                     });
 
+                    socket.on('oldnotifications', (rows)=>{
+                        console.log('oldNotifications recieved')
+                        rows.forEach((r)=>{
+                            $('#alerts').prepend($("<li>").text(r.message));
+                            $('#alerts').prepend($("<br>"));
+                            updateAlertNumber()
+                        })
+                    })
+
+
+                    socket.on('notification', (note)=>{
+                        console.log(window.location.pathname)
+                        if(window.location.pathname != note.link){
+                            $("#alerts").remove( ":contains(" + note.message + ")" )
+                            $('#alerts').prepend($("<li>").text(note.message));
+                            $('#alerts').prepend($("<br>"));
+                            updateAlertNumber()
+                        }
+                    });
+                    updateAlertNumber()
+
                     window.onload = () => {
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
                         recolor();
@@ -155,7 +180,24 @@
                         }
                     }
                 });
+                function showNotification () {
+                    document.getElementById("notList").classList.toggle("show");
+                    document.getElementById("alerts").classList.toggle("show");
+                }
 
+                function updateAlertNumber(){
+                    var liAlerts = document.getElementById("alerts").getElementsByTagName("li");
+                    var numAlerts = liAlerts.length;
+                    if (numAlerts > 0){
+                        $('.badge').html(numAlerts);
+                        $(".badge").css("display", "block");
+                        $( '.noAlertMsg' ).remove();
+                    } else {
+                        $('.badge').html(numAlerts);
+                        $(".badge").css("display", "none");
+                        $('#alerts').append($("<span class = 'noAlertMsg'>").text("No notifications to display"));
+                    }
+                }
             </script>
             <script src="/socket.io/socket.io.js"></script>
         </div>
