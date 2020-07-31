@@ -12,7 +12,7 @@
         background-color: grey;
       }
       .toy{
-        align-items: center;
+        text-align: center;
       }
   </style>
 </head>
@@ -30,7 +30,7 @@
   var mapOptions={
   zoom:9,
   center: coords,
-  mapTypeId: google.maps.MapTypeId.SATELLITE
+  mapTypeId: google.maps.MapTypeId.ROADMAP
   }
   var map=new google.maps.Map(document.getElementById("map"), mapOptions);
   var marker=new google.maps.Marker({map:map,position:coords});
