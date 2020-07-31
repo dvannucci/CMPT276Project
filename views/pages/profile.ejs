@@ -44,6 +44,11 @@
        <% } %>
 
        <br><br>
+       <% if(admin) { %>\
+         <a href="/admin">Admin page</a>
+       <% }%>
+
+       <br><br>
        <% if (spotify){ %>
          <h3>You have connected to your Spotify account.</h3>
         <% } else { %>

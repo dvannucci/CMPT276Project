@@ -891,7 +891,17 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
       if(error)
         res.send(error)
 
-      var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username}
+      var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin'=false}
+
+      var checkAdmin=`select * from users where id = ${req.session.loggedID} AND usertype='A';`
+
+      pool.query(checkAdmin, (error, result) => {
+        if(error)
+          res.send(error)
+
+        if(result.rows.length != 0)
+          mesData.admin = true;
+      })
 
 
       mesData.alert = alert
@@ -1176,7 +1186,7 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
             pool.query(removeOldAlertQuery, (error, result)=> {
               pool.query(storeAlertQuery, (error, result)=> {})
               })
-            
+
             socket.to(member).emit('notification', {link: '/chat/' + info.chatID, message: alertmessage });
           }
         })
@@ -1212,7 +1222,7 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
       pool.query(removeAlertQuery, (error,result)=> {})
       console.log('dismissing message: ' + info.message + "; to: " + info.recipient)
     })
-    
+
   });
 
   app.post('/spotifyTry', checkLogin, (req, res) => {
