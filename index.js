@@ -892,7 +892,7 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
       if(error)
         res.send(error)
 
-      if(result[2].row.length!=0) {
+      if(result[2].rows.length!=0) {
         var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':true}
       } else {
         var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':false}
