@@ -2,12 +2,14 @@
 <div id="notList" class="notificationList">
     <h2>Notifications</h2>
     <div id="alerts" class="noteList-content">
+
     </div>
 </div>
 
 <script>
     $(()=> {
         var socket = io();
+        
 
         var username = '<%= username %>';
         socket.emit('username', username);
@@ -15,25 +17,30 @@
         socket.on('oldnotifications', (rows)=>{
             console.log('recieved old notification')
             rows.forEach((r)=>{
-                $("<li>").text(r.message).prependTo($("#alerts")).append($("<span class = 'remove' onclick = removeAlert()>").text("x"))
-                $('#alerts').prepend($("<br>"));
-                updateAlertNumber()
+                $("<li>").text(r.message).prependTo($("#alerts")).append($("<span class = 'dismiss'>").click(function(){
+                    socket.emit('dismissAlert', {recipient: r.recipient , message: r.message });
+                    $("li").remove( ":contains(" + r.message + ")" );
+                    updateAlertNumber();
+                }).text("x"))
             })
+            updateAlertNumber()
         })
 
         socket.on('notification', (note)=>{
             console.log(window.location.pathname)
             if(window.location.pathname != note.link){
-                $("#alerts").remove( ":contains(" + note.message + ")" )
-                $("<li>").text(note.message).prependTo($("#alerts")).append($("<span class = 'remove' onclick = removeAlert()>").text("x"))
-                $('#alerts').prepend($("<br>"));
+                $("li").remove( ":contains(" + note.message + ")" )
+                $("<li>").text(note.message).prependTo($("#alerts")).append($("<span class = 'dismiss'>").click(function(){
+                    socket.emit('dismissAlert', {recipient: username , message: note.message });
+                    $("li").remove( ":contains(" + note.message + ")" );
+                    updateAlertNumber();
+                }).text("x"))
                 updateAlertNumber()
             }
         });
-        updateAlertNumber()
     });
 
-    function showNotification () {
+    function showNotification () {  
         document.getElementById("notList").classList.toggle("show");
         document.getElementById("alerts").classList.toggle("show");
     }
@@ -50,10 +57,6 @@
             $(".badge").css("display", "none");
             $('#alerts').append($("<span class = 'noAlertMsg'>").text("No notifications to display"));
         }
-    }
-
-    function removeAlert(){
-        console.log('remove the alert')
     }
 </script>
 <script src="/socket.io/socket.io.js"></script>

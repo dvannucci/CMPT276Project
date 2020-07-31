@@ -112,6 +112,7 @@ const io = require('socket.io').listen(server);
 var SpotifyWebApi = require('spotify-web-api-node');
 const { create } = require('domain')
 const { promiseImpl } = require('ejs')
+const { info } = require('console')
 
 var scopes = ['user-top-read', 'user-read-currently-playing', 'user-read-recently-played', 'user-library-read']
 var state = 'the_secret'
@@ -1171,8 +1172,10 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
           if (member != socket.username){
             var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + member + "' AND message = '" + alertmessage + "'";
             var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + member + "', '" + alertmessage + "')";
-            pool.query(removeOldAlertQuery, (error, result)=> {})
-            pool.query(storeAlertQuery, (error, result)=> {})
+            pool.query(removeOldAlertQuery, (error, result)=> {
+              pool.query(storeAlertQuery, (error, result)=> {})
+              })
+            
             socket.to(member).emit('notification', {link: '/chat/' + info.chatID, message: alertmessage });
           }
         })
@@ -1202,6 +1205,13 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
       pool.query(storemessageQuery, (error,result)=> {
       })
     })
+
+    socket.on("dismissAlert", (info) =>{
+      var removeAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.recipient + "' AND message = '" + info.message + "'";
+      pool.query(removeAlertQuery, (error,result)=> {})
+      console.log('dismissing message: ' + info.message + "; to: " + info.recipient)
+    })
+    
   });
 
   app.post('/spotifyTry', checkLogin, (req, res) => {

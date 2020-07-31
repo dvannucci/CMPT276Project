@@ -148,25 +148,29 @@
                     });
 
                     socket.on('oldnotifications', (rows)=>{
-                        console.log('oldNotifications recieved')
+                        console.log('recieved old notification')
                         rows.forEach((r)=>{
-                            $('#alerts').prepend($("<li>").text(r.message));
-                            $('#alerts').prepend($("<br>"));
-                            updateAlertNumber()
+                            $("<li>").text(r.message).prependTo($("#alerts")).append($("<span class = 'dismiss'>").click(function(){
+                                socket.emit('dismissAlert', {recipient: r.recipient , message: r.message });
+                                $("li").remove( ":contains(" + r.message + ")" );
+                                updateAlertNumber();
+                            }).text("x"))
                         })
+                        updateAlertNumber()
                     })
-
 
                     socket.on('notification', (note)=>{
                         console.log(window.location.pathname)
                         if(window.location.pathname != note.link){
-                            $("#alerts").remove( ":contains(" + note.message + ")" )
-                            $('#alerts').prepend($("<li>").text(note.message));
-                            $('#alerts').prepend($("<br>"));
+                            $("li").remove( ":contains(" + note.message + ")" )
+                            $("<li>").text(note.message).prependTo($("#alerts")).append($("<span class = 'dismiss'>").click(function(){
+                                socket.emit('dismissAlert', {recipient: username , message: note.message });
+                                $("li").remove( ":contains(" + note.message + ")" );
+                                updateAlertNumber();
+                            }).text("x"))
                             updateAlertNumber()
                         }
                     });
-                    updateAlertNumber()
 
                     window.onload = () => {
                         document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
