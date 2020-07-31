@@ -88,7 +88,7 @@ const pictures = multer({storage: storage, fileFilter: fileFilter})
 const {Pool} = require('pg');
 var pool;
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://postgres:root@localhost/appdatabase'
+  connectionString: process.env.DATABASE_URL || 'postgres://postgres:1234@localhost/appdatabase'
 })
 
 checkLogin = (req, res, next) => {
@@ -885,24 +885,18 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
     }
 
     var allQuery = `select * from users where id = ${req.session.loggedID};`
-    + `SELECT * FROM profile_history where id = ${req.session.loggedID} order by stamp;`;
+    + `SELECT * FROM profile_history where id = ${req.session.loggedID} order by stamp;`
+    + `SELECT * FROM users where id = ${req.session.loggedID} AND usertype='A'`;
 
     pool.query(allQuery, (error, result) => {
       if(error)
         res.send(error)
 
-      var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':false}
-
-      var checkAdmin=`select * from users where id = ${req.session.loggedID} AND usertype='A';`
-
-      pool.query(checkAdmin, (error, result) => {
-        if(error)
-          res.send(error)
-
-        if(result.rows.length != 0)
-          mesData.admin = true;
-      })
-
+      if(result[2].row.length!=0) {
+        var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':true}
+      } else {
+        var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':false}
+      }
 
       mesData.alert = alert
       mesData.spotify = req.session.Spotify
