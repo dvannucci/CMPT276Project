@@ -891,7 +891,7 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
       if(error)
         res.send(error)
 
-      var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin'=false}
+      var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':false}
 
       var checkAdmin=`select * from users where id = ${req.session.loggedID} AND usertype='A';`
 
