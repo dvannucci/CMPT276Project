@@ -88,7 +88,7 @@ const pictures = multer({storage: storage, fileFilter: fileFilter})
 const {Pool} = require('pg');
 var pool;
 pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://postgres:1234@localhost/appdatabase'
+  connectionString: process.env.DATABASE_URL || 'postgres://postgres:root@localhost/appdatabase'
 })
 
 checkLogin = (req, res, next) => {
