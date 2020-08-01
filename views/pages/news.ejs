@@ -4,7 +4,7 @@
 
     <title>Current News</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  	<link rel="stylesheet" href="css/materialize.min.css">
+  	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
   	<style type="text/css">
       #loader{
         heaight: 100vh;
@@ -30,6 +30,11 @@
         <div class="nav-wrapper">
           <div class="container">
           	<a href="#" class="brand-logo">News Api</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+  						<li class="active"><a href="index.html">News</a></li>
+  						<li><a href="about.html">About us</a></li>
+  						<li><a href="contact.html">Contact us</a></li>
+  					</ul>
             </div>
             </div>
             </nav>
@@ -37,7 +42,7 @@
 
             <div class="container">
               <div class="row">
-                <div id="newsResults"></div>
+                        <div id="newsResults"></div>
                 </div>
                 <div id="loader">
                   <div class="progress">
@@ -45,10 +50,10 @@
                       </div>
                 </div>
             </div>
-            <script src="js/jquery-3.3.1.min.js"></script>
-          	<script src="js/materialize.min.js"></script>
+            <script src="jquery-3.3.1.min.js"></script>
+          	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
               <script>
-                
+
                 $(document).ready(function () {
 
                   let url = "http://newsapi.org/v2/everything?q=bitcoin&from=2020-06-30&sortBy=publishedAt&apiKey=e9c4c6f3445b4bc9bdd19c823eb59ab7";
