@@ -61,7 +61,7 @@
                   $.ajax({
                     url: url,
                     method: "GET",
-                    dataType: "JSON",
+                    dataType: "Json",
 
                     beforeSend: function () {
                       $(".progress").show();
@@ -70,15 +70,15 @@
                     complete: function () {
                       $(".progress").hide();
                     },
-                    success: function(){
+                    success: function(news){
                       let output="";
                       let latestNews=news.articles;
-                      document.write(latestNews);
+
                       for(var i in latestNews){
                         output+=`<div class="col l3 m6 s12">
                           <div class="card medium hoverable">
                             <div class="card-image">
-                              <img src="${latestNews[i].urlToImage}" class="responsive-img" alt="${latestNews[i].title}">
+                              <img src="${latestNews[i].urlToImage}" class="responsive-img" >
                               </div>
                               <div class="card-content">
                                 <span class="card-title activator"><i class="material-icons right">more_vert</i></span>
@@ -99,7 +99,7 @@
                            `;
 
                       }
-                      if(output!=""){
+                      if(output!==""){
                         $("#newsResults").html(ouput);
                       }
                     },
