@@ -44,6 +44,11 @@
        <% } %>
 
        <br><br>
+       <% if(admin) { %>
+         <button onclick="window.location.href='/admin'">Admin page</button>
+       <% }%>
+
+       <br><br>
        <% if (spotify){ %>
          <h3>You have connected to your Spotify account.</h3>
         <% } else { %>

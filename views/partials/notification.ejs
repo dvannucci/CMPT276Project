@@ -1,35 +1,47 @@
-<!-- <div id="notificationList" class="notification-content">
-    <h2>Notifications</h2>
-    <ul id="notelist">
-        <li>test</li>
-        <li>example</li>
-        <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat enim delectus ad reiciendis ipsam recusandae consequatur, quibusdam assumenda! Ratione porro beatae, repellat magnam nesciunt reprehenderit error totam optio quod? Nihil?</li>
-    </ul>
-</div> -->
 
-<div class="notificationList">
+<div id="notList" class="notificationList">
+    <h2>Notifications</h2>
     <div id="alerts" class="noteList-content">
-        <h2>Notifications</h2>
-        
+
     </div>
-  </div>
+</div>
 
 <script>
     $(()=> {
         var socket = io();
-        socket.on('notification', (note)=>{
-            console.log(note);
-            $('#alerts').append($("<li>").text(note));
-            $('#alerts').append($("<br>"));
-            updateAlertNumber()
-        });
+        
 
-        window.onload = () => {
+        var username = '<%= username %>';
+        socket.emit('username', username);
+
+        socket.on('oldnotifications', (rows)=>{
+            console.log('recieved old notification')
+            rows.forEach((r)=>{
+                $("<li>").text(r.message).prependTo($("#alerts")).append($("<span class = 'dismiss'>").click(function(){
+                    socket.emit('dismissAlert', {recipient: r.recipient , message: r.message });
+                    $("li").remove( ":contains(" + r.message + ")" );
+                    updateAlertNumber();
+                }).text("x"))
+            })
             updateAlertNumber()
-        }
+        })
+
+        socket.on('notification', (note)=>{
+            console.log(window.location.pathname)
+            if(window.location.pathname != note.link){
+                $("li").remove( ":contains(" + note.message + ")" )
+                $("<li>").text(note.message).prependTo($("#alerts")).append($("<span class = 'dismiss'>").click(function(){
+                    socket.emit('dismissAlert', {recipient: username , message: note.message });
+                    $("li").remove( ":contains(" + note.message + ")" );
+                    updateAlertNumber();
+                }).text("x"))
+                updateAlertNumber()
+            }
+        });
     });
 
-    function showNotification () {
+    function showNotification () {  
+        document.getElementById("notList").classList.toggle("show");
         document.getElementById("alerts").classList.toggle("show");
     }
 
@@ -38,26 +50,13 @@
         var numAlerts = liAlerts.length;
         if (numAlerts > 0){
             $('.badge').html(numAlerts);
-            $(".badge").css("display", "inline-block");
+            $(".badge").css("display", "block");
+            $( '.noAlertMsg' ).remove();
         } else {
             $('.badge').html(numAlerts);
             $(".badge").css("display", "none");
+            $('#alerts').append($("<span class = 'noAlertMsg'>").text("No notifications to display"));
         }
     }
-
-
-    //hide notification onclick
-    window.onclick = function(event) {
-        if (!event.target.matches('.alertbtn')) {
-                var dropdowns = document.getElementsByClassName("noteList-content");
-                var i;
-                for (i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
-                }
-            }
-        }
 </script>
 <script src="/socket.io/socket.io.js"></script>

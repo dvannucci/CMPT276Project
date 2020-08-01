@@ -22,7 +22,6 @@ const OAuth2 = google.auth.OAuth2;
 const cookieParser = require('cookie-parser');
 const _ = require("underscore");
 
-var userRoomID;
 
 require('dotenv').config();
 /**
@@ -113,6 +112,7 @@ const io = require('socket.io').listen(server);
 var SpotifyWebApi = require('spotify-web-api-node');
 const { create } = require('domain')
 const { promiseImpl } = require('ejs')
+const { info } = require('console')
 
 var scopes = ['user-top-read', 'user-read-currently-playing', 'user-read-recently-played', 'user-library-read']
 var state = 'the_secret'
@@ -501,6 +501,7 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
     });
   });
 
+app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.valid}))
   app.get('/videos', checkLogin, (req, res) => {
     if (!req.cookies.jwt) {
       // We haven't logged in
@@ -1124,14 +1125,18 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
     }
 
     var allQuery = `select * from users where id = ${req.session.loggedID};`
-    + `SELECT * FROM profile_history where id = ${req.session.loggedID} order by stamp;`;
+    + `SELECT * FROM profile_history where id = ${req.session.loggedID} order by stamp;`
+    + `SELECT * FROM users where id = ${req.session.loggedID} AND usertype='A'`;
 
     pool.query(allQuery, (error, result) => {
       if(error)
         res.send(error)
 
-      var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username}
-
+      if(result[2].rows.length!=0) {
+        var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':true}
+      } else {
+        var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':false}
+      }
 
       mesData.alert = alert
       mesData.spotify = req.session.Spotify
@@ -1212,7 +1217,6 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
              req.session.loggedID = results.rows[0].id
              req.session.username = results.rows[0].username
 
-             userRoomID = req.session.username;
 
              // Regular Client credentials for users without spotify.
              SpotifyAPI.clientCredentialsGrant().then(
@@ -1381,12 +1385,17 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
       socket.join(chatID);
       console.log("in chat: " + chatID);
     }
-    socket.join(userRoomID)
-    console.log("joined room: " + userRoomID);
 
      //temporary ask for username
     socket.on('username', (username)=> {
       socket.username = username;
+      socket.join(socket.username);
+      console.log("joined room: " + socket.username);
+      var getNotificationsQuery = "SELECT * FROM notifications WHERE recipient = '" + socket.username + "' ORDER BY time ASC";
+      pool.query(getNotificationsQuery, (error,result)=> {
+        io.in(socket.username).emit('oldnotifications', result.rows);
+        console.log("emit oldNotification")
+      })
     });
 
     socket.on('disconnect', () => {
@@ -1404,7 +1413,16 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
       var getmembersQuery = "SELECT * FROM chats WHERE chatid = " + info.chatID;
       pool.query(getmembersQuery, (error, result)=> {
         result.rows[0].participants.forEach((member)=>{
-          socket.to(member).emit('notification', socket.username + ' sent a message in the chat: ' + result.rows[0].name)
+          var alertmessage = socket.username + ' sent a message in the chat: ' + result.rows[0].name;
+          if (member != socket.username){
+            var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + member + "' AND message = '" + alertmessage + "'";
+            var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + member + "', '" + alertmessage + "')";
+            pool.query(removeOldAlertQuery, (error, result)=> {
+              pool.query(storeAlertQuery, (error, result)=> {})
+              })
+
+            socket.to(member).emit('notification', {link: '/chat/' + info.chatID, message: alertmessage });
+          }
         })
       })
     });
@@ -1432,6 +1450,13 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
       pool.query(storemessageQuery, (error,result)=> {
       })
     })
+
+    socket.on("dismissAlert", (info) =>{
+      var removeAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.recipient + "' AND message = '" + info.message + "'";
+      pool.query(removeAlertQuery, (error,result)=> {})
+      console.log('dismissing message: ' + info.message + "; to: " + info.recipient)
+    })
+
   });
 
   app.post('/spotifyTry', checkLogin, (req, res) => {
