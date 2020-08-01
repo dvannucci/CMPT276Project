@@ -33,7 +33,8 @@
     "query-string": "^6.13.1",
     "socket.io": "^2.3.0",
     "spotify-web-api-node": "^4.0.0",
-    "underscore": "^1.10.2"
+    "underscore": "^1.10.2",
+    "update": "^0.7.4"
   },
   "devDependencies": {
     "got": "^11.5.1",
