@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Current News</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style type="text/css">
+      #loader{
+        heaight: 100vh;
+        align-items:center;
+        display:flex;
+        justify-content:center;
+      }
+      .progress{
+        display:none;
+      }
+      .errorMsg{
+        font-size:34px;
+        height:100vh;
+        align-tems:center;
+        display:flex;
+        justify-content: center;
+      }
+      </style>
+  </head>
+  <body>
+    <div class="navbar-fixed">
+      <nav>
+        <div class="nav-wrapper">
+          <div class="container">
+            < a href="#" class="brand-logo">News Api</a>
+            </div>
+            </div>
+            </nav>
+            </div>
+
+            <div class="container">
+              <div class="row">
+                <div id="newsResults"></div>
+                </div>
+                <div id="loader">
+                  <div class="progress">
+                    <div class="indeterminate"</div>
+                      </div>
+                </div>
+            </div>
+            <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js">
+              </script>
+              <script>
+                $(document).ready(function(){
+                  let url="http://newsapi.org/v2/everything?q=bitcoin&from=2020-06-30&sortBy=publishedAt&apiKey=e9c4c6f3445b4bc9bdd19c823eb59ab7"
+                  $.ajax({
+                    url:url,
+                    method:"GET",
+                    dataType:"Json",
+
+                    beforeSend: function(){
+                      $(".progess").show();
+                    },
+                    complete:function(){
+                      $(".progress").hide();
+                    },
+                    success:function(news){
+                      let output="";
+                      let latestNews=news.articles;
+
+                      for (var i in latestNews) {
+                        output += `
+                          <div class="col l4 m6 s12">
+                          <div class="card medium hoverable">
+                            <div class="card-image">
+                              <img src="${latestNews[i].urlToImage}" class="responsive-img" alt="${latestNews[i].title}">
+                            </div>
+                            <div class="card-content">
+                              <span class="card-title activator"><i class="material-icons right">more_vert</i></span>
+                              <h6 class="truncate">Title: <a href="${latestNews[i].url}" title="${latestNews[i].title}">${latestNews[i].title}</a></h6>
+                              <p><b>Author</b>: ${latestNews[i].author} </p>
+                              <p><b>News source</b>: ${latestNews[i].source.name} </p>
+                              <p><b>Published</b>: ${latestNews[i].publishedAt} </p>
+                            </div>
+
+                            <div class="card-reveal">
+                              <span class="card-title"><i class="material-icons right">close</i></span>
+                              <p><b>Description</b>: ${latestNews[i].description}</p>
+                            </div>
+
+                            <div class="card-action">
+                              <a href="${latestNews[i].url}" target="_blank" class="btn">Read More</a>
+                            </div>
+                           </div>
+                          </div>
+                        `;
+                      }
+
+                      if (output !== "") {
+                        $("#newsResults").html(output);
+                      }
+
+                    },
+
+                    error: function () {
+                      let errorMsg = `<div class="errorMsg center">Some error occured</div>`;
+                      $("#newsResults").html(errorMsg);
+                    }
+                  })
+
+                });
+
+
+                </script>
+
+</body>
+</html>
