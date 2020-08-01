@@ -1,3 +1,5 @@
+
+const https=require('https');
 $(document).ready(function () {
 
   let url = "https://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=e9c4c6f3445b4bc9bdd19c823eb59ab7";
