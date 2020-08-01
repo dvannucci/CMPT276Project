@@ -7,10 +7,9 @@
 </div>
 
 <script>
+    //note that chat.ejs has its own seperate version of this script to handle its additional socket.io functions
     $(()=> {
         var socket = io();
-        
-
         var username = '<%= username %>';
         socket.emit('username', username);
 

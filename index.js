@@ -1169,14 +1169,13 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
       var getmembersQuery = "SELECT * FROM chats WHERE chatid = " + info.chatID;
       pool.query(getmembersQuery, (error, result)=> {
         result.rows[0].participants.forEach((member)=>{
-          var alertmessage = socket.username + ' sent a message in the chat: ' + result.rows[0].name;
+          var alertmessage = socket.username + ' sent a message in the chat: ' + result.rows[0].name + ".";
           if (member != socket.username){
             var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + member + "' AND message = '" + alertmessage + "'";
             var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + member + "', '" + alertmessage + "')";
             pool.query(removeOldAlertQuery, (error, result)=> {
               pool.query(storeAlertQuery, (error, result)=> {})
               })
-            
             socket.to(member).emit('notification', {link: '/chat/' + info.chatID, message: alertmessage });
           }
         })
@@ -1211,6 +1210,26 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
       var removeAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.recipient + "' AND message = '" + info.message + "'";
       pool.query(removeAlertQuery, (error,result)=> {})
       console.log('dismissing message: ' + info.message + "; to: " + info.recipient)
+    })
+
+    socket.on('followAlert', (info) =>{
+      var alertmessage = info.follower + ' is now following you.';
+      var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.recipient + "' AND message = '" + alertmessage + "'";
+      var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + info.recipient + "', '" + alertmessage + "')";
+      pool.query(removeOldAlertQuery, (error, result)=> {
+        pool.query(storeAlertQuery, (error, result)=> {})
+        })
+      socket.to(info.recipient).emit('notification', {link: '', message: alertmessage });
+    })
+
+    socket.on('unfollowAlert', (info) =>{
+      var alertmessage = info.follower + ' is no longer following you.';
+      var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.recipient + "' AND message = '" + alertmessage + "'";
+      var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + info.recipient + "', '" + alertmessage + "')";
+      pool.query(removeOldAlertQuery, (error, result)=> {
+        pool.query(storeAlertQuery, (error, result)=> {})
+        })
+      socket.to(info.recipient).emit('notification', {link: '', message: alertmessage });
     })
     
   });
