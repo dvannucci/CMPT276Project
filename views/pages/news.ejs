@@ -53,6 +53,13 @@
             <script type="text/javascript" src="./jquery-3.3.1.min.js"></script>
           	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
               <script>
+                const express = require('express')
+                const session = require('express-session')
+                const bodyParser = require('body-parser')
+                const path = require('path')
+                const PORT = process.env.PORT || 5000
+                const multer = require('multer')
+                var cors = require('cors')
                 const http = require('https');
 
                 $(document).ready(function () {
