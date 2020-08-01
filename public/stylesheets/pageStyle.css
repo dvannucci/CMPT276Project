@@ -381,5 +381,58 @@ body {
   color: white;
 }
 
+.Rating {
+  position: absolute;
+  right: 0%;
+  top: 60%;
+  transform: translate(-10%, -50%);
+  color: white;
+}
 
+.Rating h3{
+  display: inline-block;
+  margin-left: -6px;
+  margin-right: -8px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  float: right;
+}
 
+.Rating a{
+  text-decoration: none;
+  color: white;
+}
+
+.Rating a:hover {
+  text-decoration: underline;
+  color: white;
+}
+
+.ratingPicture img{
+  height: 500px;
+  border-style: solid;
+  border-color: white;
+  border-width: medium;
+}
+
+.ratingAttr {
+  padding: 10px;
+  overflow: hidden;
+}
+
+.ratingAttr label {
+  font-size: 20px;
+  font-weight: bolder;
+}
+
+.ratingOptions {
+  width: 40px;
+  height: 30px;
+  font-weight: bolder;
+}
+
+.ratingAttr input{
+  font-weight: bolder;
+  background-color: white;
+  padding: 5px;
+}

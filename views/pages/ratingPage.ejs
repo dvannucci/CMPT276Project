@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="/stylesheets/pageStyle.css">
+    <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <title>Rating Page</title>
+  </head>
+  <body>
+
+    <% include ../partials/nav.ejs %>
+    <% include ../partials/notification.ejs %>
+
+    <div class="results">
+
+      <div style="float:left;width:510px;">
+        <div class="ratingPicture">
+          <img src="<%= info.picture %>" alt="Can't display image">
+        </div>
+
+        <h1 class="resultHeader"><%= type %>: <%= info.name %> </h1>
+
+        <% if(Genres){ %>
+
+          <h2> Genres:&nbsp
+          <% info.genres.forEach((genre, y) => { %>
+            <% if(y == info.genres.length -1){ %>
+              <span><%= genre %></span>
+          <% } else { %>
+            <span><%= genre %>,&nbsp</span>
+          <% } %>
+          <% }) %>
+          </h2>
+
+        <% } else { %>
+
+          <h2> Artists:&nbsp
+          <% info.artists.forEach((genre, y) => { %>
+            <% if(y == info.artists.length -1){ %>
+              <span><%= genre %></span>
+          <% } else { %>
+            <span><%= genre %>,&nbsp</span>
+          <% } %>
+          <% }) %>
+          </h2>
+
+        <% } %>
+
+
+      </div>
+
+        <div class="ratingAttr">
+          <h1>Spotify's Popularity Rating: <%=info.popularity %> /100 </h1>
+        </div>
+
+        <div class="ratingAttr">
+          <% if(Object.keys(thisRating).length == 0){ %>
+            <h1>Museical's User Rating: No ratings yet. </h1>
+          <% } else { %>
+            <h1>Museical's User Rating: <%= thisRating[info.id] %> /5 </h1>
+          <% } %>
+        </div>
+
+        <div class="ratingAttr">
+          <% if(myRating.length == 0){ %>
+            <h1>Your Current Rating: No rating yet. </h1>
+          <% } else { %>
+            <h1>Your Current Rating: <%= myRating %> /5 </h1>
+          <% } %>
+        </div>
+        <br><br>
+
+        <div class="ratingAttr">
+          <form action="/updateRating" method="post">
+              <input type="hidden" name="update" value="<%= info.id %>">
+              <label for="options">Please select a rating: &nbsp</label>
+              <select class="ratingOptions" name="rating">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select> <br> <br> <br> <br>
+              <input type="submit" name="sub" value="Submit My Rating">
+          </form>
+        </div>
+
+
+    </div>
+
+
+    <script type="text/javascript">
+
+    $(() => {
+
+      $('#confirmLogout').click(function(){
+        if(confirm('Are you sure you wish to logout?')) {
+            return true;
+          }
+
+          return false;
+        });
+
+      $('.tracks').submit(function(x) {
+        x.preventDefault();
+        $.ajax({
+          type: "POST",
+          url: "/songToFaves",
+          data: $(this).serialize(),
+          success: function(res){
+            if(res.add){
+              $(`#${res.add}Input`).val("Remove from my favourite songs");
+              $(`#${res.add}Hidden`).attr('name', 'delete');
+            }
+            else {
+              $(`#${res.delete}Input`).val("Add to my favourite songs");
+              $(`#${res.delete}Hidden`).attr('name', 'add');
+            }
+          }
+        })
+      })
+
+
+      $('.artists').submit(function(x) {
+        x.preventDefault();
+        $.ajax({
+          type: "POST",
+          url: "/artistToFaves",
+          data: $(this).serialize(),
+          success : function(res){
+            if(res.add){
+              $(`#${res.add}Input`).val("Remove from my favourite artists");
+              $(`#${res.add}Hidden`).attr('name', 'delete');
+            }
+            else {
+              $(`#${res.delete}Input`).val("Add to my favourite artists");
+              $(`#${res.delete}Hidden`).attr('name', 'add');
+            }
+          }
+        })
+      })
+
+    });
+    </script>
+
+  </body>
+</html>

@@ -56,6 +56,16 @@
               </form>
             </div>
 
+            <div class="Rating">
+              <% if(allRatings[x.id] != null){ %>
+                <h3>&nbsp&nbsp&nbsp<a href="/Rate/artist/<%=x.id%>">Rate This Song</a></h3>
+                <h3>Museical User's Rating: <%= allRatings[x.id] %>/5 </h3>
+              <% } else { %>
+                <h3>&nbsp&nbsp&nbsp<a href="/Rate/artist/<%=x.id%>">Rate This Song</a></h3>
+                <h3>No ratings yet.</h3>
+              <% } %>
+            </div>
+
         </div>
         <% }) %>
 
