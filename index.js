@@ -24,6 +24,7 @@ const _ = require("underscore");
 
 
 require('dotenv').config();
+
 /**
 * Create the google auth object which gives us access to talk to google's apis.
  */
@@ -502,6 +503,7 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
   });
 
 app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.valid}))
+app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.valid}))
   app.get('/videos', checkLogin, (req, res) => {
     if (!req.cookies.jwt) {
       // We haven't logged in
