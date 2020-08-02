@@ -1,4 +1,6 @@
 const express = require('express')
+const NewsAPI = require('newsapi');
+const newsapi = new NewsAPI('e9c4c6f3445b4bc9bdd19c823eb59ab7');
 const session = require('express-session')
 const bodyParser = require('body-parser')
 const path = require('path')
