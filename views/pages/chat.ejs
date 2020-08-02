@@ -63,16 +63,6 @@
             </form>
         </div>
 
-        <div class="contactList">
-            <h2>Contacts</h2>
-            <ul id="chatlist">
-            <button id="createwindowbtn" onclick= "document.getElementById('makechatwindow').style.display='block'">Create Chat</button>
-                <% chatInfo.forEach(function(chats) { %>
-                    <a href="/chat/<%= chats.chatid %>"><%= chats.name %></a> <br>
-                <% }); %>
-            </ul>
-        </div>
-
         <div class="container1">
             <div class="chat_controls">
                 <p class="chat_title"><%= currentchat.name %></p>
@@ -89,6 +79,15 @@
             <form action="" id="chatForm">
             <input id="txt" autocomplete="off" autofocus="on" placeholder="type a message..." / required><button id="sendbtn">Send</button>
             </form>
+        </div>
+        <div class="contactList">
+            <h2>Contacts</h2>
+            <ul id="chatlist">
+            <button id="createwindowbtn" onclick= "document.getElementById('makechatwindow').style.display='block'">Create Chat</button>
+                <% chatInfo.forEach(function(chats) { %>
+                    <a href="/chat/<%= chats.chatid %>"><%= chats.name %></a> <br>
+                <% }); %>
+            </ul>
         </div>
             <script>
                 $(()=> {

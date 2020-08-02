@@ -1339,7 +1339,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
     var uname =req.session.username;
     chatID = req.params.chatID;
     var getmessagesQuery = "SELECT * FROM messages where chatID = " + chatID + "ORDER BY time ASC;"
-    + "SELECT * FROM chats WHERE '" + uname +  "'= any(participants);"
+    + "SELECT * FROM chats WHERE '" + uname +  "'= any(participants) ORDER BY name ASC;"
     + "SELECT * FROM chats WHERE chatID = " + chatID;
 
     pool.query(getmessagesQuery, (error,result) => {

@@ -4,17 +4,20 @@ padding: 0;
 box-sizing: border-box;
 }
 .contactList{
-    border-left: lightgreen 1px solid;
 text-align: center;
-display: inline-block;
 width:20%;
-height: 100%;
-position: fixed;
-right: 0;
+height: 95%;
 color: white;
+float: right;
+border-left: lightgreen solid 1px;
+}
+
+.contatList h2{
+    display: block;
+    height: 5%;
 }
 #chatlist{
-height: 100%;
+height: 95%;
 width: 100%;
 overflow-y: scroll;
 overflow-wrap: break-word;
@@ -36,14 +39,15 @@ vertical-align: middle;
 body{
 font: 13px Helvetica, Arial;
 height: 100vh;
-min-width: 1050px;
+min-width: 1080px;
 }
 #chatForm{
 background: #fff;
 padding: 3px;
-position: fixed;
-bottom: 0;
-width: 80%;
+position: absolute;
+display: inline-block;
+width: inherit;
+min-width: 864px;
 border: solid black 1px;
 height: 7%;
 min-height: 50px;
@@ -69,7 +73,8 @@ font-size: large;
 }
 .container1{
     width: 80%;
-    height: 83.5%;
+    height: 90%;
+    display: inline-block;
 }
 .chat_controls{
     width: 100%;
@@ -94,7 +99,7 @@ overflow-y: scroll;
 -ms-overflow-style: none;  /* IE and Edge */
 scrollbar-width: none;  /* Firefox */
 width: 100%;
-height: 100%;
+height: 93%;
 }
 #messages::-webkit-scrollbar {
     display: none;
@@ -187,7 +192,7 @@ margin: 8px 0;
 border: none;
 cursor: pointer;
 opacity: 0.9;
-border: 2px outset black
+border: 2px outset black;
 }
 
 #createwindowbtn {
@@ -199,7 +204,7 @@ margin: 8px 0;
 cursor: pointer;
 width: 100%;
 opacity: 0.9;
-border: 2px outset black
+border: 2px outset black;
 }
 
 #addwindowbtn {
@@ -288,7 +293,7 @@ text-align: center;
 .modal {
 display: none;
 position: fixed;
-z-index: 1;
+z-index: 4;
 left: 0;
 top: 0;
 width: 100%;
