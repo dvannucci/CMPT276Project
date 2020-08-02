@@ -104,7 +104,7 @@
 
                     $('#addform').submit((evt)=>{
                         evt.preventDefault(); // prevents page reloading
-                        socket.emit('add_participant', {msg: $('#adduserinput').val(), chatID: '<%= currentchat.chatid %>'});
+                        socket.emit('add_participant', {person: $('#adduserinput').val(), chatID: '<%= currentchat.chatid %>', chatname:'<%= currentchat.name %>' });
                         $('#add_done').text($('#adduserinput').val() + ' was added');
                         $('#adduserinput').val('');
                         return false;

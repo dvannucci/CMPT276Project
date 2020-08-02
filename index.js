@@ -1429,17 +1429,26 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
     });
 
     socket.on("add_participant", (info)=> {
-      var addparticipantQuery =  "UPDATE chats SET participants = array_append(participants, '" + info.msg + "') WHERE chatid = " + info.chatID
+      var addparticipantQuery =  "UPDATE chats SET participants = array_append(participants, '" + info.person + "') WHERE chatid = " + info.chatID
       pool.query(addparticipantQuery, (error,result)=> {
       })
 
-      var userAddedMessage = socket.username + " added " + info.msg + " to the chat."
+      var userAddedMessage = socket.username + " added " + info.person + " to the chat."
       socket.to(info.chatID).emit("received", {name: socket.username , message: userAddedMessage });
       socket.emit("chat_message", {name: socket.username , message: userAddedMessage });
 
       var storemessageQuery = "INSERT INTO messages VALUES (" + info.chatID + ", default, '" + socket.username + "', " + "'" + userAddedMessage + "')";
       pool.query(storemessageQuery, (error,result)=> {
       })
+
+      var alertmessage = socket.username + ' added you to the chat: ' + info.chatname + ".";
+      var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.person + "' AND message = '" + alertmessage + "'";
+      var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + info.person + "', '" + alertmessage + "')";
+      pool.query(removeOldAlertQuery, (error, result)=> {
+        pool.query(storeAlertQuery, (error, result)=> {})
+        })
+      socket.to(info.person).emit('notification', {link: '/chat/' + info.chatID, message: alertmessage });
+
     })
 
     socket.on("user_left", (info)=> {
