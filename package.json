@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "got": "^11.5.1",
+    "skeleton-framework": "^1.0.10",
     "tape": "^4.13.3"
   },
   "repository": {
