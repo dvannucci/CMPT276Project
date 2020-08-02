@@ -63,6 +63,7 @@
 
       let url=`https://newsapi.org/v2/everything?q=${topic}&apiKey=${apiKey}`;
 
+
       fetch(url).then((res)=>{
         return res.json();
       }).then((data)=>{
