@@ -1,61 +1,67 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <title>Current News</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
   	<style type="text/css">
-      #loader{
-        heaight: 100vh;
-        align-items:center;
-        display:flex;
-        justify-content:center;
-      }
-      .progress{
-        display:none;
-      }
-      .errorMsg{
-        font-size:34px;
-        height:100vh;
-        align-tems:center;
-        display:flex;
-        justify-content: center;
-      }
+
       </style>
   </head>
   <body>
-    <div class="navbar-fixed">
-      <nav>
-        <div class="nav-wrapper">
-          <div class="container">
-          	<a href="#" class="brand-logo">News Api</a>
-            <ul id="nav-mobile" class="right hide-on-med-and-down">
-  						<li class="active"><a href="index.html">News</a></li>
-  						<li><a href="about.html">About us</a></li>
-  						<li><a href="contact.html">Contact us</a></li>
-  					</ul>
-            </div>
-            </div>
-            </nav>
-            </div>
+    <form class="search" action="">
+      <label for="">News</label>
+      <input class="input" type="text" />
+      <br>
+      <input type="submit"/>
+    </form>
+    <div class="container">
+      <ul class="news-list"></ul>
+    </div>
 
-            <div class="container">
-              <div class="row">
-                        <div id="newsResults"></div>
-                </div>
-                <div id="loader">
-                  <div class="progress">
-                    <div class="indeterminate"</div>
-                      </div>
-                </div>
-            </div>
-            <script type="text/javascript" src="./jquery-3.3.1.min.js"></script>
-          	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-              <script type="text/javascript" src="./app.js"></script>
+    <script>
+    const searchFrom=document.querySelector('.search');
+    const input=document.querySelector('.input');
+    const newsList=document.querySelector('.news-list');
+    console.log(newsList)
 
 
-              
+    searchFrom.addEventListener('submit', retrieve)
+
+    function retrieve(e){
+      if(input.value==''){
+        alert('Input field is empty!!');
+        return;
+      }
+
+      newsList.innerHTML=''
+      e.preventDefault()
+      const apiKey=`e9c4c6f3445b4bc9bdd19c823eb59ab7`
+      let topic=input.value;
+
+      let url=`http://newsapi.org/v2/everything?q=${topic}&apiKey=${apiKey}`
+
+      fetch(url).then((res)=>{
+        return res.json()
+      }).then((data)=>{
+        console.log(data)
+        data.articles.forEach(article =>{
+          let li=document.createElement('li');
+          let a=document.createElement('a');
+          a.setAttribute('href',article.url);
+          a.setAttribute('target','_blank');
+          a.textContent=article.title;
+          li.appendChild(a);
+          newsList.appendChild(li);
+
+        })
+      })
+    }
+    </script>
 
 </body>
 </html>
