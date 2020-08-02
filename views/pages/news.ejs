@@ -79,8 +79,8 @@
     <script type="text/javascript" src="./jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
-    <script>
-    var a=0;
+    <script >
+
     const searchFrom=document.querySelector('.search');
     const input=document.querySelector('.input');
     const newsList=document.querySelector('.news-list');
@@ -100,14 +100,15 @@
       const apiKey=`e9c4c6f3445b4bc9bdd19c823eb59ab7`;
       let topic=input.value;
 
-      let url=`https://newsapi.org/v2/everything?q=${topic}&apiKey=${apiKey}`;
+      //let url=`https://newsapi.org/v2/everything?q=${topic}&apiKey=${apiKey}`;
+      let url=`https://newsapi.org/v2/top-headlines?country=us&apiKey=e9c4c6f3445b4bc9bdd19c823eb59ab7`;
 
 
       fetch(url).then((res)=>{
         return res.json();
       }).then((data)=>{
         console.log(data);
-        /*data.articles.forEach(article =>{
+        data.articles.forEach(article =>{
           let li=document.createElement('li');
           let a=document.createElement('a');
           a.setAttribute('href',article.url);
@@ -116,7 +117,7 @@
           li.appendChild(a);
           newsList.appendChild(li);
 
-        })*/
+        })
       })
     }
     </script>
