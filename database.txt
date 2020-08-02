@@ -10,6 +10,8 @@ Create table favouriteArtists(entry_number SERIAL UNIQUE, user_id integer NOT NU
 
 NEW **********
 
+create table notifications (time timestamptz default now(), recipient varchar(30), message text);
+
 Create table ratings(entry_number SERIAL UNIQUE, user_id integer NOT NULL, rating_target char(22) NOT NULL, rating integer NOT NULL CHECK (rating > 0 and rating <= 5), PRIMARY KEY(entry_number), FOREIGN KEY (user_id) REFERENCES users(id) );
 
 **********

@@ -91,6 +91,17 @@
               </form>
             </div>
 
+
+            <div class="Rating">
+              <% if(allRatings[x.id] != null){ %>
+                <h3>&nbsp&nbsp&nbsp<a href="/Rate/song/<%=x.id%>">Rate This Song</a></h3>
+                <h3>Museical User's Rating: <%= allRatings[x.id] %>/5 </h3>
+              <% } else { %>
+                <h3>&nbsp&nbsp&nbsp<a href="/Rate/song/<%=x.id%>">Rate This Song</a></h3>
+                <h3>No ratings yet.</h3>
+              <% } %>
+            </div>
+
         </div>
 
       <% }) } else { %>
@@ -139,6 +150,16 @@
               </form>
             </div>
 
+            <div class="Rating">
+              <% if(allRatings[x.id] != null){ %>
+                <h3>&nbsp&nbsp&nbsp<a href="/Rate/artist/<%=x.id%>">Rate This Artist</a></h3>
+                <h3>Museical User's Rating: <%= allRatings[x.id] %>/5 </h3>
+              <% } else { %>
+                <h3>&nbsp&nbsp&nbsp<a href="/Rate/artist/<%=x.id%>">Rate This Artist</a></h3>
+                <h3>No ratings yet.</h3>
+              <% } %>
+            </div>
+
         </div>
 
       <% }) } else { %>
@@ -182,7 +203,7 @@
 
           </div>
 
-          <div class="recognize">
+          <div class="recognize" style="top: 50%;">
             <form action="/albumExplore" method="post">
               <input type="hidden" name="id" value="<%= x.id %>">
               <input type="hidden" name="album" value="<%= x.name %>">

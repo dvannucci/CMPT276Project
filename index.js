@@ -24,6 +24,7 @@ const _ = require("underscore");
 
 
 require('dotenv').config();
+
 /**
 * Create the google auth object which gives us access to talk to google's apis.
  */
@@ -159,6 +160,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
     user.hotRightNow = []
     user.myTracks = []
     user.myArtists = []
+    var loadedIDs = []
 
     function theSongCheck(x){
       return new Promise(resolve => {
@@ -288,6 +290,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
               }
 
               user.relatedArtists.push(theArtist)
+              loadedIDs.push(`'${data.body.artists[0].id}'`)
               resolve(user)
             } else {
 
@@ -304,20 +307,22 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
               }
 
               user.relatedArtists.push(theArtist)
+              loadedIDs.push(`'${data.body.artists[0].id}'`)
 
               var theArtist = {}
-              theArtist.name = data.body.artists[0].name
-              theArtist.id = data.body.artists[0].id
+              theArtist.name = data.body.artists[1].name
+              theArtist.id = data.body.artists[1].id
 
-              theArtist.genres = data.body.artists[0].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+              theArtist.genres = data.body.artists[1].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
 
-              if(data.body.artists[0].images.length == 0){
+              if(data.body.artists[1].images.length == 0){
                 theArtist.picture = false
               } else {
-                theArtist.picture = data.body.artists[0].images[0].url
+                theArtist.picture = data.body.artists[1].images[0].url
               }
 
               user.relatedArtists.push(theArtist)
+              loadedIDs.push(`'${data.body.artists[1].id}'`)
               resolve(user)
             }
 
@@ -333,25 +338,33 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
     function hotNow(user){
       return new Promise(resolve => {
 
-        SpotifyAPI.getNewReleases({ limit : 6 }).then(
+        SpotifyAPI.getNewReleases({ limit : 10 }).then(
           function(data) {
             var recent = []
+            var index = 0;
             for (each of data.body.albums.items) {
-              var item = {}
-              item.id = each.id
-              item.name = each.name
-              item.artists =  each.artists.map(a => a.name)
-              item.type = each.album_type
-
-              if(each.images.length){
-                item.picture = each.images[0].url
+              if(each.name == "Spotify Singles"){
+                continue
+              } else if (index == 6){
+                break
               } else {
-                item.picture = false
+                index += 1;
+                var item = {}
+                item.id = each.id
+                item.name = each.name
+                item.artists =  each.artists.map(a => a.name)
+                item.type = each.album_type
+
+                if(each.images.length){
+                  item.picture = each.images[0].url
+                } else {
+                  item.picture = false
+                }
+
+                item.released = each.release_date
+                user.hotRightNow.push(item)
+                loadedIDs.push(`'${each.id}'`)
               }
-
-              item.released = each.release_date
-
-              user.hotRightNow.push(item)
             }
 
             resolve(user)
@@ -365,7 +378,34 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
     }
 
     function done(try4){
-      res.render('pages/userHomepage', try4 )
+
+
+      if(loadedIDs.length != 0){
+
+        var gatherRatings = `select rating_target, avg(rating) from ratings where rating_target in (${loadedIDs}) group by rating_target`
+
+        pool.query(gatherRatings, (error, result) => {
+          if(error)
+            res.send(error)
+
+          var allRatings = result.rows.reduce(function(theDict, each) {
+            theDict[each.rating_target] = Math.round(each.avg * 1e2)/ 1e2
+            return theDict
+          }, {})
+
+          try4.allRatings = allRatings
+
+          res.render('pages/userHomepage', try4 )
+
+        })
+
+      } else {
+        try4.allRatings = []
+
+        res.render('pages/userHomepage', try4 )
+      }
+
+
     }
 
     var try1 = await theSongCheck(user);
@@ -463,6 +503,7 @@ app.post('/userInfoUpdate', checkLogin, async (req, res) => {
   });
 
 app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.valid}))
+app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.valid}))
   app.get('/videos', checkLogin, (req, res) => {
     if (!req.cookies.jwt) {
       // We haven't logged in
@@ -502,6 +543,7 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
   app.post('/search', checkLogin, async (req, res) => {
 
     var current = {'username' : req.session.username}
+    var loadedIDs = []
 
     if( req.body.searchInput == ""){
       current.results = []
@@ -520,14 +562,15 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
             song.id = each.id
             song.artists = each.artists.map(a => a.name)
 
-            if(each.album.images != []){
+            if(each.album.images.length != 0){
               song.picture = each.album.images[0].url
             } else {
               song.picture = false
             }
 
-            song.populariity = each.popularity
+            song.popularity = each.popularity
             songs.push(song)
+            loadedIDs.push(`'${each.id}'`)
           }
           current.spotifySongs = songs
         }
@@ -553,9 +596,8 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
                 }
 
                 artist.popularity = each.popularity
-
                 artists.push(artist)
-
+                loadedIDs.push(`'${each.id}'`)
               }
               current.spotifyArtists = artists
             }
@@ -670,7 +712,31 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
 
               current.myArtists = myArtists
 
-              res.render('pages/resultsPage', current)
+
+              if(loadedIDs.length != 0){
+
+                var gatherRatings = `select rating_target, avg(rating) from ratings where rating_target in (${loadedIDs}) group by rating_target`
+
+                pool.query(gatherRatings, (error, result) => {
+                  if(error)
+                    res.send(error)
+
+                  var allRatings = result.rows.reduce(function(theDict, each) {
+                    theDict[each.rating_target] = Math.round(each.avg * 1e2)/ 1e2
+                    return theDict
+                  }, {})
+
+                  current.allRatings = allRatings
+
+                  res.render('pages/resultsPage', current)
+                })
+
+              } else {
+                current.allRatings = []
+
+                res.render('pages/resultsPage', current)
+              }
+
 
           })
 
@@ -768,9 +834,14 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
 
     var info = {'username' : req.session.username, 'album' : req.body.album, 'picture' : req.body.picture}
 
+    var loadedSongsIDs = []
+
     await SpotifyAPI.getAlbumTracks(`${req.body.id}`).then(
       function(data) {
         info.songs = data.body.items
+        data.body.items.forEach(function(x) {
+        loadedSongsIDs.push(`'${x.id}'`)
+        })
       },
       function(error) {
         res.send(error)
@@ -790,10 +861,181 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
 
       info.myTracks = myTracks
 
-      res.render('pages/albumExplore', info)
+      var gatherRatings = `select rating_target, avg(rating) from ratings where rating_target in (${loadedSongsIDs}) group by rating_target`
+
+      pool.query(gatherRatings, (error, result) => {
+        if(error)
+          res.send(error)
+
+        var allRatings = result.rows.reduce(function(theDict, each) {
+          theDict[each.rating_target] = Math.round(each.avg * 1e2)/ 1e2
+          return theDict
+        }, {})
+
+        info.allRatings = allRatings
+
+        res.render('pages/albumExplore', info)
+      })
     })
 
 
+
+  })
+
+  app.get('/Rate/:type/:id', checkLogin, (req, res) => {
+
+    var current = {'username' : req.session.username}
+    current.info = []
+
+    if(req.params.type == 'song'){
+      current.type = 'Song'
+      current.Genres = false
+      SpotifyAPI.getTracks([`${req.params.id}`]).then(
+        function(data) {
+            var song = {}
+            song.name = data.body.tracks[0].name
+            song.id = data.body.tracks[0].id
+            song.artists = data.body.tracks[0].artists.map(a => a.name)
+
+            if(data.body.tracks[0].album.images.length != 0 ){
+              song.picture = data.body.tracks[0].album.images[0].url
+            } else {
+              song.picture = false
+            }
+
+            song.popularity = data.body.tracks[0].popularity
+
+            current.info = song
+
+            var gatherRatings = `select rating_target, avg(rating) from ratings group by rating_target having rating_target = '${req.params.id}'`
+
+            pool.query(gatherRatings, (error, result) => {
+              if(error)
+                res.send(error)
+
+              var thisRating = result.rows.reduce(function(theDict, each) {
+                theDict[each.rating_target] = Math.round(each.avg * 1e2)/ 1e2
+                return theDict
+              }, {})
+
+              current.thisRating = thisRating
+
+              var gatherMyRating = `select rating from ratings where user_id = ${req.session.loggedID} and rating_target = '${req.params.id}'`
+
+              pool.query(gatherMyRating, (error, result) => {
+                if(error)
+                  res.send(error)
+                if(result.rowCount == 0){
+                  current.myRating = []
+                  res.render('pages/ratingPage', current)
+
+                } else {
+                  current.myRating = result.rows[0].rating
+                  res.render('pages/ratingPage', current)
+                }
+
+              })
+
+            })
+
+        },
+        function(error) {
+          res.send(error)
+        });
+    } else {
+      current.type = 'Artist'
+      current.Genres = true
+      SpotifyAPI.getArtist(`${req.params.id}`).then(
+        function(data) {
+            var artist = {}
+            artist.name = data.body.name
+            artist.id = data.body.id
+
+            if(data.body.images.length != 0 ){
+              artist.picture = data.body.images[0].url
+            } else {
+              artist.picture = false
+            }
+
+            artist.genres = data.body.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+
+            artist.popularity = data.body.popularity
+
+            current.info = artist
+
+            var gatherRatings = `select rating_target, avg(rating) from ratings group by rating_target having rating_target = '${req.params.id}'`
+
+            pool.query(gatherRatings, (error, result) => {
+              if(error)
+                res.send(error)
+
+              var thisRating = result.rows.reduce(function(theDict, each) {
+                theDict[each.rating_target] = Math.round(each.avg * 1e2)/ 1e2
+                return theDict
+              }, {})
+
+              current.thisRating = thisRating
+
+              var gatherMyRating = `select rating from ratings where user_id = ${req.session.loggedID} and rating_target = '${req.params.id}'`
+
+              pool.query(gatherMyRating, (error, result) => {
+                if(error)
+                  res.send(error)
+                if(result.rowCount == 0){
+                  current.myRating = []
+                  res.render('pages/ratingPage', current)
+
+                } else {
+                  current.myRating = result.rows[0].rating
+                  res.render('pages/ratingPage', current)
+                }
+
+              })
+
+            })
+
+        },
+        function(error) {
+          res.send(error)
+        });
+    }
+
+
+  })
+
+  app.post('/updateRating', checkLogin, (req, res) => {
+
+    var checkTable = `select * from ratings where user_id = ${req.session.loggedID} and rating_target = '${req.body.update}'`
+
+    pool.query(checkTable, (error, result) => {
+      if(error)
+        res.send(error)
+
+      var insertOrUpdate;
+
+      if(result.rowCount == 0){
+        insertOrUpdate = `insert into ratings (user_id, rating_target, rating) values(${req.session.loggedID}, '${req.body.update}', ${req.body.rating})`
+
+        pool.query(insertOrUpdate, (error, result) => {
+
+          if(error)
+            res.send(error)
+          res.redirect('/home')
+        })
+      } else {
+
+        insertOrUpdate = `update ratings set rating = ${req.body.rating} where user_id = ${req.session.loggedID} and rating_target = '${req.body.update}'`
+
+        pool.query(insertOrUpdate, (error, result) => {
+          if(error)
+            res.send(error)
+          res.redirect('/home')
+        })
+      }
+
+
+
+    })
 
   })
 
@@ -885,14 +1127,18 @@ app.get('/maps', (req, res) => res.render('pages/Maps', {'alert' : req.query.val
     }
 
     var allQuery = `select * from users where id = ${req.session.loggedID};`
-    + `SELECT * FROM profile_history where id = ${req.session.loggedID} order by stamp;`;
+    + `SELECT * FROM profile_history where id = ${req.session.loggedID} order by stamp;`
+    + `SELECT * FROM users where id = ${req.session.loggedID} AND usertype='A'`;
 
     pool.query(allQuery, (error, result) => {
       if(error)
         res.send(error)
 
-      var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username}
-
+      if(result[2].rows.length!=0) {
+        var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':true}
+      } else {
+        var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':false}
+      }
 
       mesData.alert = alert
       mesData.spotify = req.session.Spotify
