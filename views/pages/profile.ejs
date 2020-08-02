@@ -59,6 +59,9 @@
         <% }%>
     </div>
 
+    <div class="content">
+
+
     <div class="tabs floater">
       <h2>Your Recent Activity</h3>
     </div>
@@ -84,16 +87,170 @@
     </div>
 
     <div class="tabs floater">
-      <h2>Your Friends Activity</h3>
+      <h2>Your Songs </h2>
     </div>
 
-    <div class="activity">
-      <h3>No friends yet :(</h3>
-    </div>
+    <% if(songsInfo.length == 0){ %>
+      <div class="activity">
+        <h3>No favourite songs.</h3>
+      </div>
+    <% } else { %>
+
+      <% songsInfo.forEach(item => { %>
+
+        <div class="containHot">
+
+        <div class="hot">
+
+        <% if(item.picture){ %>
+          <img src="<%= item.picture %>" alt="Can't display image">
+        <% } else { %>
+          <img src="/pictures/lang-logo.png" alt="Can't display image">
+        <% } %>
+
+        <div class="username">
+          <h2><%= item.name %> </h2>
+        </div>
+
+        <div class="date">
+         <%  if(item.artists.length > 1){ %>
+           <h3> Artists:
+           <% item.artists.forEach((artist, y) => { %>
+             <% if(y == item.artists.length -1){ %>
+               <span><%= artist %></span>
+           <% } else { %>
+             <span><%= artist %>,</span>
+           <% } %>
+           <% }) %>
+           </h3>
+
+         <% } else { %>
+           <h3> Artist: <%= item.artists[0] %> </h3>
+         <% } %>
+
+          </div>
+
+          <div class="recognize">
+            <form class="tracks" method="post">
+              <% if(myTracks.includes(item.id)){ %>
+                <input type="hidden" id="<%= item.id %>Hidden" name="delete" value="<%= item.id %>">
+                <input type="submit" id="<%= item.id %>Input" name="sub" value="Remove from my favourite songs">
+              <% } else { %>
+                <input type="hidden" id="<%= item.id %>Hidden" name="add" value="<%= item.id %>">
+                <input type="submit" id="<%= item.id %>Input" name="sub" value="Add to my favourite songs">
+              <% } %>
+
+            </form>
+          </div>
+
+          <div class="Rating">
+            <% if(allRatings[item.id] != null){ %>
+              <h3>&nbsp&nbsp&nbsp<a href="/Rate/song/<%=item.id%>">Rate This Song</a></h3>
+              <h3>Museical User's Rating: <%= allRatings[item.id] %>/5 </h3>
+            <% } else { %>
+              <h3>&nbsp&nbsp&nbsp<a href="/Rate/song/<%=item.id%>">Rate This Song</a></h3>
+              <h3>No ratings yet.</h3>
+            <% } %>
+          </div>
+
+
+        </div>
+        </div>
+
+
+
+      <% }) %>
+
+      <br>
+
+      <form class="spotify follow" action="/contentView" method="post">
+        <input type="hidden" name="type" value="songs">
+         <input type="submit" name="spotify" value="View all my songs">
+      </form>
+
+    <% } %>
+
 
     <div class="tabs floater">
-      <h2>Your Songs/Artists</h3>
+      <h2>Your Artists</h2>
     </div>
+
+    <% if(artistsInfo.length == 0){ %>
+      <div class="activity">
+        <h3>No favourite artists.</h3>
+      </div>
+    <% } else { %>
+
+      <% artistsInfo.forEach(item => { %>
+
+        <div class="containHot">
+
+          <div class="hot">
+
+          <% if(item.picture){ %>
+            <img src="<%= item.picture %>" alt="Can't display image">
+          <% } else { %>
+            <img src="/pictures/lang-logo.png" alt="Can't display image">
+          <% } %>
+
+          <div class="username">
+              <h2><%= item.name %> </h2>
+          </div>
+
+          <div class="date">
+            <h3> Genres:&nbsp
+            <% item.genres.forEach((genre, y) => { %>
+              <% if(y == item.genres.length -1){ %>
+                <span><%= genre %></span>
+            <% } else { %>
+              <span><%= genre %>,&nbsp</span>
+            <% } %>
+
+            <% }) %>
+          </h3>
+
+            </div>
+
+            <div class="recognize">
+              <form class="artists" method="post">
+                <% if(myArtists.includes(item.id)){ %>
+                <input type="hidden" id="<%= item.id %>Hidden" name="delete" value="<%= item.id %>">
+                <input type="submit" id="<%= item.id %>Input" name="sub" value="Remove from my favourite artists">
+                <% } else { %>
+                <input type="hidden" id="<%= item.id %>Hidden" name="add" value="<%= item.id %>">
+                <input type="submit" id="<%= item.id %>Input" name="sub" value="Add to my favourite artists">
+                <% } %>
+              </form>
+            </div>
+
+            <div class="Rating" style="top: 55%;">
+              <% if(allRatings[item.id] != null){ %>
+                <h3>&nbsp&nbsp&nbsp<a href="/Rate/artist/<%= item.id %>">Rate This Artist</a></h3>
+                <h3>Museical User's Rating: <%= allRatings[item.id] %>/5 </h3>
+              <% } else { %>
+                <h3>&nbsp&nbsp&nbsp<a href="/Rate/artist/<%= item.id %>">Rate This Artist</a></h3>
+                <h3>No ratings yet.</h3>
+              <% } %>
+            </div>
+
+          </div>
+
+
+        </div>
+
+
+
+      <% }) %>
+
+      <form class="spotify follow" action="/contentView" method="post">
+        <input type="hidden" name="type" value="artists">
+         <input type="submit" name="spotify" value="View all my artists">
+      </form>
+
+    <% } %>
+
+    </div>
+
 
     <script type="text/javascript">
 
@@ -105,6 +262,46 @@
 
           return false;
         });
+
+        $('.tracks').submit(function(x) {
+          x.preventDefault();
+          $.ajax({
+            type: "POST",
+            url: "/songToFaves",
+            data: $(this).serialize(),
+            success: function(res){
+              if(res.add){
+                $(`#${res.add}Input`).val("Remove from my favourite songs");
+                $(`#${res.add}Hidden`).attr('name', 'delete');
+              }
+              else {
+                $(`#${res.delete}Input`).val("Add to my favourite songs");
+                $(`#${res.delete}Hidden`).attr('name', 'add');
+              }
+            }
+          })
+        })
+
+
+        $('.artists').submit(function(x) {
+          x.preventDefault();
+          $.ajax({
+            type: "POST",
+            url: "/artistToFaves",
+            data: $(this).serialize(),
+            success : function(res){
+              if(res.add){
+                $(`#${res.add}Input`).val("Remove from my favourite artists");
+                $(`#${res.add}Hidden`).attr('name', 'delete');
+              }
+              else {
+                $(`#${res.delete}Input`).val("Add to my favourite artists");
+                $(`#${res.delete}Hidden`).attr('name', 'add');
+              }
+            }
+          })
+        })
+
     });
 
     </script>

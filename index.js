@@ -1112,7 +1112,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
   })
 
   // Each users personal profile which can be accessed by clicking the users name in the top right corner of the navigaiton bar.
-  app.get('/profile', checkLogin, (req, res) => {
+  app.get('/profile', checkLogin, async (req, res) => {
 
     if (req.query.valid == 'false'){
       if (req.query.field == 'pic'){
@@ -1126,25 +1126,300 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
       var alert = false
     }
 
-    var allQuery = `select * from users where id = ${req.session.loggedID};`
-    + `SELECT * FROM profile_history where id = ${req.session.loggedID} order by stamp;`
-    + `SELECT * FROM users where id = ${req.session.loggedID} AND usertype='A'`;
+    var mesData;
+    var combined;
+    var tracks = [];
+    var artists = [];
 
-    pool.query(allQuery, (error, result) => {
+    function allCheck(mesData){
+      return new Promise(resolve => {
+
+        var allQuery = `select * from users where id = ${req.session.loggedID};`
+        + `SELECT * FROM profile_history where id = ${req.session.loggedID} order by stamp;`
+        + `SELECT * FROM users where id = ${req.session.loggedID} AND usertype='A';` + `select track_id from favouritetracks where user_id = ${req.session.loggedID} limit 3;` + `select artist_id from favouriteartists where user_id = ${req.session.loggedID} limit 3;`;
+
+        pool.query(allQuery, (error, result) => {
+          if(error)
+            res.send(error)
+
+          if(result[2].rows.length!=0) {
+            mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':true}
+          } else {
+            mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':false}
+          }
+
+          mesData.alert = alert
+          mesData.spotify = req.session.Spotify
+
+          if(result[3].rows.length == 0){
+            mesData.myTracks = []
+          } else {
+            tracks = result[3].rows.map(a => a.track_id)
+            mesData.myTracks = tracks
+          }
+
+          if(result[4].rows.length == 0){
+            mesData.myArtists = []
+          } else {
+            artists = result[4].rows.map(a => a.artist_id)
+            mesData.myArtists = artists
+          }
+
+
+          combined = tracks.concat(artists)
+
+          resolve(mesData);
+
+
+      })
+
+    })
+
+  }
+
+  function theTracksGrab(mesData){
+    return new Promise(resolve => {
+
+      SpotifyAPI.getTracks(tracks).then(
+        function(data) {
+          data.body.tracks.forEach((item) => {
+
+            var song = {}
+            song.name = item.name
+            song.id = item.id
+            song.artists = item.artists.map(a => a.name)
+
+            if(item.album.images.length != 0 ){
+              song.picture = item.album.images[0].url
+            } else {
+              song.picture = false
+            }
+
+            song.popularity = item.popularity
+
+            mesData.songsInfo.push(song)
+
+          });
+
+        resolve(mesData);
+
+      },
+      function(error) {
+        res.send(error)
+      });
+
+    })
+
+  }
+
+  function theArtistsGrab(mesData){
+    return new Promise(resolve => {
+
+      SpotifyAPI.getArtists(artists).then(
+        function(data) {
+          data.body.artists.forEach((item) => {
+
+            var artist = {}
+            artist.name = item.name
+            artist.id = item.id
+
+            if(item.images.length != 0 ){
+              artist.picture = item.images[0].url
+            } else {
+              artist.picture = false
+            }
+
+            artist.genres = item.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+
+            artist.popularity = item.popularity
+
+            mesData.artistsInfo.push(artist)
+
+          });
+
+          resolve(mesData);
+
+        },
+        function(error) {
+          res.send(error)
+        });
+
+    })
+
+  }
+
+  var check1 = await allCheck(mesData)
+
+  check1.songsInfo = []
+  check1.artistsInfo = []
+  check1.allRatings = []
+
+  if(tracks.length == 0){
+    check2 = check1
+  } else {
+    check2 = await theTracksGrab(check1)
+  }
+
+  if(artists.length == 0){
+    check3 = check2
+  } else {
+    check3 = await theArtistsGrab(check2)
+  }
+
+  if(combined.length == 0){
+    res.render('pages/profile', check3)
+  } else {
+
+    combined = combined.map(item => "'" + item + "'")
+
+    var gatherRatings = `select rating_target, avg(rating) from ratings where rating_target in (${combined}) group by rating_target`
+
+    pool.query(gatherRatings, (error, result) => {
       if(error)
         res.send(error)
 
-      if(result[2].rows.length!=0) {
-        var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':true}
-      } else {
-        var mesData= {'user_info':result[0].rows,'user_history':result[1].rows, 'username':req.session.username, 'admin':false}
+      var allRatings = result.rows.reduce(function(theDict, each) {
+        theDict[each.rating_target] = Math.round(each.avg * 1e2)/ 1e2
+        return theDict
+      }, {})
+
+      check3.allRatings = allRatings
+
+      res.render('pages/profile', check3 )
+
+    })
+
+
+  }
+
+  })
+
+  app.post('/contentView',checkLogin, (req, res) => {
+
+    var current = {'username' : req.session.username, 'type' : req.body.type}
+    current.content = []
+
+    if(req.body.type == 'songs'){
+      var getSongs = `select track_id from favouritetracks where user_id = ${req.session.loggedID};`
+
+      pool.query(getSongs, (error, result) => {
+        if(error)
+          res.send(error)
+
+        if(result.rows.length == 0){
+          res.render('/home')
+        } else {
+
+        tracks = result.rows.map(a => a.track_id)
+
+        SpotifyAPI.getTracks(tracks).then(
+          function(data) {
+            data.body.tracks.forEach((item) => {
+
+              var song = {}
+              song.name = item.name
+              song.id = item.id
+
+              song.artists = item.artists.map(a => a.name)
+
+              if(item.album.images.length != 0 ){
+                song.picture = item.album.images[0].url
+              } else {
+                song.picture = false
+              }
+
+              song.popularity = item.popularity
+
+              current.content.push(song)
+
+            });
+
+          tracks = tracks.map(item => "'" + item + "'")
+
+          var getRatings = `select rating_target, avg(rating) from ratings where rating_target in (${tracks}) group by rating_target`
+
+          pool.query(getRatings, (error, result) => {
+            if(error)
+              res.send(error)
+
+            var allRatings = result.rows.reduce(function(theDict, each) {
+              theDict[each.rating_target] = Math.round(each.avg * 1e2)/ 1e2
+              return theDict
+            }, {})
+
+            current.allRatings = allRatings
+
+            res.render('pages/yourContent', current)
+
+          })
+
+        },
+        function(error) {
+          res.send(error)
+        });
+
       }
 
-      mesData.alert = alert
-      mesData.spotify = req.session.Spotify
+      })
 
-      res.render('pages/profile', mesData)
-    })
+    } else {
+      var getArtists = `select artist_id from favouriteartists where user_id = ${req.session.loggedID}`
+
+      pool.query(getArtists, (error, result) => {
+        if(error)
+          res.send(error)
+
+        artists = result.rows.map(a => a.artist_id)
+
+        SpotifyAPI.getArtists(artists).then(
+          function(data) {
+            data.body.artists.forEach((item) => {
+
+              var artist = {}
+              artist.name = item.name
+              artist.id = item.id
+
+              if(item.images.length != 0 ){
+                artist.picture = item.images[0].url
+              } else {
+                artist.picture = false
+              }
+
+              artist.genres = item.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+
+              artist.popularity = item.popularity
+
+              current.content.push(artist)
+
+            });
+
+            artists = artists.map(item => "'" + item + "'")
+
+            var getRatings = `select rating_target, avg(rating) from ratings where rating_target in (${artists}) group by rating_target`
+
+            pool.query(getRatings, (error, result) => {
+              if(error)
+                res.send(error)
+
+              var allRatings = result.rows.reduce(function(theDict, each) {
+                theDict[each.rating_target] = Math.round(each.avg * 1e2)/ 1e2
+                return theDict
+              }, {})
+
+              current.allRatings = allRatings
+
+              res.render('pages/yourContent', current)
+
+            })
+
+          },
+          function(error) {
+            res.send(error)
+          });
+
+      })
+
+    }
 
   })
 

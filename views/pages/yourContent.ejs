@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="/stylesheets/pageStyle.css">
+    <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <title>Results</title>
+  </head>
+  <body>
+
+    <% include ../partials/nav.ejs %>
+    <% include ../partials/notification.ejs %>
+
+    <div class="results">
+
+      <% if(type == 'songs'){ %>
+
+        <h1 class="resultHeader">Your Music:</h1> <br>
+
+        <% content.forEach(function(x){ %>
+          <div class="matches">
+
+            <% if(x.picture){ %>
+              <img src="<%= x.picture %>" alt="Can't display image">
+            <% } else { %>
+              <img src="/pictures/lang-logo.png" alt="Can't display image">
+            <% } %>
+
+            <div class="username">
+              <h2> <%=x.name %> </h2>
+            </div>
+
+            <div class="date">
+             <%  if(x.artists.length > 1){ %>
+               <h3> Artists:
+               <% x.artists.forEach((artist, i) => { %>
+                 <% if(i == x.artists.length -1){ %>
+                   <span><%= artist %></span>
+               <% } else { %>
+                 <span><%= artist %>,</span>
+               <% } %>
+               <% }) %>
+               </h3>
+
+             <% } else { %>
+               <h3> Artist: <%= x.artists[0] %> </h3>
+             <% } %>
+
+            </div>
+
+              <div class="recognize">
+                <form class="tracks" method="post">
+                  <% if(content.includes(x.id)){ %>
+                    <input type="hidden" id="<%= x.id %>Hidden" name="delete" value="<%= x.id %>">
+                    <input type="submit" id="<%= x.id %>Input" name="sub" value="Remove from my favourite songs">
+                  <% } else { %>
+                    <input type="hidden" id="<%= x.id %>Hidden" name="add" value="<%= x.id %>">
+                    <input type="submit" id="<%= x.id %>Input" name="sub" value="Add to my favourite songs">
+                  <% } %>
+
+                </form>
+              </div>
+
+              <div class="Rating">
+                <% if(allRatings[x.id] != null){ %>
+                  <h3>&nbsp&nbsp&nbsp<a href="/Rate/song/<%=x.id%>">Rate This Song</a></h3>
+                  <h3>Museical User's Rating: <%= allRatings[x.id] %>/5 </h3>
+                <% } else { %>
+                  <h3>&nbsp&nbsp&nbsp<a href="/Rate/song/<%=x.id%>">Rate This Song</a></h3>
+                  <h3>No ratings yet.</h3>
+                <% } %>
+              </div>
+
+          </div>
+          <% }) %>
+
+      <% } else { %>
+
+        <h1 class="resultHeader">Your Artists:</h1> <br>
+
+        <% content.forEach(function(item){ %>
+          <div class="matches">
+
+        <% if(item.picture){ %>
+          <img src="<%= item.picture %>" alt="Can't display image">
+        <% } else { %>
+          <img src="/pictures/lang-logo.png" alt="Can't display image">
+        <% } %>
+
+        <div class="username">
+            <h2><%= item.name %> </h2>
+        </div>
+
+        <div class="date">
+          <h3> Genres:&nbsp
+          <% item.genres.forEach((genre, y) => { %>
+            <% if(y == item.genres.length -1){ %>
+              <span><%= genre %></span>
+          <% } else { %>
+            <span><%= genre %>,&nbsp</span>
+          <% } %>
+
+          <% }) %>
+        </h3>
+
+          </div>
+
+          <div class="recognize">
+            <form class="artists" method="post">
+              <% if(content.includes(item.id)){ %>
+              <input type="hidden" id="<%= item.id %>Hidden" name="delete" value="<%= item.id %>">
+              <input type="submit" id="<%= item.id %>Input" name="sub" value="Remove from my favourite artists">
+              <% } else { %>
+              <input type="hidden" id="<%= item.id %>Hidden" name="add" value="<%= item.id %>">
+              <input type="submit" id="<%= item.id %>Input" name="sub" value="Add to my favourite artists">
+              <% } %>
+            </form>
+          </div>
+
+          <div class="Rating" style="top: 55%;">
+            <% if(allRatings[item.id] != null){ %>
+              <h3>&nbsp&nbsp&nbsp<a href="/Rate/artist/<%= item.id %>">Rate This Artist</a></h3>
+              <h3>Museical User's Rating: <%= allRatings[item.id] %>/5 </h3>
+            <% } else { %>
+              <h3>&nbsp&nbsp&nbsp<a href="/Rate/artist/<%= item.id %>">Rate This Artist</a></h3>
+              <h3>No ratings yet.</h3>
+            <% } %>
+          </div>
+
+          </div>
+          <% }) %>
+
+      <% } %>
+
+
+    </div>
+
+    <script type="text/javascript">
+
+    $(() => {
+
+      $('#confirmLogout').click(function(){
+        if(confirm('Are you sure you wish to logout?')) {
+            return true;
+          }
+
+          return false;
+        });
+
+      $('.tracks').submit(function(x) {
+        x.preventDefault();
+        $.ajax({
+          type: "POST",
+          url: "/songToFaves",
+          data: $(this).serialize(),
+          success: function(res){
+            if(res.add){
+              $(`#${res.add}Input`).val("Remove from my favourite songs");
+              $(`#${res.add}Hidden`).attr('name', 'delete');
+            }
+            else {
+              $(`#${res.delete}Input`).val("Add to my favourite songs");
+              $(`#${res.delete}Hidden`).attr('name', 'add');
+            }
+          }
+        })
+      })
+
+
+      $('.artists').submit(function(x) {
+        x.preventDefault();
+        $.ajax({
+          type: "POST",
+          url: "/artistToFaves",
+          data: $(this).serialize(),
+          success : function(res){
+            if(res.add){
+              $(`#${res.add}Input`).val("Remove from my favourite artists");
+              $(`#${res.add}Hidden`).attr('name', 'delete');
+            }
+            else {
+              $(`#${res.delete}Input`).val("Add to my favourite artists");
+              $(`#${res.delete}Hidden`).attr('name', 'add');
+            }
+          }
+        })
+      })
+
+    });
+    </script>
+
+  </body>
+</html>

@@ -2,7 +2,7 @@ body {
   background-color: rgb(0,0,0);
   margin: 0;
   font: 13px Helvetica, Arial;
-  min-width: 1080px;
+  min-width: 1140px;
 }
 
 .nav {
@@ -463,4 +463,10 @@ body {
   font-weight: bolder;
   background-color: white;
   padding: 5px;
+}
+
+.content {
+  margin-top: -6px;
+  float: right;
+  width: 80.6%;
 }
