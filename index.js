@@ -1396,7 +1396,6 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
       var getNotificationsQuery = "SELECT * FROM notifications WHERE recipient = '" + socket.username + "' ORDER BY time ASC";
       pool.query(getNotificationsQuery, (error,result)=> {
         io.in(socket.username).emit('oldnotifications', result.rows);
-        console.log("emit oldNotification")
       })
     });
 
@@ -1416,9 +1415,10 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
       pool.query(getmembersQuery, (error, result)=> {
         result.rows[0].participants.forEach((member)=>{
           var alertmessage = socket.username + ' sent a message in the chat: ' + result.rows[0].name + ".";
+          var moddedalertmessage = alertmessage.replace(/'/g, "''")
           if (member != socket.username){
-            var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + member + "' AND message = '" + alertmessage + "'";
-            var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + member + "', '" + alertmessage + "')";
+            var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + member + "' AND message = '" + moddedalertmessage + "'";
+            var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + member + "', '" + moddedalertmessage + "')";
             pool.query(removeOldAlertQuery, (error, result)=> {
               pool.query(storeAlertQuery, (error, result)=> {})
               })
@@ -1442,8 +1442,9 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
       })
 
       var alertmessage = socket.username + ' added you to the chat: ' + info.chatname + ".";
-      var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.person + "' AND message = '" + alertmessage + "'";
-      var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + info.person + "', '" + alertmessage + "')";
+      var moddedalertmessage = alertmessage.replace(/'/g, "''");
+      var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.person + "' AND message = '" + moddedalertmessage + "'";
+      var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + info.person + "', '" + moddedalertmessage + "')";
       pool.query(removeOldAlertQuery, (error, result)=> {
         pool.query(storeAlertQuery, (error, result)=> {})
         })
@@ -1462,15 +1463,16 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
     })
 
     socket.on("dismissAlert", (info) =>{
-      var removeAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.recipient + "' AND message = '" + info.message + "'";
+      var moddedmessage = info.message.replace(/'/g, "''");
+      var removeAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.recipient + "' AND message = '" + moddedmessage + "'";
       pool.query(removeAlertQuery, (error,result)=> {})
-      console.log('dismissing message: ' + info.message + "; to: " + info.recipient)
     })
 
     socket.on('followAlert', (info) =>{
       var alertmessage = info.follower + ' is now following you.';
-      var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.recipient + "' AND message = '" + alertmessage + "'";
-      var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + info.recipient + "', '" + alertmessage + "')";
+      var moddedalertmessage = alertmessage.replace(/'/g, "''");
+      var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.recipient + "' AND message = '" + moddedalertmessage + "'";
+      var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + info.recipient + "', '" + moddedalertmessage + "')";
       pool.query(removeOldAlertQuery, (error, result)=> {
         pool.query(storeAlertQuery, (error, result)=> {})
         })
@@ -1479,12 +1481,45 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
 
     socket.on('unfollowAlert', (info) =>{
       var alertmessage = info.follower + ' is no longer following you.';
-      var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.recipient + "' AND message = '" + alertmessage + "'";
-      var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + info.recipient + "', '" + alertmessage + "')";
+      var moddedalertmessage = alertmessage.replace(/'/g, "''");
+      var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + info.recipient + "' AND message = '" + moddedalertmessage + "'";
+      var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + info.recipient + "', '" + moddedalertmessage + "')";
       pool.query(removeOldAlertQuery, (error, result)=> {
         pool.query(storeAlertQuery, (error, result)=> {})
         })
       socket.to(info.recipient).emit('notification', {link: '', message: alertmessage });
+    })
+
+    socket.on('change_chat_name', (info) => {
+      var moddednewname = info.newname.replace(/'/g, "''");
+      var updatechatnameQuery = "UPDATE chats SET name = '" + moddednewname + "' WHERE chatid = " + info.chatID;
+      pool.query(updatechatnameQuery, (error, result)=> {});
+      socket.to(info.chatID).emit("update_new_chatname", {newname: info.newname , chatID: info.chatID });
+
+      var changechatnameMessage = socket.username + " changed the name of the chat to: " + info.newname + "."
+      var moddedmessage = changechatnameMessage.replace(/'/g, "''");
+      socket.to(info.chatID).emit("received", {name: socket.username , message: changechatnameMessage });
+      socket.emit("chat_message", {name: socket.username , message: changechatnameMessage });
+
+      var storemessageQuery = "INSERT INTO messages VALUES (" + info.chatID + ", default, '" + socket.username + "', " + "'" + moddedmessage + "')";
+      pool.query(storemessageQuery, (error,result)=> {
+      });
+
+      var getmembersQuery = "SELECT * FROM chats WHERE chatid = " + info.chatID;
+      pool.query(getmembersQuery, (error, result)=> {
+        result.rows[0].participants.forEach((member)=>{
+          var alertmessage = socket.username + ' has renamed the chat: "' + info.oldname + ' as: "' + info.newname + '".';
+          var moddedalertmessage = alertmessage.replace(/'/g, "''");
+          if (member != socket.username){
+            var removeOldAlertQuery = "DELETE FROM notifications WHERE recipient = '" + member + "' AND message = '" + moddedalertmessage + "'";
+            var storeAlertQuery = "INSERT INTO notifications VALUES (default, '" + member + "', '" + moddedalertmessage + "')";
+            pool.query(removeOldAlertQuery, (error, result)=> {
+              pool.query(storeAlertQuery, (error, result)=> {})
+              })
+            socket.to(member).emit('notification', {link: '/chat/' + info.chatID, message: alertmessage });
+          }
+        })
+      })
     })
     
   });

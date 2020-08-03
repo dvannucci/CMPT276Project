@@ -49,12 +49,28 @@
             </form>
         </div>
 
+        <div id="changenamewindow" class="modal">
+            <span onclick="document.getElementById('changenamewindow').style.display='none'" class="close" title="close window">×</span>
+            <form class="windowcontent" action="" method="post" id="changeform">
+            <div class="container3">
+                <h1>Change chat name</h1>
+                <p>Please enter a name for this chat. <br> <br></p>
+                <input id="changenameinput" name ="changenameinput" type="text" value="<%= currentchat.name %>" required>
+                <p id="add_done" style="font-size:  1em;"><br></p>
+                <div class="clearfix">
+                <button type="button" onclick="document.getElementById('changenamewindow').style.display='none'" class="cancelbtn">CANCEL</button>
+                <input id="changeconfirm" type="submit" name="changebtn" class="changebtn" value="Submit"></input>
+                </div>
+            </div>
+            </form>
+        </div>
+
         <div id="leavewindow" class="modal">
             <span onclick="document.getElementById('leavewindow').style.display='none'" class="close" title="close window">×</span>
             <form class="windowcontent" action="/chat/<%= currentchat.chatid %>/leave" method="post" id="leaveform">
                 <div class="container4">
-                <h1>Leave Group</h1>
-                <p>Are you sure you want to permanently leave the group?</p>
+                <h1>Leave Chat</h1>
+                <p>Are you sure you want to permanently leave this chat?</p>
                 <div class="clearfix">
                     <button type="button" onclick="document.getElementById('leavewindow').style.display='none'" class="cancelbtn">CANCEL</button>
                     <input id="delconfirm" type="submit" name="leavebtn" class="leavebtn" value="LEAVE"></input>
@@ -67,7 +83,8 @@
             <div class="chat_controls">
                 <p class="chat_title"><%= currentchat.name %></p>
             <button id="addwindowbtn" onclick= "if ('<%= currentchat.chatid %>' != 0){document.getElementById('adduserwindow').style.display='block'}">Add User</button>
-            <button id="leavewindowbtn" onclick= "if ('<%= currentchat.chatid %>' != 0){document.getElementById('leavewindow').style.display='block'}">Leave Group</button>
+            <button id="changewindowbtn" onclick= "if ('<%= currentchat.chatid %>' != 0){document.getElementById('changenamewindow').style.display='block'}">Change Chat Name</button>
+            <button id="leavewindowbtn" onclick= "if ('<%= currentchat.chatid %>' != 0){document.getElementById('leavewindow').style.display='block'}">Leave Chat</button>
             </div>
             <ul id="messages">
                 <% mesInfo.forEach(function(msg) { %>
@@ -85,7 +102,7 @@
             <ul id="chatlist">
             <button id="createwindowbtn" onclick= "document.getElementById('makechatwindow').style.display='block'">Create Chat</button>
                 <% chatInfo.forEach(function(chats) { %>
-                    <a href="/chat/<%= chats.chatid %>"><%= chats.name %></a> <br>
+                    <a id="contact<%= chats.chatid %>" href="/chat/<%= chats.chatid %>"><%= chats.name %></a> <br>
                 <% }); %>
             </ul>
         </div>
@@ -107,6 +124,17 @@
                         socket.emit('add_participant', {person: $('#adduserinput').val(), chatID: '<%= currentchat.chatid %>', chatname:'<%= currentchat.name %>' });
                         $('#add_done').text($('#adduserinput').val() + ' was added');
                         $('#adduserinput').val('');
+                        return false;
+                    });
+
+                    $('#changeform').submit((evt)=>{
+                        evt.preventDefault(); // prevents page reloading
+                        if ($('#changenameinput').val() != '<%= currentchat.name %>'){
+                            socket.emit("change_chat_name", {oldname: '<%= currentchat.name %>', newname: $('#changenameinput').val(), chatID: '<%= currentchat.chatid %>'});
+                            $('.chat_title').text($('#changenameinput').val());
+                            $('#contact<%= currentchat.chatid %>').text($('#changenameinput').val());
+                            document.getElementById('changenamewindow').style.display='none'
+                        }
                         return false;
                     });
 
@@ -169,6 +197,12 @@
                             }).text("x"))
                             updateAlertNumber()
                         }
+                    });
+
+                    socket.on('update_new_chatname', (info)=>{
+                        $('.chat_title').text(info.newname);
+                        $('#contact'+info.chatID).text(info.newname);
+                        console.log($('#contact'+info.chatID).text())
                     });
 
                     window.onload = () => {

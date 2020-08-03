@@ -175,6 +175,12 @@ height: 30px;
 text-align: center;
 }
 
+#changenameinput{
+    width: 70%;
+    height: 30px;
+    text-align: center;
+    }
+
 #makeconfirm:hover{
 opacity: 1;
 }
@@ -194,6 +200,18 @@ cursor: pointer;
 opacity: 0.9;
 border: 2px outset black;
 }
+
+#changeconfirm{
+    float: left;
+    width: 50%;
+    font-size: large;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    opacity: 0.9;
+    border: 2px outset black;
+    }
 
 #createwindowbtn {
 font-size: large;
@@ -220,6 +238,21 @@ text-align: center;
 height: 100%;
 padding-left: 5px;
 padding-right: 5px;
+}
+
+#changewindowbtn {
+    display: inline-block;
+    font-size: 1.2em;
+    background-color: #2dc0c0;
+    color: white;
+    cursor: pointer;
+    width: fit-content;
+    opacity: 0.9;
+    border: 1px outset black;
+    text-align: center;
+    height: 100%;
+    padding-left: 5px;
+    padding-right: 5px;
 }
 
 #leavewindowbtn {
