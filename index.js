@@ -662,9 +662,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
       var input = `${req.body.searchInput}`
       var cleaned = input.replace(/'/g, "''")
 
-
-      var searchQuery = `select * from users where username like '${cleaned}'`
-
+      var searchQuery = `select * from users where username like '${cleaned}%'`
 
       pool.query(searchQuery, (error, result) => {
         if(error)
@@ -1132,13 +1130,14 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
     var combined;
     var tracks = [];
     var artists = [];
+    var following = []
 
     function allCheck(mesData){
       return new Promise(resolve => {
 
         var allQuery = `select * from users where id = ${req.session.loggedID};`
         + `SELECT * FROM profile_history where id = ${req.session.loggedID} order by stamp;`
-        + `SELECT * FROM users where id = ${req.session.loggedID} AND usertype='A';` + `select track_id from favouritetracks where user_id = ${req.session.loggedID} limit 3;` + `select artist_id from favouriteartists where user_id = ${req.session.loggedID} limit 3;`;
+        + `SELECT * FROM users where id = ${req.session.loggedID} AND usertype='A';` + `select track_id from favouritetracks where user_id = ${req.session.loggedID} limit 3;` + `select artist_id from favouriteartists where user_id = ${req.session.loggedID} limit 3;` + `select is_following from followers where the_user = ${req.session.loggedID} limit 3;`;
 
         pool.query(allQuery, (error, result) => {
           if(error)
@@ -1165,6 +1164,12 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
           } else {
             artists = result[4].rows.map(a => a.artist_id)
             mesData.myArtists = artists
+          }
+
+          if(result[5].rows.length == 0){
+            following = []
+          } else {
+            following = result[5].rows.map(a => a.is_following)
           }
 
 
@@ -1250,11 +1255,67 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
 
   }
 
+  function gatherFollowingSongs(mesData){
+    return new Promise(resolve => {
+
+      var gatherFollowingFavs = `select track_id from favouritetracks where user_id in (${following}) limit 4`
+
+      pool.query(gatherFollowingFavs, (error, result) => {
+        if(error)
+          res.send(error)
+
+
+        if(result.rows.length != 0){
+          friendsTracks = result.rows.map(a => a.track_id)
+
+          combined = combined.concat(friendsTracks)
+
+          SpotifyAPI.getTracks(friendsTracks).then(
+            function(data) {
+              data.body.tracks.forEach((item) => {
+
+                var song = {}
+                song.name = item.name
+                song.id = item.id
+                song.artists = item.artists.map(a => a.name)
+
+                if(item.album.images.length != 0 ){
+                  song.picture = item.album.images[0].url
+                } else {
+                  song.picture = false
+                }
+
+                song.popularity = item.popularity
+
+                mesData.friendsInfo.push(song)
+
+              });
+
+            resolve(mesData);
+
+          },
+          function(error) {
+            res.send(error)
+          });
+        } else {
+          resolve(mesData)
+        }
+
+
+      })
+
+    })
+
+  }
+
+
+
   var check1 = await allCheck(mesData)
 
   check1.songsInfo = []
   check1.artistsInfo = []
   check1.allRatings = []
+  check1.friendsInfo = []
 
   if(tracks.length == 0){
     check2 = check1
@@ -1268,8 +1329,14 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
     check3 = await theArtistsGrab(check2)
   }
 
+  if(following.length == 0){
+    check4 = check3
+  } else {
+    check4 = await gatherFollowingSongs(check3)
+  }
+
   if(combined.length == 0){
-    res.render('pages/profile', check3)
+    res.render('pages/profile', check4)
   } else {
 
     combined = combined.map(item => "'" + item + "'")
@@ -1287,7 +1354,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
 
       check3.allRatings = allRatings
 
-      res.render('pages/profile', check3 )
+      res.render('pages/profile', check4 )
 
     })
 
@@ -1798,7 +1865,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
         })
       })
     })
-    
+
   });
 
   app.post('/spotifyTry', checkLogin, (req, res) => {

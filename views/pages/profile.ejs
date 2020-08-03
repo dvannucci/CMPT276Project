@@ -249,6 +249,86 @@
 
     <% } %>
 
+    <div class="tabs floater">
+      <h2>Your Friends Favourite Songs</h2>
+    </div>
+
+    <% if(friendsInfo.length == 0){ %>
+      <div class="activity">
+        <h3>Follow some other users!</h3>
+      </div>
+    <% } else { %>
+
+      <% friendsInfo.forEach(item => { %>
+
+        <div class="containHot">
+
+        <div class="hot">
+
+        <% if(item.picture){ %>
+          <img src="<%= item.picture %>" alt="Can't display image">
+        <% } else { %>
+          <img src="/pictures/lang-logo.png" alt="Can't display image">
+        <% } %>
+
+        <div class="username">
+          <h2><%= item.name %> </h2>
+        </div>
+
+        <div class="date">
+         <%  if(item.artists.length > 1){ %>
+           <h3> Artists:
+           <% item.artists.forEach((artist, y) => { %>
+             <% if(y == item.artists.length -1){ %>
+               <span><%= artist %></span>
+           <% } else { %>
+             <span><%= artist %>,</span>
+           <% } %>
+           <% }) %>
+           </h3>
+
+         <% } else { %>
+           <h3> Artist: <%= item.artists[0] %> </h3>
+         <% } %>
+
+          </div>
+
+          <div class="recognize">
+            <form class="tracks" method="post">
+              <% if(myTracks.includes(item.id)){ %>
+                <input type="hidden" id="<%= item.id %>Hidden" name="delete" value="<%= item.id %>">
+                <input type="submit" id="<%= item.id %>Input" name="sub" value="Remove from my favourite songs">
+              <% } else { %>
+                <input type="hidden" id="<%= item.id %>Hidden" name="add" value="<%= item.id %>">
+                <input type="submit" id="<%= item.id %>Input" name="sub" value="Add to my favourite songs">
+              <% } %>
+
+            </form>
+          </div>
+
+          <div class="Rating">
+            <% if(allRatings[item.id] != null){ %>
+              <h3>&nbsp&nbsp&nbsp<a href="/Rate/song/<%=item.id%>">Rate This Song</a></h3>
+              <h3>Museical User's Rating: <%= allRatings[item.id] %>/5 </h3>
+            <% } else { %>
+              <h3>&nbsp&nbsp&nbsp<a href="/Rate/song/<%=item.id%>">Rate This Song</a></h3>
+              <h3>No ratings yet.</h3>
+            <% } %>
+          </div>
+
+
+        </div>
+        </div>
+
+
+
+      <% }) %>
+
+    <% } %>
+
+
+
+
     </div>
 
 
