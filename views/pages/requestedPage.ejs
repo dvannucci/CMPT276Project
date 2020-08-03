@@ -71,9 +71,10 @@
         socket.on('oldnotifications', (rows)=>{
             console.log('recieved old notification')
             rows.forEach((r)=>{
-                $("<li>").text(r.message).prependTo($("#alerts")).append($("<span class = 'dismiss'>").click(function(){
+                let moddedmessage = r.message.replace('&#39;', "'")
+                $("<li>").text(moddedmessage).prependTo($("#alerts")).append($("<span class = 'dismiss'>").click(function(){
                     socket.emit('dismissAlert', {recipient: r.recipient , message: r.message });
-                    $("li").remove( ":contains(" + r.message + ")" );
+                    $("li").remove( ":contains(" + moddedmessage + ")" );
                     updateAlertNumber();
                 }).text("x"))
             })
@@ -83,10 +84,11 @@
         socket.on('notification', (note)=>{
             console.log(window.location.pathname)
             if(window.location.pathname != note.link){
-                $("li").remove( ":contains(" + note.message + ")" )
-                $("<li>").text(note.message).prependTo($("#alerts")).append($("<span class = 'dismiss'>").click(function(){
+                let moddedmessage = note.message.replace('&#39;', "'")
+                $("li").remove( ":contains(" + moddedmessage + ")" )
+                $("<li>").text(moddedmessage).prependTo($("#alerts")).append($("<span class = 'dismiss'>").click(function(){
                     socket.emit('dismissAlert', {recipient: username , message: note.message });
-                    $("li").remove( ":contains(" + note.message + ")" );
+                    $("li").remove( ":contains(" + moddedmessage + ")" );
                     updateAlertNumber();
                 }).text("x"))
                 updateAlertNumber()
