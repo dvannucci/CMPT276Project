@@ -553,6 +553,8 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
     }
     else {
 
+      current.input = req.body.searchInput;
+      
       await SpotifyAPI.searchTracks(`'${req.body.searchInput}'`, {limit: 5}).then( (data, error) => {
         if(error){
           res.send(error)
