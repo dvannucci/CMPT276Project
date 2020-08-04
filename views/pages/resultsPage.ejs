@@ -51,18 +51,19 @@
 
       <script>
         function openMuseScore() {
-          var url = "https://musescore.com/sheetmusic?text=" + input;
+          var url = "https://musescore.com/sheetmusic?text=" + <%= input %>;
           window.open(url, "_blank");
         }
 
         function open8Notes() {
           var str = input.split(" ");
-          var url = "";
+          var url = "https://www.8notes.com/school/search_fsm.asp?keyword=";
           for(var i=0 ; i<str.length-1 ; i++) {
             url += str[i];
             url += "+";
           }
           url += str[str.length-1];
+          url += "&x=0&y=0"
           window.open(url, "_blank");
         }
       </script>
