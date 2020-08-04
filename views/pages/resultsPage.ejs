@@ -45,10 +45,6 @@
 
       <% })} %>
 
-      <h1>Music sheets:</h1>
-      <a href="#" onclick = "openMuseScore()">Result for <%=input %> on MuseScore.com</a><br>
-      <a href="#" onclick = "open8Notes()">Result for <%=input %> on 8Notes.com</a>
-
       <script>
         function openMuseScore() {
           var url = "https://musescore.com/sheetmusic?text=" + <%= input %>;
@@ -67,6 +63,10 @@
           window.open(url, "_blank");
         }
       </script>
+
+      <h1>Music sheets:</h1>
+      <a href="#" onclick = "openMuseScore()">Result for <%=input %> on MuseScore.com</a><br>
+      <a href="#" onclick = "open8Notes()">Result for <%=input %> on 8Notes.com</a>
 
       <h1>Songs:</h1>
       <% if(spotifySongs.length != 0) { %>
