@@ -553,8 +553,20 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
     }
     else {
 
-      current.input = req.body.searchInput;
-      
+
+      var museScoreURL = "https://musescore.com/sheetmusic?text=" + req.body.searchInput;
+      var str = req.body.searchInput.split(" ");
+      var notesURL = "https://www.8notes.com/school/search_fsm.asp?keyword=";
+      for(var i=0 ; i<str.length-1 ; i++) {
+        notesURL += str[i];
+        notesURL += "+";
+      }
+      notesURL += str[str.length-1];
+      notesURL += "&x=0&y=0"
+
+      current.museScoreURL = museScoreURL;
+      current.notesURL = notesURL;
+
       await SpotifyAPI.searchTracks(`'${req.body.searchInput}'`, {limit: 5}).then( (data, error) => {
         if(error){
           res.send(error)
