@@ -564,6 +564,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
       notesURL += str[str.length-1];
       notesURL += "&x=0&y=0"
 
+      current.input = req.body.searchInput;
       current.museScoreURL = museScoreURL;
       current.notesURL = notesURL;
 
