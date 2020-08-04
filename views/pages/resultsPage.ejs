@@ -45,6 +45,28 @@
 
       <% })} %>
 
+      <h1>Music sheets:</h1>
+      <div onclick = "openMuseScore()">Result for <%=input %> on MuseScore.com</div>
+      <div onclick = "open8Notes()">Result for <%=input %> on 8Notes.com</div>
+
+      <script>
+        function openMuseScore() {
+          var url = "https://musescore.com/sheetmusic?text=" + input;
+          window.open(url, "_blank");
+        }
+        
+        function open8Notes() {
+          var str = input.split(" ");
+          var url = "";
+          for(var i=0 ; i<str.length-1 ; i++) {
+            url += str[i];
+            url += "+";
+          }
+          url += str[str.length-1];
+          window.open(url, "_blank");
+        }
+      </script>
+
       <h1>Songs:</h1>
       <% if(spotifySongs.length != 0) { %>
 
