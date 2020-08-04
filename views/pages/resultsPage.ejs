@@ -46,15 +46,15 @@
       <% })} %>
 
       <h1>Music sheets:</h1>
-      <div onclick = "openMuseScore()">Result for <%=input %> on MuseScore.com</div>
-      <div onclick = "open8Notes()">Result for <%=input %> on 8Notes.com</div>
+      <a onclick = "openMuseScore()">Result for <%=input %> on MuseScore.com</a>
+      <a onclick = "open8Notes()">Result for <%=input %> on 8Notes.com</a>
 
       <script>
         function openMuseScore() {
           var url = "https://musescore.com/sheetmusic?text=" + input;
           window.open(url, "_blank");
         }
-        
+
         function open8Notes() {
           var str = input.split(" ");
           var url = "";
