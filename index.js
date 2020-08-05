@@ -123,7 +123,7 @@ var state = 'the_secret'
 var SpotifyAPI = new SpotifyWebApi({
   clientId: '66ad16283b5f40c7a94c0b2af7485926',
   clientSecret: process.env.SPOTIFY_KEY,
-  redirectUri: 'http://localhost:5000/spotifyAuth' //'https://museical.herokuapp.com/spotifyAuth'
+  redirectUri: 'https://museical.herokuapp.com/spotifyAuth' //'http://localhost:5000/spotifyAuth'
 });
 
 var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
