@@ -23,7 +23,7 @@
             <div class="container3">
                 <h1>Create Chat</h1>
                 <p>Please enter the name of your new chat. <br> <br></p>
-                <input id="chatnameinput" name ="chatnameinput" type="text" placeholder="Chat Name" required>
+                <input id="chatnameinput" name ="chatnameinput" type="text" placeholder="Chat Name"  maxlength="65" required>
                 <p style="font-size:  1em;"><br>You will be able to add participants later.</p>
                 <div class="clearfix">
                 <button type="button" onclick="document.getElementById('makechatwindow').style.display='none'" class="cancelbtn">CANCEL</button>
@@ -39,7 +39,7 @@
             <div class="container3">
                 <h1>Add User</h1>
                 <p>Please enter the username of the person you would like to add to "<%= currentchat.name %>". <br> <br></p>
-                <input id="adduserinput" name ="adduserinput" type="text" placeholder="Username of participant" required>
+                <input id="adduserinput" name ="adduserinput" type="text" placeholder="Username of participant"  maxlength="30" required>
                 <p id="add_done" style="font-size:  1em;"><br></p>
                 <div class="clearfix">
                 <button type="button" onclick="document.getElementById('adduserwindow').style.display='none'" class="cancelbtn">CANCEL</button>
@@ -55,7 +55,7 @@
             <div class="container3">
                 <h1>Change chat name</h1>
                 <p>Please enter a name for this chat. <br> <br></p>
-                <input id="changenameinput" name ="changenameinput" type="text" value="<%= currentchat.name %>" required>
+                <input id="changenameinput" name ="changenameinput" type="text" value="<%= currentchat.name %>"  maxlength="65" required>
                 <p id="add_done" style="font-size:  1em;"><br></p>
                 <div class="clearfix">
                 <button type="button" onclick="document.getElementById('changenamewindow').style.display='none'" class="cancelbtn">CANCEL</button>
@@ -94,7 +94,7 @@
             </ul>
         
             <form action="" id="chatForm">
-            <input id="txt" autocomplete="off" autofocus="on" placeholder="type a message..." / required><button id="sendbtn">Send</button>
+            <input name="mymessage" id="txt" autocomplete="off" autofocus="on" placeholder="type a message..." / required><button id="sendbtn">Send</button>
             </form>
         </div>
         <div class="contactList">

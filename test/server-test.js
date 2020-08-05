@@ -4,9 +4,11 @@ var server = require('../index');
 var should = chai.should();
 var expect = chai.expect;
 var assert = chai.assert
+var io = require('socket.io-client')
 
 chai.use(chaiHttp);
 
+//this requires the user 'john' with password 'guest' to function.
 const userCredentials = {username:'john', mypassword:'guest'}
 
 var authenticatedUser = chai.request.agent(app);
@@ -21,61 +23,94 @@ before(function(done){
 });
 
 
-describe('GET /chat/1', function(done){
-  //if the user is not logged in we should be redirected to '/' page
-  it('should return a 200 response and redirect to /', function(done){
-      chai.request(app).get('/chat/1')
+describe("Socket-Server", function () {
+  it('should connect to socket server.', function (done) {
+    var client = io('http://localhost:5000');
+    client.on('connect', function (data) {
+        client.disconnect();
+        done();
+    });
+  });
+});
+
+describe('test "messages" tab by first directing to /chat/0', function(done){
+  it('should return a 200 response and redirect to "/" if not logged in', function(done){
+      chai.request(app).get('/chat/0')
       .end(function(error,res){
           expect(res).to.have.status(200);
+          res.text.should.include('You must first be logged in to view this page.');
           done();
       });
   });
-  //if the user is logged in we should get a 200 status code
-  it('should return a 200 response if the user is logged in', function(done){
-      authenticatedUser.get('/chat/1')
+
+  it('should return a 200 response and include the chatname "intro" in text if the user is logged in', function(done){
+      authenticatedUser.get('/chat/0')
       .end(function(error,res){
           res.should.have.status(200);
+          res.text.should.include('intro');
           done();
       });
   });
 });
 
-describe('POST /chat/create', function(done){
-  //if the user is not logged in we should be redirected to '/' page
-  it('should return a 200 response and redirect to /', function(done){
-      chai.request(app).post('/chat/create')
-      .end(function(error,res){
-        res.should.have.status(200);
-          done();
-      });
-  });
-  //if the user is logged in we should get a 200 status code
-  it('should return a 200 response if the user is logged in', function(done){
-      authenticatedUser.post('/chat/create')
-      .send({chatnameinput:'test'})
-      .end(function(error,res){
-          res.should.have.status(200);
-          done();
-      });
-  });
-});
+describe('Testing messaging sockets and pages', function(done){
 
-describe('POST /chat/1/leave', function(done){
-  //if the user is not logged in we should be redirected to '/' page
-  it('should return a 200 response and redirect to /', function(done){
-      chai.request(app).post('/chat/1/leave')
+  it('should return a 200 response and redirect to "/" if not logged in', function(done){
+      chai.request(app).get('/chat/0')
       .end(function(error,res){
-        res.should.have.status(200);
+          expect(res).to.have.status(200);
+          res.text.should.include('You must first be logged in to view this page.');
           done();
       });
   });
-  //if the user is logged in we should get a 200 status code
-  it('should return a 200 response if the user is logged in', function(done){
-      authenticatedUser.post('/chat/1/leave')
-      .end(function(error,res){
-          res.should.have.status(200);
-          done();
-      });
+
+  it('should create a new chat named "mocha test"', function(done){
+    authenticatedUser.post('/chat/create')
+    .send({chatnameinput:'mocha test'})
+    .end(function(error,res){
+        res.should.have.status(200);
+        console.log(res.header)
+        done();
+    });
+  });
+
+  it('should add user "jane" to the chat "mocha test"', function(done){
+    authenticatedUser.get('/chat/1')
+    .send
+    .end(function(error,res){
+        res.should.have.status(200);
+        done();
+    });
+  });
+
+
+  it('should send and recieve the text "HelloWorld" in the chatroom "mocha test"', function(done){
+    authenticatedUser
+    .get('/chat/1')
+    .send({mymessage: "HelloWorld"})
+    .end(function(error,res){
+        res.should.have.status(200);
+        var client = io('http://localhost:5000');
+        client.on('connect', function (data) {
+            done();
+        });
+    });
+  });
+
+  it('should rename the chat "mocha test", "mocha test :chatid: almost done', function(done){
+    authenticatedUser.get('/chat/1')
+    .end(function(error,res){
+        res.should.have.status(200);
+        done();
+    });
+  });
+
+  it('should leave the chat "mocha test"', function(done){
+    authenticatedUser.post('/chat/1/leave')
+    .end(function(error,res){
+        res.should.have.status(200);
+        done();
+    });
   });
 });
 
