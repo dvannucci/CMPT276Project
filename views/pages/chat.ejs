@@ -204,7 +204,6 @@
                     socket.on('update_new_chatname', (info)=>{
                         $('.chat_title').text(info.newname);
                         $('#contact'+info.chatID).text(info.newname);
-                        console.log($('#contact'+info.chatID).text())
                     });
 
                     window.onload = () => {

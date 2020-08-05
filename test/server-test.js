@@ -56,83 +56,82 @@ describe('test "messages" tab by first directing to /chat/0', function(done){
   });
 });
 
-describe('Testing messaging sockets and pages', function(done){
+describe('User logs in as "john"', function() {
 
-  it('should return a 200 response and redirect to "/" if not logged in', function(done){
-      chai.request(app).get('/chat/0')
-      .end(function(error,res){
-          expect(res).to.have.status(200);
-          res.text.should.include('You must first be logged in to view this page.');
-          done();
+  const browser = new Browser({runScripts: false});
+
+  before(function(done) {
+    browser.visit('/', function(){
+      browser.fill('input[name=username]', 'john')
+      browser.fill('input[name=mypassword]', 'guest')
+      browser.pressButton('Login')
+      browser.wait().then(done)
+    });
+  });
+
+  describe('Testing messages tab functionality', function() {
+
+    before(function(done) {
+      browser.visit('/chat/0', done);
+    });
+
+
+    describe('Testing create new chat functionality', function() {
+
+      before(function(done) {
+        browser.fill('input[name=chatnameinput]', 'zombie test')
+        browser.pressButton('createbtn')
+        browser.wait().then(done)
       });
-  });
 
-  it('should create a new chat named "mocha test"', function(done){
-    authenticatedUser.post('/chat/create')
-    .send({chatnameinput:'mocha test'})
-    .end(function(error,res){
-        res.should.have.status(200);
-        console.log(res.header)
-        done();
-    });
-  });
+      it('should be successful', function(done) {
+        browser.assert.success();
+        done()
+      });
 
-  it('should add user "jane" to the chat "mocha test"', function(done){
-    authenticatedUser.get('/chat/1')
-    .send
-    .end(function(error,res){
-        res.should.have.status(200);
-        done();
-    });
-  });
+      it('should see confirmation page', function(done) {
+        browser.assert.text('title', 'Confirm');
+        done()
+      });
 
-
-  it('should send and recieve the text "HelloWorld" in the chatroom "mocha test"', function(done){
-    authenticatedUser
-    .get('/chat/1')
-    .send({mymessage: "HelloWorld"})
-    .end(function(error,res){
-        res.should.have.status(200);
-        var client = io('http://localhost:5000');
-        client.on('connect', function (data) {
-            done();
+      it('should return to newly made chatroom onclick', function(done) {
+        browser.clickLink(".returntochat", function() {
+          //link has been clicked and actions processed
+          browser.assert.text('title', 'Messages');
+          browser.assert.text('.chat_title', 'zombie test')
+          done()
         });
-    });
-  });
-
-  it('should rename the chat "mocha test", "mocha test :chatid: almost done', function(done){
-    authenticatedUser.get('/chat/1')
-    .end(function(error,res){
-        res.should.have.status(200);
-        done();
-    });
-  });
-
-  it('should leave the chat "mocha test"', function(done){
-    authenticatedUser.post('/chat/1/leave')
-    .end(function(error,res){
-        res.should.have.status(200);
-        done();
-    });
-  });
-});
-
-describe('GET /videos', function(done){
-  it('should return a 200 response and redirect to /login', function(done){
-      chai.request(app).get('/videos')
-      .end(function(error,res){
-          res.should.have.status(200)
-          done();
-      });
-  });
-  //if the user is logged in we should get a 200 status code
-  it('should return a 200 response if the user is logged in', function(done){
-      authenticatedUser.get('/videos')
-      .end(function(error,res){
-          res.should.have.status(200);
-          done();
       });
     });
+
+    describe('Testing add user functionality', function() {
+
+      before(function(done) {
+        browser.clickLink(".returntochat", function() {
+          //link has been clicked and actions processed
+          browser.assert.text('title', 'Messages');
+          browser.assert.text('.chat_title', 'zombie test')
+          done()
+        });
+      });
+
+      it('should be successful', function(done) {
+        browser.assert.success();
+        done()
+      });
+
+      it('should see confirmation message', function(done) {
+        browser.assert.text('#add_done', 'jane was added');
+        done()
+      });
+
+      it('should print confirmation message in chat', function(done) {
+        browser.assert.text('#messages', 'john added jane to the chat');
+        done()
+      });
+    });
+
+  })
 });
 
 describe('GET /mymusic', function(done){
