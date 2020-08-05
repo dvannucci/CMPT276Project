@@ -57,6 +57,19 @@
              <input type="submit" name="spotify" value="Spotify">
           </form>
         <% }%>
+        <br><br>
+
+        <% if(!friendsInfo){ %>
+          <h3>Follow some users!</h3>
+        <% } else { %>
+        <h3>To view who you're following, click below.</h3>
+
+      <form class="spotify follow" action="/followingView" method="post">
+         <input type="submit" name="following" value="Following">
+      </form>
+        <% } %>
+
+
     </div>
 
     <div class="content">
@@ -164,7 +177,7 @@
       <br>
 
       <form class="spotify follow" action="/contentView" method="post">
-        <input type="hidden" name="type" value="songs">
+        <input type="hidden" name="type" id="theSongs" value="songs">
          <input type="submit" name="spotify" value="View all my songs">
       </form>
 
@@ -243,7 +256,7 @@
       <% }) %>
 
       <form class="spotify follow" action="/contentView" method="post">
-        <input type="hidden" name="type" value="artists">
+        <input type="hidden" name="type" id="theArtists" value="artists">
          <input type="submit" name="spotify" value="View all my artists">
       </form>
 
@@ -253,9 +266,13 @@
       <h2>Your Friends Favourite Songs</h2>
     </div>
 
-    <% if(friendsInfo.length == 0){ %>
+    <% if(!friendsInfo){ %>
       <div class="activity">
-        <h3>Follow some other users!</h3>
+      <h3>Follow some other users!</h3>
+      </div>
+    <% } else if(friendsInfo.length == 0){ %>
+      <div class="activity">
+        <h3>The people you follow have no favourite songs! </h3>
       </div>
     <% } else { %>
 

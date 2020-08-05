@@ -553,6 +553,21 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
     }
     else {
 
+
+      var museScoreURL = "https://musescore.com/sheetmusic?text=" + req.body.searchInput;
+      var str = req.body.searchInput.split(" ");
+      var notesURL = "https://www.8notes.com/school/search_fsm.asp?keyword=";
+      for(var i=0 ; i<str.length-1 ; i++) {
+        notesURL += str[i];
+        notesURL += "+";
+      }
+      notesURL += str[str.length-1];
+      notesURL += "&x=0&y=0"
+
+      current.input = req.body.searchInput;
+      current.museScoreURL = museScoreURL;
+      current.notesURL = notesURL;
+
       await SpotifyAPI.searchTracks(`'${req.body.searchInput}'`, {limit: 5}).then( (data, error) => {
         if(error){
           res.send(error)
@@ -1039,6 +1054,33 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
 
   })
 
+  app.post('/followingView', checkLogin, (req, res) => {
+
+    current = {'username' : req.session.username}
+
+    var grabFollowing =  `select is_following from followers where the_user = ${req.session.loggedID}`
+
+    pool.query(grabFollowing, (error, result) => {
+      if(error)
+        res.send(error)
+
+      following = result.rows.map(a => a.is_following)
+
+      var searchQuery = `select * from users where id in (${following})`
+
+      pool.query(searchQuery, (error, result) => {
+        if(error)
+          res.send(error)
+
+        current.results = result.rows
+
+        res.render('pages/followingPage', current)
+      })
+
+    })
+
+  })
+
   app.post('/interact/:id', checkLogin, (req, res) => {
     if(req.body.follow){
 
@@ -1330,6 +1372,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
   }
 
   if(following.length == 0){
+    check3.friendsInfo = false
     check4 = check3
   } else {
     check4 = await gatherFollowingSongs(check3)
