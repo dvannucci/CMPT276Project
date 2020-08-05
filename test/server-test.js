@@ -69,7 +69,7 @@ describe('User logs in as "john"', function() {
     });
   });
 
-  describe('Testing messages tab functionality', function() {
+  describe('Navigate to messages tab', function() {
 
     before(function(done) {
       browser.visit('/chat/0', done);
@@ -103,34 +103,80 @@ describe('User logs in as "john"', function() {
         });
       });
     });
+  })
+});
 
-    describe('Testing add user functionality', function() {
+describe('User logs in as "john"', function() {
+
+  const browser = new Browser({runScripts: false});
+
+  before(function(done) {
+    browser.visit('/', function(){
+      browser.fill('input[name=username]', 'john')
+      browser.fill('input[name=mypassword]', 'guest')
+      browser.pressButton('Login')
+      browser.wait().then(done)
+    });
+  });
+
+  describe('Navigate to messages tab', function() {
+
+    before(function(done) {
+      browser.visit('/chat/0', done);
+    });
+
+    it('should be successful', function(done) {
+      browser.assert.success();
+      done()
+    });
+
+    it('should be be in chat "intro"', function(done) {
+      browser.assert.text('.chat_title', 'intro')
+      done()
+    });
+
+    describe('Click link to chat "zombie test"', function() {
 
       before(function(done) {
-        browser.clickLink(".returntochat", function() {
+        browser.clickLink("zombie test", function() {
           //link has been clicked and actions processed
-          browser.assert.text('title', 'Messages');
-          browser.assert.text('.chat_title', 'zombie test')
-          done()
+          browser.wait().then(done)
         });
       });
-
+    
       it('should be successful', function(done) {
         browser.assert.success();
         done()
       });
 
-      it('should see confirmation message', function(done) {
-        browser.assert.text('#add_done', 'jane was added');
+      it('should be in chatroom "zombie chat"', function(done) {
+        browser.assert.text('.chat_title', 'zombie test')
         done()
       });
+    
 
-      it('should print confirmation message in chat', function(done) {
-        browser.assert.text('#messages', 'john added jane to the chat');
-        done()
+      describe('Test add user functionality', function() {
+      
+        it('should add "jane" to the chat', function(done) {
+          browser.fill('input[name=adduserinput]', 'jane')
+          browser.pressButton('addbtn', function() {
+            //link has been clicked and actions processed
+            setTimeout(function(){ browser.assert.text('#add_done', 'jane was added') }, 50);
+            done()
+          });
+        });
+      
+        it('should see confirmation message', function(done) {
+          setTimeout(function(){ browser.assert.text('#add_done', 'jane was added') }, 50);
+            done()
+        });
+      
+        it('should print confirmation message in chat', function(done) {
+          setTimeout(function(){ browser.assert.text('#messages', 'john added jane to the chat') }, 50);
+            done()
+        });
       });
     });
-
   })
 });
 
