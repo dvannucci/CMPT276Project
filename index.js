@@ -117,7 +117,7 @@ const { create } = require('domain')
 const { promiseImpl } = require('ejs')
 const { info } = require('console')
 
-var scopes = ['user-top-read', 'user-read-currently-playing', 'user-read-recently-played', 'user-library-read']
+var scopes = ['user-top-read', 'user-read-currently-playing', 'user-read-recently-played', 'user-library-read', 'user-library-modify']
 var state = 'the_secret'
 
 var SpotifyAPI = new SpotifyWebApi({
@@ -1406,7 +1406,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
 
   })
 
-  app.post('/contentView',checkLogin, (req, res) => {
+  app.post('/contentView', checkLogin, (req, res) => {
 
     var current = {'username' : req.session.username, 'type' : req.body.type}
     current.content = []
@@ -1446,24 +1446,61 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
 
             });
 
-          tracks = tracks.map(item => "'" + item + "'")
+            if(req.session.Spotify){
+              SpotifyAPI.containsMySavedTracks(tracks).then(
+                function(data) {
 
-          var getRatings = `select rating_target, avg(rating) from ratings where rating_target in (${tracks}) group by rating_target`
+                  gather = tracks.filter((curr, index) => data.body[index])
+                  current.mySpotifyTracks = gather
 
-          pool.query(getRatings, (error, result) => {
-            if(error)
-              res.send(error)
+                  tracks = tracks.map(item => "'" + item + "'")
 
-            var allRatings = result.rows.reduce(function(theDict, each) {
-              theDict[each.rating_target] = Math.round(each.avg * 1e2)/ 1e2
-              return theDict
-            }, {})
+                  var getRatings = `select rating_target, avg(rating) from ratings where rating_target in (${tracks}) group by rating_target`
 
-            current.allRatings = allRatings
+                  pool.query(getRatings, (error, result) => {
+                    if(error)
+                      res.send(error)
 
-            res.render('pages/yourContent', current)
+                    var allRatings = result.rows.reduce(function(theDict, each) {
+                      theDict[each.rating_target] = Math.round(each.avg * 1e2)/ 1e2
+                      return theDict
+                    }, {})
 
-          })
+                    current.allRatings = allRatings
+
+                    res.render('pages/yourContent', current)
+
+                  })
+
+
+                }, function(err) {
+                  res.send(error)
+                });
+            } else {
+              current.mySpotifyTracks = false
+
+              tracks = tracks.map(item => "'" + item + "'")
+
+              var getRatings = `select rating_target, avg(rating) from ratings where rating_target in (${tracks}) group by rating_target`
+
+              pool.query(getRatings, (error, result) => {
+                if(error)
+                  res.send(error)
+
+                var allRatings = result.rows.reduce(function(theDict, each) {
+                  theDict[each.rating_target] = Math.round(each.avg * 1e2)/ 1e2
+                  return theDict
+                }, {})
+
+                current.allRatings = allRatings
+
+                res.render('pages/yourContent', current)
+
+              })
+            }
+
+
+
 
         },
         function(error) {
@@ -1531,6 +1568,31 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
 
       })
 
+    }
+
+  })
+
+  app.post('/addToSpotify', checkLogin, (req, res) => {
+
+    if(req.body.add){
+
+      SpotifyAPI.addToMySavedTracks([`${req.body.add}`]).then(
+        function(data) {
+          res.status(200).send({'add': `${req.body.add}` })
+        },
+        function(error) {
+          res.status(400).send(error)
+        });
+
+    } else {
+
+      SpotifyAPI.removeFromMySavedTracks([`${req.body.delete}`]).then(
+        function(data) {
+          res.status(200).send({'delete': `${req.body.delete}` })
+        },
+        function(error) {
+          res.status(400).send(error)
+        });
     }
 
   })

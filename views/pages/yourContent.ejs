@@ -50,7 +50,7 @@
             </div>
 
               <div class="recognize">
-                <form class="tracks" method="post">
+                <form class="tracks" method="post" style="text-align:right;">
                   <% if(content.includes(x.id)){ %>
                     <input type="hidden" id="<%= x.id %>Hidden" name="delete" value="<%= x.id %>">
                     <input type="submit" id="<%= x.id %>Input" name="sub" value="Remove from my favourite songs">
@@ -60,6 +60,19 @@
                   <% } %>
 
                 </form>
+
+                <% if(mySpotifyTracks){ %>
+                <form class="addSpot" method="post" style="text-align:right;">
+                  <% if(mySpotifyTracks.includes(x.id)){ %>
+                    <input type="hidden" id="<%= x.id %>SpotHidden" name="delete" value="<%= x.id %>">
+                    <input type="submit" id="<%= x.id %>SpotInput" name="sub" value="Remove from my Spotify saved tracks">
+                  <% } else { %>
+                    <input type="hidden" id="<%= x.id %>SpotHidden" name="add" value="<%= x.id %>">
+                    <input type="submit" id="<%= x.id %>SpotInput" name="sub" value="Add to my Spotify saved tracks">
+                  <% } %>
+
+                </form>
+                <% } %>
               </div>
 
               <div class="Rating">
@@ -167,7 +180,6 @@
         })
       })
 
-
       $('.artists').submit(function(x) {
         x.preventDefault();
         $.ajax({
@@ -182,6 +194,25 @@
             else {
               $(`#${res.delete}Input`).val("Add to my favourite artists");
               $(`#${res.delete}Hidden`).attr('name', 'add');
+            }
+          }
+        })
+      })
+
+      $('.addSpot').submit(function(x) {
+        x.preventDefault();
+        $.ajax({
+          type: "POST",
+          url: "/addToSpotify",
+          data: $(this).serialize(),
+          success : function(res){
+            if(res.add){
+              $(`#${res.add}SpotInput`).val("Remove from my Spotify saved tracks");
+              $(`#${res.add}SpotHidden`).attr('name', 'delete');
+            }
+            else {
+              $(`#${res.delete}SpotInput`).val("Add to my Spotify saved tracks");
+              $(`#${res.delete}SpotHidden`).attr('name', 'add');
             }
           }
         })
