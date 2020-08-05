@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" href="/stylesheets/pageStyle.css">
+    <script src="https://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <title>Following</title>
+  </head>
+  <body>
+
+    <% include ../partials/nav.ejs %>
+    <% include ../partials/notification.ejs %>
+
+    <div class="results">
+
+      <h1 class="resultHeader">Who You're Following:</h1>
+
+      <% if(results.length == 0){ %>
+
+        <h1>Users:</h1>
+        <h2 style="margin:20px;">No users matched your search.</h2>
+      <% } else { %>
+        <h1>Users:</h1>
+      <% results.forEach(function(x){ %>
+        <a href="/userSelect/<%= x.id %>">
+        <div class="matches">
+          <img src="<%= x.picture %>" alt="Can't display image">
+
+          <div class="username">
+            <h2><%=x.username %></h2>
+          </div>
+
+          <div class="date">
+            <h3> Date Joined: <%=x.date_joined.toDateString() %> </h3>
+          </div>
+
+        </div>
+        </a>
+
+      <% })} %>
+
+
+
+    <script type="text/javascript">
+
+    $(() => {
+
+      $('#confirmLogout').click(function(){
+        if(confirm('Are you sure you wish to logout?')) {
+            return true;
+          }
+
+          return false;
+        });
+
+    });
+    </script>
+
+  </body>
+</html>

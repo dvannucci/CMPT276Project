@@ -57,6 +57,19 @@
              <input type="submit" name="spotify" value="Spotify">
           </form>
         <% }%>
+        <br><br>
+
+        <% if(!friendsInfo){ %>
+          <h3>Follow some users!</h3>
+        <% } else { %>
+        <h3>To view who you're following, click below.</h3>
+
+      <form class="spotify follow" action="/followingView" method="post">
+         <input type="submit" name="following" value="Following">
+      </form>
+        <% } %>
+
+
     </div>
 
     <div class="content">
@@ -253,9 +266,13 @@
       <h2>Your Friends Favourite Songs</h2>
     </div>
 
-    <% if(friendsInfo.length == 0){ %>
+    <% if(!friendsInfo){ %>
       <div class="activity">
-        <h3>Follow some other users!</h3>
+      <h3>Follow some other users!</h3>
+      </div>
+    <% } else if(friendsInfo.length == 0){ %>
+      <div class="activity">
+        <h3>The people you follow have no favourite songs! </h3>
       </div>
     <% } else { %>
 

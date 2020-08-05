@@ -1054,6 +1054,33 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
 
   })
 
+  app.post('/followingView', checkLogin, (req, res) => {
+
+    current = {'username' : req.session.username}
+
+    var grabFollowing =  `select is_following from followers where the_user = ${req.session.loggedID}`
+
+    pool.query(grabFollowing, (error, result) => {
+      if(error)
+        res.send(error)
+
+      following = result.rows.map(a => a.is_following)
+
+      var searchQuery = `select * from users where id in (${following})`
+
+      pool.query(searchQuery, (error, result) => {
+        if(error)
+          res.send(error)
+
+        current.results = result.rows
+
+        res.render('pages/followingPage', current)
+      })
+
+    })
+
+  })
+
   app.post('/interact/:id', checkLogin, (req, res) => {
     if(req.body.follow){
 
@@ -1345,6 +1372,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
   }
 
   if(following.length == 0){
+    check3.friendsInfo = false
     check4 = check3
   } else {
     check4 = await gatherFollowingSongs(check3)
