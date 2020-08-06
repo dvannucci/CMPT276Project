@@ -135,7 +135,7 @@ describe('User logs in as "john"', function() {
       done()
     });
 
-    describe('Click link to chat "zombie test"', function() {
+    describe('Click "zombie test" on contacts list to check contacts functionality', function() {
 
       before(function(done) {
         browser.clickLink("zombie test", function() {
@@ -153,27 +153,34 @@ describe('User logs in as "john"', function() {
         browser.assert.text('.chat_title', 'zombie test')
         done()
       });
-    
 
-      describe('Test add user functionality', function() {
-      
-        it('should add "jane" to the chat', function(done) {
-          browser.fill('input[name=adduserinput]', 'jane')
-          browser.pressButton('addbtn', function() {
+
+      describe('Test leave chat functionality', function() {
+
+        before(function(done) {
+          browser.pressButton('leavebtn', function() {
             //link has been clicked and actions processed
-            browser.assert.text('#add_done', 'jane was added')
-            done()
+            browser.wait().then(done)
           });
         });
       
+        it('should be successful', function(done) {
+          browser.assert.success();
+          done()
+        });
+
         it('should see confirmation message', function(done) {
-          browser.assert.text('#add_done', 'jane was added');
+          browser.assert.text('title', 'Confirm');
           done()
         });
       
-        it('should print confirmation message in chat', function(done) {
-          browser.assert.text('#messages', 'john added jane to the chat');
-          done()
+        it('should return to "intro" chat upon clicking return', function(done) {
+          browser.clickLink(".returntochat", function() {
+            //link has been clicked and actions processed
+            browser.assert.text('title', 'Messages');
+            browser.assert.text('.chat_title', 'intro')
+            done()
+          });
         });
       });
     });
