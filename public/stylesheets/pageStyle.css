@@ -408,7 +408,24 @@ body {
   background: red;
   color: white;
 }
-
+.close_alert{
+position: absolute;
+right: 35px;
+top: 15px;
+font-size: 40px;
+font-weight: bold;
+color: #f1f1f1;
+user-select: none; /* supported by Chrome and Opera */
+   -webkit-user-select: none; /* Safari */
+   -khtml-user-select: none; /* Konqueror HTML */
+   -moz-user-select: none; /* Firefox */
+   -ms-user-select: none; /* Internet Explorer/Edge */
+}
+.close_alert:hover,
+.close_alert:focus {
+color: #f44336;
+cursor: pointer;
+}
 .Rating {
   position: absolute;
   right: 0%;
