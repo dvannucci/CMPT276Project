@@ -1,5 +1,6 @@
 body{
     font-family: Arial, Helvetica, sans-serif;
+    background-color: black;
 }
 *{
     box-sizing: border-box;
@@ -7,7 +8,7 @@ body{
 
 
 .container{
-    border: black double 2px;
+    border: white double 2px;
     border-radius: 15px 15px 15px 15px;
     padding: 10px;
     margin-top: 10px;
@@ -16,6 +17,7 @@ body{
 p{
     font-size: xx-large;
     text-align: center;
+    color: white;
 }
 a{
     font-size: large;
@@ -29,7 +31,7 @@ a{
     text-decoration: none;
     display: block;
     text-align: center;
-    border: 2px outset black  
+    border: 2px outset white  
 }
 a:hover{
     opacity: 1;
