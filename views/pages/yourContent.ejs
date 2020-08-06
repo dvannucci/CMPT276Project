@@ -51,14 +51,8 @@
 
               <div class="recognize">
                 <form class="tracks" method="post" style="text-align:right;">
-                  <% if(content.includes(x.id)){ %>
                     <input type="hidden" id="<%= x.id %>Hidden" name="delete" value="<%= x.id %>">
                     <input type="submit" id="<%= x.id %>Input" name="sub" value="Remove from my favourite songs">
-                  <% } else { %>
-                    <input type="hidden" id="<%= x.id %>Hidden" name="add" value="<%= x.id %>">
-                    <input type="submit" id="<%= x.id %>Input" name="sub" value="Add to my favourite songs">
-                  <% } %>
-
                 </form>
 
                 <% if(mySpotifyTracks){ %>
@@ -121,13 +115,8 @@
 
           <div class="recognize">
             <form class="artists" method="post">
-              <% if(content.includes(item.id)){ %>
               <input type="hidden" id="<%= item.id %>Hidden" name="delete" value="<%= item.id %>">
               <input type="submit" id="<%= item.id %>Input" name="sub" value="Remove from my favourite artists">
-              <% } else { %>
-              <input type="hidden" id="<%= item.id %>Hidden" name="add" value="<%= item.id %>">
-              <input type="submit" id="<%= item.id %>Input" name="sub" value="Add to my favourite artists">
-              <% } %>
             </form>
           </div>
 
