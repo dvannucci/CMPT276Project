@@ -26,7 +26,7 @@ before(function(done){
 });
 
 
-describe("Socket-Server", function () {
+describe("Test Socket.io server properly connect and disconnect", function () {
   it('should connect to socket server.', function (done) {
     var client = io('http://localhost:5000');
     client.on('connect', function (data) {
@@ -231,26 +231,28 @@ describe('User logs in as "john"', function() {
       });
 
       it('should be at official Google sign in page', function(done) {
-        browser.assert.text('title', 'Sign in - Google Accounts')
+        browser.assert.text('title', 'Sign in - Google accounts')
         done()
       });
     });
   })
 });
 
-describe('GET /mymusic', function(done){
+describe('Test sending a message in chat', function(done){
   //if the user is not logged in we should be redirected to '/' page
-  it('should return a 200 response and redirect to /', function(done){
-      chai.request(app).get('/mymusic')
+  it('Test not logged in attempt: should return a 200 response and redirect to /', function(done){
+      chai.request(app).get('/chat/3')
       .end(function(error,res){
         res.should.have.status(200);
           done();
       });
   });
   //if the user is logged in we should get a 200 status code
-  it('should return a 200 response if the user is logged in', function(done){
-      authenticatedUser.get('/mymusic')
+  it('should send message and print in message log', function(done){
+      authenticatedUser.get('/mymusic/chat/3')
+      .send({'mymessage':'Hello World'})
       .end(function(error,res){
+          res.text.should.include('Hello World')
           res.should.have.status(200);
           done();
       });

@@ -1,15 +1,14 @@
 *{
-margin: 0;
-padding: 0;
 box-sizing: border-box;
 }
 .contactList{
 text-align: center;
 width:20%;
-height: 95%;
+height: 90%;
 color: white;
 float: right;
-border-left: lightgreen solid 1px;
+padding: 0;
+margin: 0;
 }
 
 .contatList h2{
@@ -22,6 +21,9 @@ width: 100%;
 overflow-y: scroll;
 overflow-wrap: break-word;
 max-width: 100%;
+padding-inline-start: 0px;
+margin-block-start: 0px;
+margin-block-end: 0px;
 }
 #chatlist a{
 display: inline-block;
@@ -81,6 +83,7 @@ font-size: large;
     height: 35px;
     background-color: green;
     color: white;
+    margin: 0;
 }
 .chat_title{
     height: 100%;
@@ -90,6 +93,8 @@ font-size: large;
     display: inline-block;
     margin-left: 9px;
     margin-right: 7px;
+    margin-block-start: 0px;
+    margin-block-end: 0px;
 }
 #messages{
 list-style-type: none;
