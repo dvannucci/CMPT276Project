@@ -81,7 +81,7 @@
 
         <div class="container1">
             <div class="chat_controls">
-                <p class="chat_title"><%= currentchat.name %></p>
+                <p name="chat_title" class="chat_title"><%= currentchat.name %></p>
             <button id="addwindowbtn" onclick= "if ('<%= currentchat.chatid %>' != 0){document.getElementById('adduserwindow').style.display='block'}">Add User</button>
             <button id="changewindowbtn" onclick= "if ('<%= currentchat.chatid %>' != 0){document.getElementById('changenamewindow').style.display='block'}">Change Chat Name</button>
             <button id="leavewindowbtn" onclick= "if ('<%= currentchat.chatid %>' != 0){document.getElementById('leavewindow').style.display='block'}">Leave Chat</button>
@@ -94,7 +94,7 @@
             </ul>
         
             <form action="" id="chatForm">
-            <input name="mymessage" id="txt" autocomplete="off" autofocus="on" placeholder="type a message..." / required><button id="sendbtn">Send</button>
+            <input name="mymessage" id="txt" autocomplete="off" autofocus="on" placeholder="type a message..." / required><button id="sendbtn" name='sendbtn'>Send</button>
             </form>
         </div>
         <div class="contactList">

@@ -2028,4 +2028,5 @@ app.get('/auth_callback', function (req, res) {
 });
 
 module.exports = app;
+module.exports = io;
 

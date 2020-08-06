@@ -161,20 +161,71 @@ describe('User logs in as "john"', function() {
           browser.fill('input[name=adduserinput]', 'jane')
           browser.pressButton('addbtn', function() {
             //link has been clicked and actions processed
-            setTimeout(function(){ browser.assert.text('#add_done', 'jane was added') }, 50);
+            browser.assert.text('#add_done', 'jane was added')
             done()
           });
         });
       
         it('should see confirmation message', function(done) {
-          setTimeout(function(){ browser.assert.text('#add_done', 'jane was added') }, 50);
-            done()
+          browser.assert.text('#add_done', 'jane was added');
+          done()
         });
       
         it('should print confirmation message in chat', function(done) {
-          setTimeout(function(){ browser.assert.text('#messages', 'john added jane to the chat') }, 50);
-            done()
+          browser.assert.text('#messages', 'john added jane to the chat');
+          done()
         });
+      });
+    });
+  })
+});
+
+describe('User logs in as "john"', function() {
+
+  const browser = new Browser({runScripts: false});
+
+  before(function(done) {
+    browser.visit('/', function(){
+      browser.fill('input[name=username]', 'john')
+      browser.fill('input[name=mypassword]', 'guest')
+      browser.pressButton('Login')
+      browser.wait().then(done)
+    });
+  });
+
+  describe('Navigate to videos tab', function() {
+
+    before(function(done) {
+      browser.visit('/videos', done);
+    });
+
+    it('should be successful', function(done) {
+      browser.assert.success();
+      done()
+    });
+
+    it('should prompt to login to google account', function(done) {
+      browser.assert.text('title', 'Google Login Link')
+      done()
+    });
+
+    describe('Click link to login to google', function() {
+
+      before(function(done) {
+        browser.clickLink("Login", function() {
+          //link has been clicked and actions processed
+          browser.wait().then(done)
+        });
+      });
+    
+      it('should be successful', function(done) {
+        browser.assert.success();
+        done()
+      });
+
+      it('should be at official Google sign in page', function(done) {
+        browser.assert.text('title', 'Sign in - Google Accounts')
+        done()
       });
     });
   })
