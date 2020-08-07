@@ -245,6 +245,17 @@ describe('User logs in as "john"', function() {
   })
 });
 
+describe("Test Alert tab availability", function () {
+  it('should display new chat name', function (done) {
+    authenticatedUser.get(testchatpath)
+      .end(function(error,res){
+          expect(res).to.have.status(200);
+          res.text.should.include('rename test');
+          done()
+      })
+  });
+});
+
 describe('User logs in as "john"', function() {
 
   const browser = new Browser({runScripts: false});
@@ -392,8 +403,6 @@ describe('Testing Logging into Homepage', function(){
     done();
   });
 
-
-
 });
 
 describe('Testing Searching Functionality', function(){
@@ -412,6 +421,14 @@ describe('Testing Searching Functionality', function(){
     authenticatedUser.post('/search').send({'searchInput': 'jo'})
     .end(function(error, res){
       res.text.should.include('Jocelyn Flores')
+      done();
+    });
+  });
+
+  it('Search result should include a google login button', function(done){
+    authenticatedUser.post('/search').send({'searchInput': 'jo'})
+    .end(function(error, res){
+      res.text.should.include('Please login to Google to see Youtube results')
       done();
     });
   });
@@ -515,5 +532,4 @@ describe('Testings Profile Page Functionality', function(){
       done();
     });
   });
-
 });
