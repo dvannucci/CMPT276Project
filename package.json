@@ -38,7 +38,8 @@
     "socket.io": "^2.3.0",
     "spotify-web-api-node": "^4.0.0",
     "underscore": "^1.10.2",
-    "update": "^0.7.4"
+    "update": "^0.7.4",
+    "zombie": "^6.1.4"
   },
   "devDependencies": {
     "got": "^11.5.1",
