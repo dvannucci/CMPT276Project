@@ -17,19 +17,19 @@
           <Legend class="roy"> Registration Form:</Legend>
           <p>
             <label>Please enter a username:</label>
-            <input type="text" name="my_username" placeholder="john123" >
+            <input type="text" name="my_username" placeholder="john123" maxlength="30" >
               </p><br><br>
       <p>
         <label>Enter your E-mail:</label>
-        <input type="email" name="my_email" placeholder="johnsmith@gmail.com" >
+        <input type="email" name="my_email" placeholder="johnsmith@gmail.com" maxlength="50">
           </p><br><br>
           <p>
             <label>Password:</label>
-          <input type="Password" name="my_password1" placeholder="Enter your password" value="" id="pass1">
+          <input type="Password" name="my_password1" placeholder="Enter your password" value="" id="pass1" maxlength="30">
           </p>
           <p>
             <label>Please type your Password again:</label>
-          <input type="password" name="my_password2" placeholder="Re-enter your password" value="" id="pass2">
+          <input type="password" name="my_password2" placeholder="Re-enter your password" value="" id="pass2" maxlength="30">
           </p>
           <br>
           <% if (alert == 'username'){ %>
