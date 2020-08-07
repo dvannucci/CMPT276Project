@@ -23,8 +23,8 @@
       <% } else { %>
         <h1>Users:</h1>
       <% results.forEach(function(x){ %>
-        <a href="/userSelect/<%= x.id %>">
-        <div class="matches">
+        <div class="matches divAnchor">
+          <a href="/userSelect/<%= x.id %>">
           <img src="<%= x.picture %>" alt="Can't display image">
 
           <div class="username">
@@ -40,8 +40,8 @@
               <h2>Following</h2>
             </div>
           <% } %>
-        </div>
         </a>
+      </div>
 
       <% })} %>
 
