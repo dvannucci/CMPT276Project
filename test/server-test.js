@@ -333,12 +333,12 @@ describe('User logs in as "john"', function() {
           browser.wait().then(done)
         });
       });
-    
+
       it('should be successful', function(done) {
         browser.assert.success();
         done()
       });
-    
+
       it('should be user personal home page', function(done) {
         browser.assert.text('title', "john's Homepage")
         done()
@@ -490,7 +490,7 @@ describe('Testings Profile Page Functionality', function(){
     });
   });
 
-  it('Should have the option to view all of a user\s followers if they have any which the user \'daniel\' does', function(done){
+  it('Should have the option to view all of a user\'s followers if they have any which the user \'daniel\' does', function(done){
     browser.visit('/profile', function(){
       browser.assert.text('title', 'daniel\'s Profile')
       browser.assert.attribute('form', 'method', 'post')
