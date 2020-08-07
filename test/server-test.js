@@ -7,6 +7,9 @@ var assert = chai.assert
 var io = require('socket.io-client')
 const Browser = require('zombie');
 
+var testchatpath;
+var testchatid;
+
 Browser.localhost('localhost:', 5000);
 
 chai.use(chaiHttp);
@@ -99,12 +102,67 @@ describe('User logs in as "john"', function() {
           //link has been clicked and actions processed
           browser.assert.text('title', 'Messages');
           browser.assert.text('.chat_title', 'zombie test')
+          testchatpath = browser.location.href
+          testchatpath = testchatpath.replace('http://localhost', '')
+          testchatid = testchatpath.replace('/chat/','')
           done()
         });
       });
     });
   })
 });
+
+describe("Test Socket.io adding user to chat events and listeners", function () {
+  it('should successfully emit add participant event', function (done) {
+    var client = io('http://localhost:5000');
+    client.on('connect', function (data) {
+      client.emit('username', 'john')
+      client.emit('add_participant', {person: 'jane', chatID: testchatid, chatname:'zombie test' });
+      client.disconnect();
+      done();
+    });
+  });
+});
+
+describe("Test Socket.io sending message events and listeners", function () {
+  it('should emit and recieve chat_message event in new chat', function (done) {
+    var client = io('http://localhost:5000');
+    client.on('connect', function (data) {
+      client.emit('chat_message', {msg: 'hello world', chatID: testchatid});
+        client.disconnect();
+        done();
+    });
+  });
+  it('should recieve chat_message event and print "hello world" to new chat', function (done) {
+    authenticatedUser.get(testchatpath)
+      .end(function(error,res){
+          expect(res).to.have.status(200);
+          res.text.should.include('hello world');
+          done()
+      })
+  });
+});
+
+describe("Test Socket.io renaming chat events and listeners", function () {
+  it('should emit change_chat_name event', function (done) {
+    var client = io('http://localhost:5000');
+    client.on('connect', function (data) {
+      client.emit("change_chat_name", {oldname: 'zombie test', newname: 'rename test', chatID: testchatid});
+        client.disconnect();
+        done();
+    });
+  });
+  it('should display new chat name', function (done) {
+    authenticatedUser.get(testchatpath)
+      .end(function(error,res){
+          expect(res).to.have.status(200);
+          res.text.should.include('rename test');
+          done()
+      })
+  });
+});
+
+
 
 describe('User logs in as "john"', function() {
 
@@ -135,10 +193,10 @@ describe('User logs in as "john"', function() {
       done()
     });
 
-    describe('Click "zombie test" on contacts list to check contacts functionality', function() {
+    describe('Click "rename test" on contacts list to check contacts functionality', function() {
 
       before(function(done) {
-        browser.clickLink("zombie test", function() {
+        browser.clickLink("rename test", function() {
           //link has been clicked and actions processed
           browser.wait().then(done)
         });
@@ -149,8 +207,8 @@ describe('User logs in as "john"', function() {
         done()
       });
 
-      it('should be in chatroom "zombie chat"', function(done) {
-        browser.assert.text('.chat_title', 'zombie test')
+      it('should be in chatroom "rename test"', function(done) {
+        browser.assert.text('.chat_title', 'rename test')
         done()
       });
 
@@ -231,32 +289,62 @@ describe('User logs in as "john"', function() {
       });
 
       it('should be at official Google sign in page', function(done) {
-        browser.assert.text('title', 'Sign in - Google accounts')
+        browser.assert.text('title', 'Sign in – Google accounts')
         done()
       });
     });
   })
 });
 
-describe('Test sending a message in chat', function(done){
-  //if the user is not logged in we should be redirected to '/' page
-  it('Test not logged in attempt: should return a 200 response and redirect to /', function(done){
-      chai.request(app).get('/chat/3')
-      .end(function(error,res){
-        res.should.have.status(200);
-          done();
-      });
+describe('User logs in as "john"', function() {
+
+  const browser = new Browser({runScripts: false});
+
+  before(function(done) {
+    browser.visit('/', function(){
+      browser.fill('input[name=username]', 'john')
+      browser.fill('input[name=mypassword]', 'guest')
+      browser.pressButton('Login')
+      browser.wait().then(done)
+    });
   });
-  //if the user is logged in we should get a 200 status code
-  it('should send message and print in message log', function(done){
-      authenticatedUser.get('/mymusic/chat/3')
-      .send({'mymessage':'Hello World'})
-      .end(function(error,res){
-          res.text.should.include('Hello World')
-          res.should.have.status(200);
-          done();
+
+  describe('Navigate to videos tab', function() {
+
+    before(function(done) {
+      browser.visit('/videos', done);
+    });
+
+    it('should be successful', function(done) {
+      browser.assert.success();
+      done()
+    });
+
+    it('should prompt to login to google account', function(done) {
+      browser.assert.text('title', 'Google Login Link')
+      done()
+    });
+
+    describe('Click cancel button', function() {
+
+      before(function(done) {
+        browser.clickLink("Cancel", function() {
+          //link has been clicked and actions processed
+          browser.wait().then(done)
+        });
       });
-  });
+    
+      it('should be successful', function(done) {
+        browser.assert.success();
+        done()
+      });
+    
+      it('should be user personal home page', function(done) {
+        browser.assert.text('title', "john's Homepage")
+        done()
+      });
+    });
+  })
 });
 
 describe('Testing Logging into Homepage', function(){
