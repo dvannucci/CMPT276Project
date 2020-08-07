@@ -369,6 +369,7 @@ body {
 }
 
 .alertbtn {
+  position: relative;
   text-decoration: none;
   color: black;
   text-align: center;
@@ -446,7 +447,7 @@ body {
 .alertbtn .badge {
   position: absolute;
   top: 5px;
-  right: 130px;
+  right: -9px;
   padding: 5px 10px;
   border-radius: 50%;
   background: red;
