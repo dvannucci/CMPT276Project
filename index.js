@@ -283,7 +283,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
               theArtist.name = data.body.artists[0].name
               theArtist.id = data.body.artists[0].id
 
-              theArtist.genres = data.body.artists[0].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+              theArtist.genres = data.body.artists[0].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} )).slice(0,4)
 
               if(data.body.artists[0].images.length == 0){
                 theArtist.picture = false
@@ -300,7 +300,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
               theArtist.name = data.body.artists[0].name
               theArtist.id = data.body.artists[0].id
 
-              theArtist.genres = data.body.artists[0].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+              theArtist.genres = data.body.artists[0].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} )).slice(0,4)
 
               if(data.body.artists[0].images.length == 0){
                 theArtist.picture = false
@@ -315,7 +315,7 @@ var authorizeURL = SpotifyAPI.createAuthorizeURL(scopes, state)
               theArtist.name = data.body.artists[1].name
               theArtist.id = data.body.artists[1].id
 
-              theArtist.genres = data.body.artists[1].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+              theArtist.genres = data.body.artists[1].genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} )).slice(0,4)
 
               if(data.body.artists[1].images.length == 0){
                 theArtist.picture = false
@@ -604,7 +604,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
                 artist.id = each.id
 
                 // This function takes each genre and capitalizes the first letters.
-                artist.genres = each.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+                artist.genres = each.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} )).slice(0,4)
 
                 if(each.images.length){
                   artist.picture = each.images[0].url
@@ -972,7 +972,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
               artist.picture = false
             }
 
-            artist.genres = data.body.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+            artist.genres = data.body.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} )).slice(0,4)
 
             artist.popularity = data.body.popularity
 
@@ -1278,7 +1278,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
               artist.picture = false
             }
 
-            artist.genres = item.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+            artist.genres = item.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} )).slice(0,4)
 
             artist.popularity = item.popularity
 
@@ -1316,20 +1316,22 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
             function(data) {
               data.body.tracks.forEach((item) => {
 
-                var song = {}
-                song.name = item.name
-                song.id = item.id
-                song.artists = item.artists.map(a => a.name)
+                if(item != null){
+                  var song = {}
+                  song.name = item.name
+                  song.id = item.id
+                  song.artists = item.artists.map(a => a.name)
 
-                if(item.album.images.length != 0 ){
-                  song.picture = item.album.images[0].url
-                } else {
-                  song.picture = false
+                  if(item.album.images.length != 0 ){
+                    song.picture = item.album.images[0].url
+                  } else {
+                    song.picture = false
+                  }
+
+                  song.popularity = item.popularity
+
+                  mesData.friendsInfo.push(song)
                 }
-
-                song.popularity = item.popularity
-
-                mesData.friendsInfo.push(song)
 
               });
 
@@ -1534,7 +1536,7 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
                 artist.picture = false
               }
 
-              artist.genres = item.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} ))
+              artist.genres = item.genres.map(x => x.replace(/(^\w|\s\w|\&\w)/g, (y) => { return y.toUpperCase()} )).slice(0,4)
 
               artist.popularity = item.popularity
 
