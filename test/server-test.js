@@ -201,7 +201,7 @@ describe('User logs in as "john"', function() {
           browser.wait().then(done)
         });
       });
-    
+
       it('should be successful', function(done) {
         browser.assert.success();
         done()
@@ -221,7 +221,7 @@ describe('User logs in as "john"', function() {
             browser.wait().then(done)
           });
         });
-      
+
         it('should be successful', function(done) {
           browser.assert.success();
           done()
@@ -231,7 +231,7 @@ describe('User logs in as "john"', function() {
           browser.assert.text('title', 'Confirm');
           done()
         });
-      
+
         it('should return to "intro" chat upon clicking return', function(done) {
           browser.clickLink(".returntochat", function() {
             //link has been clicked and actions processed
@@ -282,7 +282,7 @@ describe('User logs in as "john"', function() {
           browser.wait().then(done)
         });
       });
-    
+
       it('should be successful', function(done) {
         browser.assert.success();
         done()
@@ -376,6 +376,24 @@ describe('Testing Logging into Homepage', function(){
     });
   });
 
+  const browser = new Browser({runScripts: false});
+
+  before(function(done) {
+    browser.visit('/', function(){
+      browser.fill('input[name=username]', 'daniel')
+      browser.fill('input[name=mypassword]', '123')
+      browser.pressButton('Login')
+      browser.wait().then(done)
+    });
+  });
+
+  it('Should allow the user to logout', function(done){
+    browser.assert.element('a[id=confirmLogout]')
+    done();
+  });
+
+
+
 });
 
 describe('Testing Searching Functionality', function(){
@@ -396,6 +414,32 @@ describe('Testing Searching Functionality', function(){
       res.text.should.include('Jocelyn Flores')
       done();
     });
+  });
+
+  describe('Able to rate songs/artists', function(){
+
+    const browser = new Browser({runScripts: false});
+
+    before(function(done) {
+      browser.visit('/', function(){
+        browser.fill('input[name=username]', 'daniel')
+        browser.fill('input[name=mypassword]', '123')
+        browser.pressButton('Login')
+        browser.wait().then(done)
+      });
+    });
+
+    before(function(done) {
+        browser.fill('input[name=searchInput]', 'jo')
+        browser.pressButton('Search')
+        browser.wait().then(done)
+    });
+
+    it('Should allow the user to rate the songs/artists that show up from a search', function(done){
+      browser.assert.elements('h3 a', { atLeast: 1 })
+      done();
+    });
+
   });
 
 
@@ -438,10 +482,36 @@ describe('Testings Profile Page Functionality', function(){
     });
   });
 
-  it('Should should have the option to view all of the user daniel\'s favourite songs and artists', function(done){
+  it('Should have the option to view all of the user daniel\'s favourite songs and artists', function(done){
     browser.visit('/profile', function(){
       browser.assert.input('#theSongs', 'songs')
       browser.assert.input('#theArtists', 'artists')
+      done();
+    });
+  });
+
+  it('Should have the option to view all of a user\s followers if they have any which the user \'daniel\' does', function(done){
+    browser.visit('/profile', function(){
+      browser.assert.text('title', 'daniel\'s Profile')
+      browser.assert.attribute('form', 'method', 'post')
+      browser.assert.input('form input[name=following]', 'Following')
+      done();
+    });
+  });
+
+  it('Should allow the user to view the music of the people they are following', function(done){
+    authenticatedUser.get('/profile')
+    .end(function(error, res){
+      res.text.should.include('Your Friends Favourite Songs')
+      done();
+    });
+  });
+
+  it('Should allow the user to link their Spotify account to their Museical account', function(done){
+    browser.visit('/profile', function(){
+      browser.assert.text('title', 'daniel\'s Profile')
+      browser.assert.attribute('form', 'method', 'post')
+      browser.assert.input('form input[name=spotify]', 'Spotify')
       done();
     });
   });
