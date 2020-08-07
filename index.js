@@ -1316,20 +1316,22 @@ app.get('/news', (req, res) => res.render('pages/news', {'alert' : req.query.val
             function(data) {
               data.body.tracks.forEach((item) => {
 
-                var song = {}
-                song.name = item.name
-                song.id = item.id
-                song.artists = item.artists.map(a => a.name)
+                if(item != null){
+                  var song = {}
+                  song.name = item.name
+                  song.id = item.id
+                  song.artists = item.artists.map(a => a.name)
 
-                if(item.album.images.length != 0 ){
-                  song.picture = item.album.images[0].url
-                } else {
-                  song.picture = false
+                  if(item.album.images.length != 0 ){
+                    song.picture = item.album.images[0].url
+                  } else {
+                    song.picture = false
+                  }
+
+                  song.popularity = item.popularity
+
+                  mesData.friendsInfo.push(song)
                 }
-
-                song.popularity = item.popularity
-
-                mesData.friendsInfo.push(song)
 
               });
 
