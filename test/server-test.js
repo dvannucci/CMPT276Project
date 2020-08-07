@@ -36,6 +36,22 @@ describe("Test Socket.io server properly connect and disconnect", function () {
   });
 });
 
+describe("Test Socket.io sending message events and listeners", function () {
+  it('should recieve chat_message event and print "hello world" to chat 3.', function (done) {
+    var client = io('http://localhost:5000');
+    client.on('connect', function (data) {
+      client.emit('chat_message', {msg: 'hello world', chatID: '3'});
+      authenticatedUser.get('/chat/3')
+      .end(function(error,res){
+          expect(res).to.have.status(200);
+          res.text.should.include('hello world');
+      })
+        client.disconnect();
+        done();
+    });
+  });
+});
+
 describe('test "messages" tab by first directing to /chat/0', function(done){
   it('should return a 200 response and redirect to "/" if not logged in', function(done){
       chai.request(app).get('/chat/0')
@@ -231,12 +247,64 @@ describe('User logs in as "john"', function() {
       });
 
       it('should be at official Google sign in page', function(done) {
-        browser.assert.text('title', 'Sign in - Google accounts')
+        browser.assert.text('title', 'Sign in – Google accounts')
         done()
       });
     });
   })
 });
+
+describe('User logs in as "john"', function() {
+
+  const browser = new Browser({runScripts: false});
+
+  before(function(done) {
+    browser.visit('/', function(){
+      browser.fill('input[name=username]', 'john')
+      browser.fill('input[name=mypassword]', 'guest')
+      browser.pressButton('Login')
+      browser.wait().then(done)
+    });
+  });
+
+  describe('Navigate to videos tab', function() {
+
+    before(function(done) {
+      browser.visit('/videos', done);
+    });
+
+    it('should be successful', function(done) {
+      browser.assert.success();
+      done()
+    });
+
+    it('should prompt to login to google account', function(done) {
+      browser.assert.text('title', 'Google Login Link')
+      done()
+    });
+
+    describe('Click cancel button', function() {
+
+      before(function(done) {
+        browser.clickLink("Cancel", function() {
+          //link has been clicked and actions processed
+          browser.wait().then(done)
+        });
+      });
+    
+      it('should be successful', function(done) {
+        browser.assert.success();
+        done()
+      });
+    
+      it('should be user personal home page', function(done) {
+        browser.assert.text('title', "john's Homepage")
+        done()
+      });
+    });
+  })
+});
+
 
 describe('Test sending a message in chat', function(done){
   //if the user is not logged in we should be redirected to '/' page
